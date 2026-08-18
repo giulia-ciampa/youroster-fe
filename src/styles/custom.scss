@@ -1,0 +1,30 @@
+// --- 1. Definizione Palette Brand ---
+$spicy-paprika: #e35226;
+$carbon-black: #252218;
+$indigo: #3b008f;
+$grape-soda: #9e4289;
+$beige: #e3e3ca;
+
+// --- 2. Import delle funzioni di Bootstrap (NECESSARIO PRIMA dei mapping) ---
+@import "bootstrap/scss/functions";
+
+// --- 3. Mappatura su Bootstrap (Theme Colors) ---
+$primary: $indigo;
+$secondary: $grape-soda;
+$warning: $spicy-paprika;
+$dark: $carbon-black;
+$light: $beige;
+
+// --- 4. Import del resto della struttura di Bootstrap ---
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/maps";
+@import "bootstrap/scss/mixins";
+@import "bootstrap/scss/bootstrap";
+
+// --- 5. Utility di Brand Custom ---
+.text-brand-orange {
+  color: $spicy-paprika !important;
+}
+.text-brand-purple {
+  color: $indigo !important;
+}
