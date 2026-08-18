@@ -38,3 +38,33 @@ export interface ResisterResponse {
   message: string
   time: string
 }
+
+// ==========================
+// LOGIN
+// ==========================
+
+export interface LoginPayload {
+  email: string
+  password?: string
+}
+
+export interface LoginResponse {
+  accessToken: string
+  refreshToken: string
+}
+
+// ==========================
+// MODIFICHE EMAIL E PASSWORD
+// ==========================
+
+export interface UpdateCredentialsPayload {
+  email?: string
+  oldPassword?: string
+  newPassword?: string
+  confirmNewPassword?: string
+}
+
+export interface UpdateCredentialsResponse {
+  message: string
+  time: string
+}
