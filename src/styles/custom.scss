@@ -2,15 +2,15 @@
 $spicy-paprika: #e35226;
 $carbon-black: #252218;
 $indigo: #3b008f;
-$grape-soda: #9e4289;
-$beige: #e3e3ca;
+$magenta: #9e4289;
+$beige: #fbfaef;
 
 // --- 2. Import delle funzioni di Bootstrap (NECESSARIO PRIMA dei mapping) ---
 @import "bootstrap/scss/functions";
 
 // --- 3. Mappatura su Bootstrap (Theme Colors) ---
 $primary: $indigo;
-$secondary: $grape-soda;
+$secondary: $magenta;
 $warning: $spicy-paprika;
 $dark: $carbon-black;
 $light: $beige;
@@ -25,6 +25,6 @@ $light: $beige;
 .text-brand-orange {
   color: $spicy-paprika !important;
 }
-.text-brand-purple {
-  color: $indigo !important;
+.text-brand-magenta {
+  color: $magenta !important;
 }
