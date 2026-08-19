@@ -70,3 +70,8 @@ export interface UpdateCredentialsResponse {
   message: string
   time: string
 }
+
+export interface ApiErrorResponse {
+  errorsList?: string[]
+  message?: string
+}

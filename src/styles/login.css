@@ -45,4 +45,8 @@
     font-size: 0.8rem !important;
     padding: 0.25rem 0.5rem !important;
   }
+
+  .small-text {
+    font-size: 0.8rem !important;
+  }
 }
