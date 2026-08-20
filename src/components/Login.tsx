@@ -1,7 +1,7 @@
 import { useState } from "react"
+import { Container, Row, Col, Form, Button } from "react-bootstrap"
 import { useNavigate } from "react-router"
 import { loginCall } from "../services/authService"
-import { Container, Row, Col, Form, Button } from "react-bootstrap"
 import { PiUserCircleThin } from "react-icons/pi"
 import { CiWarning } from "react-icons/ci"
 import "../styles/login.css"
@@ -58,56 +58,104 @@ const Login = () => {
       setIsLoading(false)
     }
   }
-
   return (
-    <Container fluid className="background">
-      <Row className="align-items-center justify-content-center vh-100">
-        <Col xs={12} sm={10} md={8} lg={6} xl={4}>
-          <div className="bg-light p-3 rounded-5 border border-2 border-secondary">
-            <h1 className="fs-5 text-center mb-4">
+    <Container fluid className="min-vh-100 p-0">
+      <Row className="g-0 min-vh-100">
+        {/* COLONNA SINISTRA: Brand, Mood e Identità visiva */}
+        <Col
+          xs={12}
+          lg={6}
+          className="background-brand d-none d-lg-flex flex-column justify-content-between p-5 text-white position-relative overflow-hidden"
+        >
+          <div className="position-absolute top-0 start-0 w-100 h-100 opacity-10 bg-grid"></div>
+
+          {/* Top Logo */}
+          <div className="z-1">
+            <h3 className="fw-bold tracking-wide">YouRoster</h3>
+          </div>
+
+          {/* Centro: Frase d'impatto */}
+          <div className="z-1 my-auto py-5">
+            <h1 className="display-4 fw-bold mb-3">
+              La gestione turni, resa semplice.
+            </h1>
+            <p className="lead opacity-75">
+              Coordina il personale, ottimizza le risorse e gestisci ogni team
+              con un'interfaccia pensata per chi lavora.
+            </p>
+          </div>
+
+          {/* Footer del pannello sinistro */}
+          <div className="z-1">
+            <small className="opacity-75">
+              YouRoster - {new Date().getFullYear()}
+            </small>
+          </div>
+        </Col>
+
+        {/* COLONNA DESTRA: Login */}
+        <Col
+          xs={12}
+          lg={6}
+          className="d-flex align-items-center justify-content-center background2 p-4 p-md-5 min-vh-100"
+        >
+          <div className="d-flex flex-column">
+            <h1 className="fs-5 text-center mb-4 d-lg-none">
               <span className="text-brand-orange fw-bold fs-1">You</span>
               <span className="text-brand-magenta fw-bold fs-1">Roster</span>
             </h1>
+            <div className="w-100" style={{ maxWidth: "420px" }}>
+              <div className="mb-4 text-center text-lg-start">
+                <h2 className="fw-bold mb-1 text-primary text-center small-title">
+                  Bentornato
+                </h2>
+                <p className="text-muted small-text">
+                  Inserisci le tue credenziali per accedere al gestionale.
+                </p>
+              </div>
 
-            <div className="mb-3">
-              <div className="avatar-circle bg-light d-flex justify-content-center align-items-center">
-                {userPhoto ? (
-                  <img
-                    src={userPhoto}
-                    alt="Avatar Profilo"
-                    className="w-100 h-100"
-                    style={{ objectFit: "cover" }}
-                  />
-                ) : (
-                  <PiUserCircleThin size={90} className="text-secondary" />
+              <div className="mt-4">
+                <div className="avatar-circle bg-light d-flex justify-content-center align-items-center">
+                  {userPhoto ? (
+                    <img
+                      src={userPhoto}
+                      alt="Avatar Profilo"
+                      className="w-100 h-100"
+                      style={{ objectFit: "cover" }}
+                    />
+                  ) : (
+                    <PiUserCircleThin size={90} className="text-secondary" />
+                  )}
+                </div>
+              </div>
+
+              <div className="d-flex justify-content-center">
+                {error && (
+                  <div className="small-text p-1 text-center text-warning my-4 py-2 border border-warning border-1 rounded-2 w-75">
+                    <p className="mb-1">
+                      <CiWarning size={30} />
+                    </p>
+                    <p className="text-center m-0">
+                      {error.includes("email") ? (
+                        <>
+                          L'email <strong className="fw-bold">{email}</strong>{" "}
+                          non esiste nel nostro sistema
+                        </>
+                      ) : (
+                        error
+                      )}
+                    </p>
+                  </div>
                 )}
               </div>
-            </div>
-
-            <div className="d-flex justify-content-center">
-              {error && (
-                <div className="small-text p-1 text-center text-warning my-4 py-2 border border-warning border-1 rounded-2 w-75">
-                  <p className="mb-1">
-                    <CiWarning size={30} />
-                  </p>
-                  <p className="text-center m-0">
-                    {error.includes("email") ? (
-                      <>
-                        L'email <strong className="fw-bold">{email}</strong> non
-                        esiste nel nostro sistema
-                      </>
-                    ) : (
-                      error
-                    )}
-                  </p>
-                </div>
-              )}
             </div>
 
             <Form onSubmit={handleSubmit}>
               <div className="d-flex flex-column align-items-center">
                 <Form.Group className="mb-3 w-75" controlId="formEmail">
-                  <Form.Label className="text-dark">Email</Form.Label>
+                  <Form.Label className="text-dark small-text">
+                    Email
+                  </Form.Label>
                   <Form.Control
                     className="border border-1 border-secondary"
                     type="email"
@@ -123,7 +171,9 @@ const Login = () => {
                 </Form.Group>
 
                 <Form.Group className="mb-3 w-75" controlId="formPassword">
-                  <Form.Label className="text-dark">Password</Form.Label>
+                  <Form.Label className="text-dark small-text">
+                    Password
+                  </Form.Label>
                   <Form.Control
                     className="border border-1 border-secondary"
                     type="password"
