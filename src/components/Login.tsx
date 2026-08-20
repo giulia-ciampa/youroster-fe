@@ -134,17 +134,17 @@ const Login = () => {
                     autoComplete="new-password"
                   />
                 </Form.Group>
-              </div>
 
-              <div>
-                {error.includes("Credenziali non valide") && (
-                  <a
-                    href="/forgot-password"
-                    className="text-warning text-decoration-underline mt-2"
-                  >
-                    Password dimenticata?
-                  </a>
-                )}
+                <div className="d-flex justify-content-start w-75">
+                  {error.includes("Credenziali non valide") && (
+                    <a
+                      href="/forgot-password"
+                      className="text-warning text-decoration-underline"
+                    >
+                      Password dimenticata?
+                    </a>
+                  )}
+                </div>
               </div>
 
               <div className="d-flex justify-content-center mt-3">

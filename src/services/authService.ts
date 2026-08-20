@@ -58,7 +58,7 @@ export async function forgotPassword(email: string) {
     throw new Error(errorMessage)
   }
 
-  return data // "Se l'email esiste, le istruzioni sono state inviate."
+  return data.message // "Se l'email esiste, le istruzioni sono state inviate."
 }
 
 //==================================
@@ -73,11 +73,11 @@ export async function resetPassword(token: string, newPassword: string) {
     body: JSON.stringify({ token, newPassword }),
   })
 
-  const data = await response.text()
+  const data = await response.json()
 
   if (!response.ok) {
     throw new Error(data || "Token non valido o scaduto.")
   }
 
-  return data // "Password modificata con successo!"
+  return data.message
 }

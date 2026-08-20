@@ -83,26 +83,30 @@ const ForgotPassword = () => {
               </div>
             </Form>
 
-            <div className="d-flex justify-content-center mt-3">
+            <div className="d-flex flex-column align-items-center mt-3">
               {successMsg && (
-                <div className="ssmall-text p-1 d-flex flex-column align-items-center justify-content-center text-success my-2 py-2 border border-success border-1 rounded-2 w-75">
+                <div className="small-text p-1 d-flex flex-column align-items-center justify-content-center text-secondary my-2 py-2 border border-secondary border-1 rounded-2 w-75">
                   <p className="text-center m-0">{successMsg}</p>
                 </div>
               )}
 
-              <div className="small-text p-1 d-flex flex-column align-items-center justify-content-center text-warning my-2 py-2 border border-warning border-1 rounded-2 w-75">
-                <p className="mb-1">
-                  <CiWarning size={30} />
-                </p>
-                {error.includes("non esiste nel nostro sistema") ? (
-                  <>
-                    L'email <strong className="fw-bold">{email}</strong> non
-                    esiste nel nostro sistema
-                  </>
-                ) : (
-                  error
-                )}
-              </div>
+              {error && (
+                <div className="small-text p-1 d-flex flex-column align-items-center justify-content-center text-warning my-2 py-2 border border-warning border-1 rounded-2 w-75">
+                  <p className="mb-1">
+                    <CiWarning size={30} />
+                  </p>
+                  <p className="text-center m-0">
+                    {error.includes("non esiste nel nostro sistema") ? (
+                      <>
+                        L'email <strong className="fw-bold">{email}</strong> non
+                        esiste nel nostro sistema
+                      </>
+                    ) : (
+                      error
+                    )}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </Col>
