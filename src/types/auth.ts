@@ -15,16 +15,16 @@ export interface RegisterPayload {
   zipCode: string
   city: string
   province: string
-  referenceOfficeId?: number | null
+  referenceOfficeId?: string | null
   iban: string
   documentNumber: string
   documentType: string
-  issuedDate: string
+  issueDate: string
   expirationDate: string
-  documentFront: File
-  documentBack: File
-  taxCodeFront: File
-  taxCodeBack: File
+  documentFront: File | null
+  documentBack: File | null
+  taxCodeFront: File | null
+  taxCodeBack: File | null
   email: string
   password: string
   confirmPassword: string

@@ -39,7 +39,7 @@ export interface UpdateProfilePayload {
   iban?: string | null
   documentNumber?: string | null
   documentType?: string | null
-  issuedDate?: string | null
+  issueDate?: string | null
   expirationDate?: string | null
   documentFront?: File | null
   documentBack?: File | null
@@ -60,7 +60,7 @@ export interface UserProfileResponse {
   iban: string
   documentNumber: string
   documentType: string
-  issuedDate: string
+  issueDate: string
   expirationDate: string
   documentFrontUrl: string
   documentBackUrl: string
