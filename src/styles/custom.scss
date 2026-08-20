@@ -1,10 +1,9 @@
 // --- 1. Definizione Palette Brand ---
-$spicy-paprika: #e35226;
+$spicy-paprika: #dc5031;
 $carbon-black: #312d20;
 $indigo: #700aff;
 $magenta: #9e4289;
 $light-gold: #f7f5de;
-$background: #fbfaef;
 
 // --- 2. Import delle funzioni di Bootstrap (NECESSARIO PRIMA dei mapping) ---
 @import "bootstrap/scss/functions";
@@ -30,6 +29,10 @@ $light: $light-gold;
   color: $magenta !important;
 }
 
-.background {
-  background-color: $background !important;
+.background-brand {
+  background: linear-gradient(135deg, #700aff 0%, #9e4289 50%, #e35226 100%);
+}
+
+.backgound2 {
+  background: #fbfaef;
 }

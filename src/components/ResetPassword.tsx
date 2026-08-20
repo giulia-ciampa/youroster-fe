@@ -10,6 +10,7 @@ import {
   ListGroup,
   ListGroupItem,
 } from "react-bootstrap"
+import "../styles/mobileText.css"
 
 const ResetPassword = () => {
   const [searchParams] = useSearchParams()
@@ -94,17 +95,64 @@ const ResetPassword = () => {
   }
 
   return (
-    <Container fluid className="background">
-      <Row className="align-items-center justify-content-center vh-100">
-        <Col xs={12} sm={10} md={8} lg={6} xl={4}>
-          <div className="bg-light p-3 rounded-5 border border-2 border-secondary">
-            <h1 className="fs-5 text-center mb-4">
+    <Container fluid className="min-vh-100 p-0">
+      <Row className="g-0 min-vh-100">
+        {/* COLONNA SINISTRA: Brand, Mood e Identità visiva */}
+        <Col
+          xs={12}
+          lg={6}
+          className="background-brand d-none d-lg-flex flex-column justify-content-between p-5 text-white position-relative overflow-hidden"
+        >
+          <div className="position-absolute top-0 start-0 w-100 h-100 opacity-10 bg-grid"></div>
+
+          {/* Top Logo */}
+          <div className="z-1">
+            <h3 className="fw-bold tracking-wide">YouRoster</h3>
+          </div>
+
+          {/* Centro: Frase d'impatto */}
+          <div className="z-1 my-auto py-5">
+            <h1 className="display-4 fw-bold mb-3">
+              La gestione turni, resa semplice.
+            </h1>
+            <p className="lead opacity-75">
+              Coordina il personale, ottimizza le risorse e gestisci ogni team
+              con un'interfaccia pensata per chi lavora.
+            </p>
+          </div>
+
+          {/* Footer del pannello sinistro */}
+          <div className="z-1">
+            <small className="opacity-75">
+              YouRoster - {new Date().getFullYear()}
+            </small>
+          </div>
+        </Col>
+
+        {/*COLONNA DI DESTRA */}
+        <Col
+          xs={12}
+          lg={6}
+          className="d-flex flex-column align-items-center justify-content-center background2 p-4 p-md-5"
+        >
+          <div className="w-75 text-center border-lg-0 p-5 border border-1 border-secondary rounded-4 m-3 m-lg-0 shadow-sm">
+            <h1 className="fs-5 text-center mb-4 d-lg-none">
               <span className="text-brand-orange fw-bold fs-1">You</span>
               <span className="text-brand-magenta fw-bold fs-1">Roster</span>
             </h1>
 
+            {error.includes("recupero") ? (
+              <h2 className="text-primary  mb-3 text-center small-title">
+                Inserisci la tua email
+              </h2>
+            ) : (
+              <h2 className="text-primary mb-3 text-center small-title">
+                Inserisci la tua nuova password
+              </h2>
+            )}
+
             {!token ? (
-              <div className="text-warning text-center">
+              <div className="text-warning text-center small-text">
                 Non sei abilitato ad accedere a questa pagina.
               </div>
             ) : error.includes("recupero") ? (
@@ -115,9 +163,7 @@ const ResetPassword = () => {
                     className="mb-3 w-75"
                     controlId="formRecoveryEmail"
                   >
-                    <Form.Label className="text-dark">
-                      Inserisci la tua email
-                    </Form.Label>
+                    <Form.Label className="text-dark">Email</Form.Label>
                     <Form.Control
                       className="border border-1 border-secondary"
                       type="email"
@@ -194,7 +240,7 @@ const ResetPassword = () => {
 
             <div className="text-center d-flex justify-content-center">
               {message && (
-                <p className="text-secondary border border-1 border-secondary p-1 mt-4 rounded-2 p-2">
+                <p className="text-secondary border border-1 border-secondary p-1 mt-4 rounded-2 p-2 small-text">
                   {message}
                 </p>
               )}
@@ -202,7 +248,7 @@ const ResetPassword = () => {
 
             <div className="text-center d-flex justify-content-center">
               {error && (
-                <div className="text-warning border border-1 border-warning p-2 mt-4 rounded-2 w-75">
+                <div className="text-warning border border-1 border-warning p-2 mt-4 rounded-2 w-75 small-text">
                   {error.toLowerCase().includes("validation") &&
                   errorsList.length > 0 ? (
                     // Se è un errore di validazione, mostriamo SOLO la lista degli errori specifici
