@@ -1,9 +1,10 @@
 // --- 1. Definizione Palette Brand ---
 $spicy-paprika: #e35226;
-$carbon-black: #252218;
-$indigo: #3b008f;
+$carbon-black: #312d20;
+$indigo: #700aff;
 $magenta: #9e4289;
-$beige: #fbfaef;
+$light-gold: #f7f5de;
+$background: #fbfaef;
 
 // --- 2. Import delle funzioni di Bootstrap (NECESSARIO PRIMA dei mapping) ---
 @import "bootstrap/scss/functions";
@@ -13,7 +14,7 @@ $primary: $indigo;
 $secondary: $magenta;
 $warning: $spicy-paprika;
 $dark: $carbon-black;
-$light: $beige;
+$light: $light-gold;
 
 // --- 4. Import del resto della struttura di Bootstrap ---
 @import "bootstrap/scss/variables";
@@ -27,4 +28,8 @@ $light: $beige;
 }
 .text-brand-magenta {
   color: $magenta !important;
+}
+
+.background {
+  background-color: $background !important;
 }
