@@ -2,6 +2,7 @@ import { useState } from "react"
 import { forgotPassword } from "../services/authService"
 import { Col, Container, Row, Form, Button } from "react-bootstrap"
 import { CiWarning } from "react-icons/ci"
+import "../styles/mobileText.css"
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("")
@@ -40,24 +41,62 @@ const ForgotPassword = () => {
   }
 
   return (
-    <Container fluid className="background">
-      <Row className="align-items-center justify-content-center vh-100">
-        <Col xs={12} sm={10} md={8} lg={6} xl={4}>
-          <div className="bg-light p-3 rounded-5 border border-2 border-primary">
-            <h1 className="fs-5 text-center mb-4">
+    <Container fluid className="min-vh-100 p-0">
+      <Row className="g-0 min-vh-100">
+        {/* COLONNA SINISTRA: Brand, Mood e Identità visiva */}
+        <Col
+          xs={12}
+          lg={6}
+          className="background-brand d-none d-lg-flex flex-column justify-content-between p-5 text-white position-relative overflow-hidden"
+        >
+          <div className="position-absolute top-0 start-0 w-100 h-100 opacity-10 bg-grid"></div>
+
+          {/* Top Logo */}
+          <div className="z-1">
+            <h3 className="fw-bold tracking-wide">YouRoster</h3>
+          </div>
+
+          {/* Centro: Frase d'impatto */}
+          <div className="z-1 my-auto py-5">
+            <h1 className="display-4 fw-bold mb-3">
+              La gestione turni, resa semplice.
+            </h1>
+            <p className="lead opacity-75">
+              Coordina il personale, ottimizza le risorse e gestisci ogni team
+              con un'interfaccia pensata per chi lavora.
+            </p>
+          </div>
+
+          {/* Footer del pannello sinistro */}
+          <div className="z-1">
+            <small className="opacity-75">
+              YouRoster - {new Date().getFullYear()}
+            </small>
+          </div>
+        </Col>
+
+        {/*COLONNA DI DESTRA - RECUPER PASSWORD */}
+        <Col
+          xs={12}
+          lg={6}
+          className="d-flex flex-column align-items-center justify-content-center background2 p-4 p-md-5"
+        >
+          <div className="w-75 text-center border-lg-0 p-5 border border-1 border-secondary rounded-4 m-3 m-lg-0 shadow-sm">
+            <h1 className="fs-5 text-center mb-4 d-lg-none">
               <span className="text-brand-orange fw-bold fs-1">You</span>
               <span className="text-brand-magenta fw-bold fs-1">Roster</span>
             </h1>
-
-            <h2 className="text-primary fs-6 mb-3 text-center">
-              Recupera Password
+            <h2 className="fw-bold mb-3 text-primary small-title">
+              Recupera la tua password
             </h2>
+            <p className="text-muted mb-4 small-text">
+              Inserisci l'email per ricevere il link di recupero password
+            </p>
+
             <Form onSubmit={handleSubmit}>
               <div className="d-flex flex-column align-items-center">
-                <Form.Group className="mb-3 w-75" controlId="formEmail">
-                  <Form.Label className="text-dark">
-                    Inserisci la tua email
-                  </Form.Label>
+                <Form.Group className="mb-3" controlId="formEmail">
+                  <Form.Label className="text-dark">Email</Form.Label>
                   <Form.Control
                     className="border border-1 border-secondary"
                     type="email"
@@ -83,7 +122,7 @@ const ForgotPassword = () => {
               </div>
             </Form>
 
-            <div className="d-flex flex-column align-items-center mt-3">
+            <div className="d-flex flex-column align-items-center mt-3 small-text">
               {successMsg && (
                 <div className="small-text p-1 d-flex flex-column align-items-center justify-content-center text-secondary my-2 py-2 border border-secondary border-1 rounded-2 w-75">
                   <p className="text-center m-0">{successMsg}</p>
