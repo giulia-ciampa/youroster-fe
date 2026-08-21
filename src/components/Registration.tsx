@@ -150,14 +150,20 @@ const Registration = () => {
         <Col
           xs={12}
           lg={6}
-          className="d-flex flex-column align-items-center justify-content-start background2 p-4 p-md-5 overflow-auto vh-100"
+          className="d-flex flex-column align-items-center justify-content-start background2 p-4 p-md-5 overflow-auto vh-100 position-relative overflow-hidden"
         >
+          {/* Sfumature decorative di sfondo */}
+          <div className="bg-glow-container">
+            <div className="glow-blob-1"></div>
+            <div className="glow-blob-2"></div>
+          </div>
+
           <div className="d-flex flex-column">
             <h1 className="fs-5 text-center mb-4 d-lg-none">
               <span className="text-brand-orange fw-bold fs-1">You</span>
               <span className="text-brand-magenta fw-bold fs-1">Roster</span>
             </h1>
-            <div className="w-100" style={{ maxWidth: "420px" }}>
+            <div className="w-100">
               <div className="mb-4 text-center text-lg-start">
                 <h2 className="fw-bold mb-1 text-primary text-center small-title">
                   Benvenuto
