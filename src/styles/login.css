@@ -28,16 +28,15 @@
 .form-control:-webkit-autofill:hover,
 .form-control:-webkit-autofill:focus,
 .form-control:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 30px #ffffff inset !important; /* Metti il colore dello sfondo del tuo input al posto di #ffffff se è diverso */
+  -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
   -webkit-text-fill-color: #252218 !important; /* Colore del testo digitato */
   transition: background-color 5000s ease-in-out 0s;
 }
 
-/* Se vuoi personalizzare anche quando il campo è semplicemente in focus */
 .form-control:focus {
-  background-color: #ffffff !important; /* Forza lo sfondo bianco o trasparente */
-  border-color: #3b008f !important;
-  box-shadow: none !important; /* Rimuove l'alone azzurro di Bootstrap se non ti piace */
+  background-color: #ffffff !important;
+  border-color: #700aff !important;
+  box-shadow: none !important; /* Rimuove l'alone azzurro*/
 }
 
 @media (max-width: 576px) {

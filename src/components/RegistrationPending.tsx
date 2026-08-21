@@ -43,8 +43,14 @@ const RegistrationPending = () => {
         <Col
           xs={12}
           lg={6}
-          className="d-flex flex-column align-items-center justify-content-center background2 p-4 p-md-5"
+          className="d-flex flex-column align-items-center justify-content-center background2 p-4 p-md-5 position-relative overflow-hidden"
         >
+          {/* Sfumature decorative di sfondo */}
+          <div className="bg-glow-container">
+            <div className="glow-blob-1"></div>
+            <div className="glow-blob-2"></div>
+          </div>
+
           <div className="w-75 text-center border-lg-0 p-5 border border-1 border-secondary rounded-4 m-3 m-lg-0 shadow-sm">
             <h1 className="fs-5 text-center mb-4 d-lg-none">
               <span className="text-brand-orange fw-bold fs-1">You</span>

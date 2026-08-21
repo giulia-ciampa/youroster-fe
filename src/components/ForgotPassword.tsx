@@ -79,26 +79,40 @@ const ForgotPassword = () => {
         <Col
           xs={12}
           lg={6}
-          className="d-flex flex-column align-items-center justify-content-center background2 p-4 p-md-5"
+          className="d-flex align-items-center justify-content-center background2 p-4 p-md-5 min-vh-100 position-relative overflow-hidden"
         >
-          <div className="w-75 text-center border-lg-0 p-5 border border-1 border-secondary rounded-4 m-3 m-lg-0 shadow-sm">
+          {/* Sfumature decorative di sfondo */}
+          <div className="bg-glow-container">
+            <div className="glow-blob-1"></div>
+            <div className="glow-blob-2"></div>
+          </div>
+
+          <div className="d-flex flex-column border border-3 border-primary shadow-lg rounded-4 p-4">
             <h1 className="fs-5 text-center mb-4 d-lg-none">
               <span className="text-brand-orange fw-bold fs-1">You</span>
               <span className="text-brand-magenta fw-bold fs-1">Roster</span>
             </h1>
-            <h2 className="fw-bold mb-3 text-primary small-title">
-              Recupera la tua password
-            </h2>
-            <p className="text-muted mb-4 small-text">
-              Inserisci l'email per ricevere il link di recupero password
-            </p>
+
+            <div className="mb-4 text-center">
+              <h2 className="fw-bold mb-1 text-primary text-center small-title">
+                Recupera la tua password
+              </h2>
+              <p className="text-muted small-text">
+                Inserisci l'email per ricevere il link di modifica password.
+              </p>
+            </div>
 
             <Form onSubmit={handleSubmit}>
-              <div className="d-flex flex-column align-items-center">
-                <Form.Group className="mb-3" controlId="formEmail">
-                  <Form.Label className="text-dark">Email</Form.Label>
+              <div className="d-flex justify-content-center">
+                <Form.Group
+                  className=" text-start mb-3 w-75"
+                  controlId="formEmail"
+                >
+                  <Form.Label className="text-muted small-text">
+                    Email
+                  </Form.Label>
                   <Form.Control
-                    className="border border-1 border-secondary"
+                    className="border border-2 border-secondary"
                     type="email"
                     placeholder="mario.rossi@example.com"
                     value={email}
@@ -111,8 +125,10 @@ const ForgotPassword = () => {
                   />
                 </Form.Group>
               </div>
+
               <div className="d-flex justify-content-center mt-3">
                 <Button
+                  className="border border-3 border-primary fw-bold small-text"
                   variant="outline-primary"
                   type="submit"
                   disabled={isLoading}

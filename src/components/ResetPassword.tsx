@@ -133,9 +133,15 @@ const ResetPassword = () => {
         <Col
           xs={12}
           lg={6}
-          className="d-flex flex-column align-items-center justify-content-center background2 p-4 p-md-5"
+          className="d-flex flex-column align-items-center justify-content-center background2 p-4 p-md-5 position-relative overflow-hidden"
         >
-          <div className="w-75 text-center border-lg-0 p-5 border border-1 border-secondary rounded-4 m-3 m-lg-0 shadow-sm">
+          {/* Sfumature decorative di sfondo */}
+          <div className="bg-glow-container">
+            <div className="glow-blob-1"></div>
+            <div className="glow-blob-2"></div>
+          </div>
+
+          <div className="w-75 text-center border-lg-0 p-5 border border-3 border-primary rounded-4 m-3 m-lg-0 shadow-lg">
             <h1 className="fs-5 text-center mb-4 d-lg-none">
               <span className="text-brand-orange fw-bold fs-1">You</span>
               <span className="text-brand-magenta fw-bold fs-1">Roster</span>
@@ -152,7 +158,7 @@ const ResetPassword = () => {
             )}
 
             {!token ? (
-              <div className="text-warning text-center small-text">
+              <div className="text-warning text-center small-text rounded-2 border border-1 border-warning">
                 Non sei abilitato ad accedere a questa pagina.
               </div>
             ) : error.includes("recupero") ? (
@@ -160,10 +166,12 @@ const ResetPassword = () => {
               <Form onSubmit={handleResendEmail}>
                 <div className="d-flex flex-column align-items-center">
                   <Form.Group
-                    className="mb-3 w-75"
+                    className="mb-3 w-75 text-start"
                     controlId="formRecoveryEmail"
                   >
-                    <Form.Label className="text-dark">Email</Form.Label>
+                    <Form.Label className="text-dark small-text">
+                      Email
+                    </Form.Label>
                     <Form.Control
                       className="border border-1 border-secondary"
                       type="email"
@@ -188,12 +196,15 @@ const ResetPassword = () => {
               // --- FORM ORIGINALE PER IL RESET DELLA PASSWORD ---
               <Form onSubmit={handleSubmit}>
                 <div className="d-flex flex-column align-items-center">
-                  <Form.Group className="mb-3 w-75" controlId="formNewPassword">
-                    <Form.Label className="text-dark">
+                  <Form.Group
+                    className="mb-3 w-75 text-start"
+                    controlId="formNewPassword"
+                  >
+                    <Form.Label className="text-muted small-text">
                       Nuova password
                     </Form.Label>
                     <Form.Control
-                      className="border border-1 border-secondary"
+                      className="border border-2 border-secondary"
                       type="password"
                       placeholder="Nuova password"
                       value={newPassword}
@@ -206,14 +217,14 @@ const ResetPassword = () => {
                   </Form.Group>
 
                   <Form.Group
-                    className="mb-3 w-75"
+                    className="mb-3 w-75 text-start"
                     controlId="formConfirmPassword"
                   >
-                    <Form.Label className="text-dark">
+                    <Form.Label className="text-muted small-text">
                       Conferma nuova password
                     </Form.Label>
                     <Form.Control
-                      className="border border-1 border-secondary"
+                      className="border border-2 border-secondary"
                       type="password"
                       placeholder="Conferma password"
                       value={confirmPassword}
@@ -228,6 +239,7 @@ const ResetPassword = () => {
 
                 <div className="d-flex justify-content-center mt-3">
                   <Button
+                    className="border border-3 border-primary fw-bold small-text"
                     variant="outline-primary"
                     type="submit"
                     disabled={isLoading}

@@ -97,14 +97,20 @@ const Login = () => {
         <Col
           xs={12}
           lg={6}
-          className="d-flex align-items-center justify-content-center background2 p-4 p-md-5 min-vh-100"
+          className="d-flex align-items-center justify-content-center background2 p-4 p-md-5 min-vh-100 position-relative overflow-hidden"
         >
-          <div className="d-flex flex-column">
+          {/* Sfumature decorative di sfondo */}
+          <div className="bg-glow-container">
+            <div className="glow-blob-1"></div>
+            <div className="glow-blob-2"></div>
+          </div>
+
+          <div className="d-flex flex-column position-relative z-1 w-100">
             <h1 className="fs-5 text-center mb-4 d-lg-none">
               <span className="text-brand-orange fw-bold fs-1">You</span>
               <span className="text-brand-magenta fw-bold fs-1">Roster</span>
             </h1>
-            <div className="w-100" style={{ maxWidth: "420px" }}>
+            <div className="w-100">
               <div className="mb-4 text-center text-lg-start">
                 <h2 className="fw-bold mb-1 text-primary text-center small-title">
                   Bentornato
@@ -114,99 +120,102 @@ const Login = () => {
                 </p>
               </div>
 
-              <div className="mt-4">
-                <div className="avatar-circle bg-light d-flex justify-content-center align-items-center">
-                  {userPhoto ? (
-                    <img
-                      src={userPhoto}
-                      alt="Avatar Profilo"
-                      className="w-100 h-100"
-                      style={{ objectFit: "cover" }}
-                    />
-                  ) : (
-                    <PiUserCircleThin size={90} className="text-secondary" />
+              <div className="border border-3 border-primary mt-4 p-4 rounded-4 shadow-lg">
+                <div>
+                  <div className="avatar-circle bg-light d-flex justify-content-center align-items-center">
+                    {userPhoto ? (
+                      <img
+                        src={userPhoto}
+                        alt="Avatar Profilo"
+                        className="w-100 h-100"
+                        style={{ objectFit: "cover" }}
+                      />
+                    ) : (
+                      <PiUserCircleThin size={90} className="text-secondary" />
+                    )}
+                  </div>
+                </div>
+
+                <div className="d-flex justify-content-center">
+                  {error && (
+                    <div className="small-text p-1 text-center text-warning my-4 py-2 border border-warning border-1 rounded-2 w-75">
+                      <p className="mb-1">
+                        <CiWarning size={30} />
+                      </p>
+                      <p className="text-center m-0">
+                        {error.includes("email") ? (
+                          <>
+                            L'email <strong className="fw-bold">{email}</strong>{" "}
+                            non esiste nel nostro sistema
+                          </>
+                        ) : (
+                          error
+                        )}
+                      </p>
+                    </div>
                   )}
                 </div>
-              </div>
 
-              <div className="d-flex justify-content-center">
-                {error && (
-                  <div className="small-text p-1 text-center text-warning my-4 py-2 border border-warning border-1 rounded-2 w-75">
-                    <p className="mb-1">
-                      <CiWarning size={30} />
-                    </p>
-                    <p className="text-center m-0">
-                      {error.includes("email") ? (
-                        <>
-                          L'email <strong className="fw-bold">{email}</strong>{" "}
-                          non esiste nel nostro sistema
-                        </>
-                      ) : (
-                        error
+                <Form onSubmit={handleSubmit}>
+                  <div className="d-flex flex-column align-items-center">
+                    <Form.Group className="mb-3 w-75" controlId="formEmail">
+                      <Form.Label className="text-muted small-text">
+                        Email
+                      </Form.Label>
+                      <Form.Control
+                        className="border border-2 border-secondary"
+                        type="email"
+                        placeholder="mario.rossi@example.com"
+                        value={email}
+                        onChange={(e) => {
+                          setEmail(e.target.value)
+                          setError("")
+                        }}
+                        required
+                        autoComplete="false"
+                      />
+                    </Form.Group>
+
+                    <Form.Group className="mb-3 w-75" controlId="formPassword">
+                      <Form.Label className="text-muted small-text">
+                        Password
+                      </Form.Label>
+                      <Form.Control
+                        className="border border-2 border-secondary"
+                        type="password"
+                        placeholder="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        autoComplete="new-password"
+                      />
+                    </Form.Group>
+
+                    <div className="d-flex justify-content-start w-75">
+                      {error.includes("Credenziali non valide") && (
+                        <a
+                          href="/forgot-password"
+                          className="text-warning text-decoration-underline small-text"
+                        >
+                          Password dimenticata?
+                        </a>
                       )}
-                    </p>
+                    </div>
                   </div>
-                )}
+
+                  <div className="d-flex justify-content-center mt-3">
+                    <Button
+                      className="border border-3 border-primary fw-bold small-text"
+                      variant="outline-primary"
+                      type="submit"
+                      disabled={isLoading}
+                    >
+                      Login
+                    </Button>
+                  </div>
+                </Form>
               </div>
             </div>
-
-            <Form onSubmit={handleSubmit}>
-              <div className="d-flex flex-column align-items-center">
-                <Form.Group className="mb-3 w-75" controlId="formEmail">
-                  <Form.Label className="text-dark small-text">
-                    Email
-                  </Form.Label>
-                  <Form.Control
-                    className="border border-1 border-secondary"
-                    type="email"
-                    placeholder="mario.rossi@example.com"
-                    value={email}
-                    onChange={(e) => {
-                      setEmail(e.target.value)
-                      setError("")
-                    }}
-                    required
-                    autoComplete="false"
-                  />
-                </Form.Group>
-
-                <Form.Group className="mb-3 w-75" controlId="formPassword">
-                  <Form.Label className="text-dark small-text">
-                    Password
-                  </Form.Label>
-                  <Form.Control
-                    className="border border-1 border-secondary"
-                    type="password"
-                    placeholder="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    autoComplete="new-password"
-                  />
-                </Form.Group>
-
-                <div className="d-flex justify-content-start w-75">
-                  {error.includes("Credenziali non valide") && (
-                    <a
-                      href="/forgot-password"
-                      className="text-warning text-decoration-underline"
-                    >
-                      Password dimenticata?
-                    </a>
-                  )}
-                </div>
-              </div>
-
-              <div className="d-flex justify-content-center mt-3">
-                <Button
-                  variant="outline-primary"
-                  type="submit"
-                  disabled={isLoading}
-                >
-                  Login
-                </Button>
-              </div>
-            </Form>
           </div>
         </Col>
       </Row>
