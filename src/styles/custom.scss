@@ -33,7 +33,7 @@ $light: $light-gold;
   background: linear-gradient(135deg, #700aff 0%, #9e4289 50%, #e35226 100%);
 }
 
-.backgound2 {
+.background2 {
   background: #fbfaef;
 }
 
@@ -57,8 +57,8 @@ $light: $light-gold;
   height: 350px;
   background: linear-gradient(
     135deg,
-    rgba(111, 45, 168, 0.312),
-    rgba(250, 156, 69, 0.519)
+    rgba(111, 45, 168, 0.29),
+    rgba(250, 156, 69, 0.119)
   ); // Tonalità viola/arancio
   filter: blur(80px);
   border-radius: 50%;
@@ -74,7 +74,24 @@ $light: $light-gold;
     135deg,
     rgba(111, 45, 168, 0.312),
     rgba(250, 156, 69, 0.519)
-  ); // Tonalità arancio/viola
+  );
   filter: blur(90px);
   border-radius: 50%;
+}
+
+.custom-avatar-dropdown {
+  .dropdown-toggle::after {
+    display: none !important; // Rimuove la freccetta del dropdown
+  }
+  .nav-link {
+    padding: 0 !important; // Rimuove i padding standard del link
+    display: flex;
+    align-items: center;
+  }
+}
+
+.myDropDown {
+  .dropdown-toggle::after {
+    display: none !important; // Rimuove la freccetta del dropdown
+  }
 }
