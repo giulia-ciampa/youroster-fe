@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import "../styles/dynamicSlogan.css"
+import "../../styles/dynamicSlogan.css"
 
 const slogans = [
   "La tua pianificazione, in un click.",

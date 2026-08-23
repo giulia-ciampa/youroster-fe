@@ -88,11 +88,39 @@ export async function resetPassword(token: string, newPassword: string) {
 //==================================
 export async function registration(payload: RegisterPayload) {
   const formData = new FormData()
-  // ... (tutti i tuoi append rimangono identici)
 
+  formData.append("name", payload.name)
+  formData.append("surname", payload.surname)
+  formData.append("taxCode", payload.taxCode)
+  formData.append("dateOfBirth", payload.dateOfBirth)
+  formData.append("placeOfBirth", payload.placeOfBirth)
+  formData.append("nationality", payload.nationality)
+  formData.append("phoneNumber", payload.phoneNumber)
+  formData.append("streetAddress", payload.streetAddress)
+  formData.append("houseNumber", payload.houseNumber)
+  formData.append("zipCode", payload.zipCode)
+  formData.append("city", payload.city)
+  formData.append("province", payload.province)
+  if (payload.referenceOfficeId) {
+    formData.append("referenceOfficeId", payload.referenceOfficeId)
+  }
+  formData.append("iban", payload.iban)
+  formData.append("documentNumber", payload.documentNumber)
+  formData.append("documentType", payload.documentType)
+  formData.append("issueDate", payload.issueDate)
+  formData.append("expirationDate", payload.expirationDate)
   formData.append("email", payload.email)
   formData.append("password", payload.password)
   formData.append("confirmPassword", payload.confirmPassword)
+
+  // File (aggiungili solo se l'utente li ha selezionati)
+  if (payload.documentFront)
+    formData.append("documentFront", payload.documentFront)
+  if (payload.documentBack)
+    formData.append("documentBack", payload.documentBack)
+  if (payload.taxCodeFront)
+    formData.append("taxCodeFront", payload.taxCodeFront)
+  if (payload.taxCodeBack) formData.append("taxCodeBack", payload.taxCodeBack)
 
   const response = await fetch(`${API_URL}/auth/registration`, {
     method: "POST",
