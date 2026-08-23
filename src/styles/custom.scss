@@ -3,7 +3,7 @@ $spicy-paprika: #e35226;
 $carbon-black: #312d20;
 $indigo: #700aff;
 $magenta: #9e4289;
-$light-gold: #f7f5de;
+$light-gold: #f8f8f2;
 
 // --- 2. Import delle funzioni di Bootstrap (NECESSARIO PRIMA dei mapping) ---
 @import "bootstrap/scss/functions";
@@ -37,46 +37,22 @@ $light: $light-gold;
   background: #fbfaef;
 }
 
-/* Sfumature decorative posizionate agli angoli della colonna */
-.bg-glow-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  pointer-events: none;
-  z-index: 0;
+.brand-title {
+  font-weight: bold;
+  background: linear-gradient(135deg, #700aff 5%, #9e4289 50%, #e35226 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
 }
 
-.glow-blob-1 {
-  position: absolute;
-  top: -10%; // angolo in alto
-  right: -10%;
-  width: 350px;
-  height: 350px;
-  background: linear-gradient(
-    135deg,
-    rgba(111, 45, 168, 0.29),
-    rgba(250, 156, 69, 0.119)
-  ); // Tonalità viola/arancio
-  filter: blur(80px);
-  border-radius: 50%;
-}
-
-.glow-blob-2 {
-  position: absolute;
-  bottom: -10%; // angolo in basso
-  left: -10%;
-  width: 400px;
-  height: 400px;
-  background: linear-gradient(
-    135deg,
-    rgba(111, 45, 168, 0.312),
-    rgba(250, 156, 69, 0.519)
-  );
-  filter: blur(90px);
-  border-radius: 50%;
+/*contorno card*/
+.box {
+  background-color: #f8f8f2;
+  border-radius: 20px;
+  border: 2px solid rgba(112, 10, 255, 0.4);
+  /* Eventuale ombra morbida per dare profondità */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
 
 .custom-avatar-dropdown {
@@ -94,4 +70,87 @@ $light: $light-gold;
   .dropdown-toggle::after {
     display: none !important; // Rimuove la freccetta del dropdown
   }
+}
+
+.nav-link.active {
+  color: white;
+  text-shadow:
+    0 0 8px rgba(255, 255, 255, 0.8),
+    0 0 15px rgba(255, 255, 255, 0.5);
+}
+
+.input {
+  border-color: rgba(158, 66, 225, 0.4);
+  border-width: 2px;
+  border-style: solid;
+}
+
+/* Nota: NESSUNO SPAZIO tra .input e :focus */
+.input:focus {
+  border-color: #9e4289 !important;
+  box-shadow: 0 0 0 0.25rem rgba(158, 66, 137, 0.4) !important;
+}
+
+.btn-custom1 {
+  background-color: transparent;
+  border: 2px solid #700aff;
+  color: #700aff;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-custom1:hover,
+.btn-custom1:focus {
+  background-color: transparent !important;
+  border-color: #700aff !important;
+  color: #700aff !important;
+  box-shadow: 0 0 0 0.25rem rgba(112, 10, 255, 0.4) !important;
+}
+
+.btn-custom2 {
+  background-color: transparent;
+  border: 2px solid #9e4289;
+  color: #9e4289;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-custom2:hover,
+.btn-custom2:focus {
+  background-color: transparent !important;
+  border-color: #9e4289 !important;
+  color: #9e4289 !important;
+  box-shadow: 0 0 0 0.25rem rgba(158, 66, 137, 0.4) !important;
+}
+
+.btn-custom3 {
+  background-color: transparent;
+  border: 2px solid #dc3545;
+  color: #dc3545;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+}
+
+.custom3 {
+  border: 2px solid;
+  border-color: #dc3545 !important;
+  color: #dc3545 !important;
+  box-shadow: 0 0 0 0.15rem rgb(220, 53, 69, 0.4) !important;
+  font-weight: normal;
+}
+
+.custom4 {
+  border: 2px solid;
+  border-color: #198754 !important;
+  color: #198754 !important;
+  font-weight: normal;
+  box-shadow: 0 0 0 0.15rem rgb(25, 135, 84, 0.4) !important;
+}
+
+.custom2 {
+  border: 2px solid;
+  border-color: #9e4289 !important;
+  color: #9e4289 !important;
+  box-shadow: 0 0 0 0.15rem rgb(158, 66, 137, 0.4) !important;
+  font-weight: normal;
 }

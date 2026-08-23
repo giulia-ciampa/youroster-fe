@@ -1,11 +1,12 @@
 import { BrowserRouter, Route, Routes } from "react-router"
-import ForgotPassword from "./components/ForgotPassword"
-import ResetPassword from "./components/ResetPassword"
-import Registration from "./components/Registration"
-import RegistrationPending from "./components/RegistrationPending"
-import Login from "./components/Login"
-import LandingPage from "./components/LandingPage"
-import AdminDashBoard from "./components/AdminDashboard"
+import ForgotPassword from "./components/auth/ForgotPassword"
+import ResetPassword from "./components/auth/ResetPassword"
+import Registration from "./components/auth/Registration"
+import RegistrationPending from "./components/auth/RegistrationPending"
+import Login from "./components/auth/Login"
+import LandingPage from "./components/landingPage/LandingPage"
+import AdminDashBoard from "./components/admin/AdminDashboard"
+import AdminOfficesContainer from "./components/admin/AdminOfficesContainer"
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <main className="flex-grow-1">
           <Routes>
             <Route path="/dashboard/admin" element={<AdminDashBoard />} />
+            <Route path="/offices/admin" element={<AdminOfficesContainer />} />
             <Route path="/" element={<LandingPage />} />
             <Route path="/registration" element={<Registration />} />
             <Route path="/login" element={<Login />} />

@@ -1,3 +1,7 @@
+import type {
+  AdminApprovalRequestDTO,
+  MessageResponseDTO,
+} from "../types/approveRequest"
 import { authFetch } from "./apiClient"
 
 // 1. SHIFT ASSIGNMENT BY DATE
@@ -61,6 +65,53 @@ export const fetchPendingAccounts = async (page = 0, size = 20) => {
     const errorData = await response.json()
     throw new Error(
       errorData.message || "Errore nel caricamento delle richieste in sospeso",
+    )
+  }
+
+  return await response.json()
+}
+
+//5. ACCETTA ACCOUNT
+export const fetchAcceptAccount = async (
+  accountId: string,
+  role: string,
+  officeId: string | null,
+): Promise<MessageResponseDTO> => {
+  const payload: AdminApprovalRequestDTO = {
+    roles: role ? [role] : [], // Se vuoto, il backend assegnerà STAFF
+    officeId: officeId || null,
+  }
+
+  const response = await authFetch(`/accounts/${accountId}/accept`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  })
+
+  if (!response.ok) {
+    const errorData = await response.json()
+    throw new Error(
+      errorData.message || "Errore durante l'approvazione dell'account",
+    )
+  }
+
+  return await response.json()
+}
+
+// RIFIUTA / ELIMINA RICHIESTA ACCOUNT
+export const fetchRejectAccount = async (
+  accountId: string,
+): Promise<MessageResponseDTO> => {
+  const response = await authFetch(`/accounts/${accountId}/reject`, {
+    method: "DELETE",
+  })
+
+  if (!response.ok) {
+    const errorData = await response.json()
+    throw new Error(
+      errorData.message || "Errore durante il rifiuto dell'account",
     )
   }
 
