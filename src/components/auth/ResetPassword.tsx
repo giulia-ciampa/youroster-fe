@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useNavigate, useSearchParams } from "react-router"
-import { forgotPassword, resetPassword } from "../services/authService"
+import { forgotPassword, resetPassword } from "../../services/authService"
 import {
   Col,
   Container,
@@ -10,7 +10,7 @@ import {
   ListGroup,
   ListGroupItem,
 } from "react-bootstrap"
-import "../styles/mobileText.css"
+import "../../styles/mobileText.css"
 
 const ResetPassword = () => {
   const [searchParams] = useSearchParams()
@@ -96,7 +96,7 @@ const ResetPassword = () => {
 
   return (
     <Container fluid className="min-vh-100 p-0">
-      <Row className="g-0 min-vh-100">
+      <Row className="g-0 min-vh-100 justify-content-center">
         {/* COLONNA SINISTRA: Brand, Mood e Identità visiva */}
         <Col
           xs={12}
@@ -132,6 +132,7 @@ const ResetPassword = () => {
         {/*COLONNA DI DESTRA */}
         <Col
           xs={12}
+          md={8}
           lg={6}
           className="d-flex flex-column align-items-center justify-content-center background2 p-4 p-md-5 position-relative overflow-hidden"
         >
