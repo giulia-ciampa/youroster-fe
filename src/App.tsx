@@ -14,7 +14,7 @@ function App() {
   return (
     <div className="d-flex flex-column min-vh-100 background2">
       <BrowserRouter>
-        <main className="flex-grow-1">
+        <main className="d-flex flex-column flex-grow-1">
           <Routes>
             <Route path="/dashboard/admin" element={<AdminDashBoard />} />
             <Route path="/offices/admin" element={<AdminOfficesContainer />} />

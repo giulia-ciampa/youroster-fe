@@ -183,8 +183,11 @@ const AdminDashBoard = () => {
     <>
       {/* navbar*/}
       <AdminNavbar />
-      <Container fluid className="px-3 min-vh-100">
-        <Row className="d-flex justify-content-center my-4">
+      <Container
+        fluid
+        className="d-flex justify-content-center align-items-center flex-grow-1"
+      >
+        <Row className="g-4 w-100 justify-content-center">
           <Col xs={12} lg={10}>
             <div className="d-flex justify-content-between align-items-center mb-4">
               <h2 className="text-dark small-title">

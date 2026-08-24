@@ -7,15 +7,21 @@ import {
   Card,
   Spinner,
   Alert,
+  Button,
 } from "react-bootstrap"
 import { PiUserLight } from "react-icons/pi"
 import { UserNavbar } from "./UserNavbar"
 import { useEffect, useState } from "react"
 import type { ShiftAssignment } from "../../types/shift"
-import { getMyAssignmentsByDate } from "../../services/shiftAssignmentService"
+import {
+  getColleaguesWithMyShift,
+  getMyAssignmentsByDate,
+} from "../../services/shiftAssignmentService"
 import { getMyProfile, updateMyAvatar } from "../../services/userService" // <-- La funzione per i dati utente
 import type { UserProfileResponse } from "../../types/users"
 import { MdAddAPhoto } from "react-icons/md"
+import { useDispatch } from "react-redux"
+import { setUser } from "../../redux/reducers/userSlice"
 
 export const UserDashboard = () => {
   const [userProfile, setUserProfile] = useState<UserProfileResponse | null>(
@@ -30,10 +36,11 @@ export const UserDashboard = () => {
   const [selectedDate, setSelectedDate] = useState<string>(todayString)
 
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
-  const [avatar, setAvatar] = useState<File | null>(null)
 
   const [showAlert, setShowAlert] = useState(false)
   const [alertMessage, setAlertMessage] = useState("")
+
+  const dispatch = useDispatch()
 
   // 1. Chiamata per i dati del profilo utente (al caricamento della pagina)
   useEffect(() => {
@@ -41,6 +48,14 @@ export const UserDashboard = () => {
       try {
         const data = await getMyProfile()
         setUserProfile(data)
+        dispatch(
+          setUser({
+            photoUrl: data.photoUrl,
+            name: data.name,
+            surname: data.surname,
+            roleNames: data.roleNames,
+          }),
+        )
       } catch (error) {
         console.error("Errore nel caricamento del profilo utente", error)
       } finally {
@@ -63,6 +78,9 @@ export const UserDashboard = () => {
           setTodayAssignment(null)
           setCoworkers([])
         }
+
+        const colleaguesData = await getColleaguesWithMyShift(selectedDate)
+        setCoworkers(colleaguesData)
       } catch (error) {
         console.error(
           "Errore nel recupero dei turni per la data selezionata",
@@ -79,7 +97,7 @@ export const UserDashboard = () => {
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0]
-      setAvatar(file)
+
       setAvatarPreview(URL.createObjectURL(file))
 
       try {
@@ -111,14 +129,17 @@ export const UserDashboard = () => {
   return (
     <>
       <UserNavbar />
-      <Container className="mt-4">
-        <Row className="g-4">
+      <Container
+        fluid
+        className="d-flex justify-content-center align-items-center flex-grow-1"
+      >
+        <Row className="g-4 w-100 justify-content-center">
           {/* COLONNA SINISTRA: Foto profilo, nome, cognome, email */}
           <Col
             xs={12}
             md={4}
             lg={4}
-            className="background2 d-flex flex-column align-items-center p-4 border rounded"
+            className="d-flex flex-column align-items-center p-4 border rounded"
           >
             {showAlert && (
               <Alert
@@ -177,7 +198,6 @@ export const UserDashboard = () => {
                   id="avatarInput"
                   type="file"
                   className="d-none"
-                  accept="image/*"
                   onChange={handleAvatarUpload}
                 />
 
@@ -187,6 +207,13 @@ export const UserDashboard = () => {
                 <p className="text-muted small">{userProfile?.roleNames}</p>
               </>
             )}
+            <div className="w-100 mt-4 text-center">
+              <h5 className="fw-semibold mb-3">Gestione Presenze</h5>
+              <div className="d-grid gap-2">
+                <Button className="w-100 p-3">Timbra Entrata</Button>
+                <Button className="w-100 p-3">Timbra Uscita</Button>
+              </div>
+            </div>
 
             {/* Resto del form data... */}
           </Col>
@@ -198,39 +225,72 @@ export const UserDashboard = () => {
               <Card.Body>
                 <Card.Title className=" text-primary">
                   Turno del giorno
-                  <Form>
-                    <Form.Group className="mb-3" controlId="FormDate">
-                      <Form.Control
-                        className="w-25 mt-3 input"
-                        type="date"
-                        value={selectedDate}
-                        onChange={(e) => setSelectedDate(e.target.value)}
-                      />
-                    </Form.Group>
-                  </Form>
                 </Card.Title>
-                {todayAssignment ? (
-                  <div className="mt-3">
-                    <p className="mb-1">
-                      <strong>Ufficio/Sede:</strong>{" "}
-                      {todayAssignment.officeName || "N/D"}
-                    </p>
-                    <p className="mb-1">
-                      <strong>Orario Turno:</strong> {todayAssignment.startTime}{" "}
-                      - {todayAssignment.endTime}
-                    </p>
-                    <p className="mb-0">
-                      <strong>Ruolo:</strong>{" "}
-                      {todayAssignment.roleNames || "N/D"}
-                    </p>
-                  </div>
-                ) : (
-                  <p className="text-muted mt-3 mb-0">
-                    Nessun turno assegnato per questa data.
-                  </p>
-                )}
+                <Form>
+                  <Form.Group className="mb-3" controlId="FormDate">
+                    <Form.Control
+                      className="w-25 mt-3 input"
+                      type="date"
+                      value={selectedDate}
+                      onChange={(e) => setSelectedDate(e.target.value)}
+                    />
+                  </Form.Group>
+                </Form>
               </Card.Body>
             </Card>
+
+            {todayAssignment ? (
+              <Card className="shadow-sm my-3">
+                <Card.Body>
+                  <Table striped bordered hover responsive>
+                    <thead>
+                      <tr>
+                        <th className="text-center">Ufficio/Sede</th>
+                        <th className="text-center">Turno</th>
+
+                        <th className="text-center">Mansioni</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td> {todayAssignment.officeName || "Nessuna sede"}</td>
+                        <td>
+                          {" "}
+                          {todayAssignment.startTime || "Inizio turno"} -{" "}
+                          {todayAssignment.endTime || "Fine turno"}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </Table>
+                </Card.Body>
+              </Card>
+            ) : (
+              <Card className="shadow-sm my-3">
+                <Card.Body>
+                  <Table striped bordered hover responsive>
+                    <thead>
+                      <tr>
+                        <th className="text-center">Ufficio/Sede</th>
+                        <th className="text-center">Turno</th>
+
+                        <th className="text-center">Mansioni</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td className="text-center">
+                          Nessun ufficio assegnato
+                        </td>
+                        <td className="text-center">00:00 - 00:00</td>
+                        <td className="text-center">
+                          Non ci sono mansioni assegnate
+                        </td>
+                      </tr>
+                    </tbody>
+                  </Table>
+                </Card.Body>
+              </Card>
+            )}
 
             {/* Tabella chi è in turno con te */}
             <Card className="shadow-sm">

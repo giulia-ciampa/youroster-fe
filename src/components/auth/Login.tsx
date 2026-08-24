@@ -2,7 +2,7 @@ import { useState } from "react"
 import { Container, Row, Col, Form, Button } from "react-bootstrap"
 import { useNavigate } from "react-router"
 import { loginCall } from "../../services/authService"
-import { PiUserCircleThin } from "react-icons/pi"
+import { PiUserLight } from "react-icons/pi"
 import { CiWarning } from "react-icons/ci"
 import "../../styles/login.css"
 
@@ -125,7 +125,9 @@ const Login = () => {
                         style={{ objectFit: "cover" }}
                       />
                     ) : (
-                      <PiUserCircleThin size={90} className="text-secondary" />
+                      <div className="w-100 h-100 rounded-circle overflow-hidden bg-light border border-4 border-secondary d-flex align-items-center justify-content-center">
+                        <PiUserLight size={100} className="text-secondary" />
+                      </div>
                     )}
                   </div>
                 </div>

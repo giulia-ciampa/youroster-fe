@@ -13,39 +13,38 @@ import {
   Button,
 } from "react-bootstrap"
 import { IoIosArrowDown } from "react-icons/io"
+import { useDispatch, useSelector } from "react-redux"
+import type { RootState } from "../../redux/store/store"
+import { clearUser } from "../../redux/reducers/userSlice"
 
 export const UserNavbar = () => {
   const [openModal, setOpenModal] = useState(false)
-  const storedPhoto = localStorage.getItem("photoUrl")
-  const userPhoto =
-    storedPhoto && storedPhoto !== "undefined" ? storedPhoto : null
-
-  const userAvatar = userPhoto ? (
-    <img
-      src={userPhoto}
-      alt="User Avatar"
-      className="avatar-circle"
-      style={{ width: "35px", height: "35px", objectFit: "cover" }}
-    />
-  ) : (
-    <PiUserCircleThin size={32} className="text-white" />
-  )
 
   const [email, setEmail] = useState("")
   const [oldPassword, setOldPassword] = useState("")
   const [newPassword, setNewPassword] = useState("")
   const [confirmNewPassword, setConfirmNewPassword] = useState("")
 
+  const userPhoto = useSelector((state: RootState) => state.user.photoUrl)
+
+  const userAvatar =
+    userPhoto && userPhoto !== "undefined" ? (
+      <img
+        src={userPhoto}
+        alt="User Avatar"
+        className="avatar-circle"
+        style={{ width: "35px", height: "35px", objectFit: "cover" }}
+      />
+    ) : (
+      <PiUserCircleThin size={32} className="text-white" />
+    )
+
   const navigate = useNavigate()
+  const dispatch = useDispatch()
 
   //funzione logout
   const handleLogout = () => {
-    // Rimuovi i dati salvati nel browser
-    localStorage.removeItem("accessToken")
-    localStorage.removeItem("photoUrl")
-    localStorage.removeItem("refreshToken")
-    localStorage.removeItem("roleName")
-
+    dispatch(clearUser())
     navigate("/")
   }
 
