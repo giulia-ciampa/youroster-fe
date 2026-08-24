@@ -11,7 +11,10 @@ export const authFetch = async (
   const headers: Record<string, string> = {
     ...(options.headers as Record<string, string>),
     Authorization: `Bearer ${token}`,
-    "Content-Type": "application/json",
+  }
+
+  if (!(options.body instanceof FormData)) {
+    headers["Content-Type"] = "application/json"
   }
 
   const updatedOptions: RequestInit = {

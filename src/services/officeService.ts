@@ -59,7 +59,6 @@ export const fetchUpdateOffice = async (
     throw new Error(errorMessage)
   }
 
-  // Se tutto è ok, restituiamo i dati aggiornati
   return await response.json()
 }
 

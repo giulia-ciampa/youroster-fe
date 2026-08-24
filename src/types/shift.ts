@@ -26,6 +26,7 @@ export interface ShiftAssignment {
   endTime: string
   shiftDate: string
   assignmentType: string
+  tasks: string[]
 }
 
 export interface ShiftTask {

@@ -13,6 +13,8 @@ import { registration } from "../../services/authService"
 import { useNavigate } from "react-router"
 import "../../styles/registration.css"
 import "../../styles/mobileText.css"
+import { PiUserLight } from "react-icons/pi"
+import { MdAddAPhoto } from "react-icons/md"
 
 const Registration = () => {
   const [name, setName] = useState("")
@@ -45,6 +47,18 @@ const Registration = () => {
 
   const [errorsList, setErrorsList] = useState<string[]>([])
   const [warningMessage, setWarningMessage] = useState("")
+
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
+  const [avatar, setAvatar] = useState<File | null>(null)
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0]
+      setAvatar(file)
+      // Crea un URL locale per mostrare l'anteprima tonda immediata
+      setAvatarPreview(URL.createObjectURL(file))
+    }
+  }
 
   const navigate = useNavigate()
 
@@ -79,6 +93,7 @@ const Registration = () => {
         email,
         password,
         confirmPassword,
+        avatar,
       })
 
       navigate("/registration-pending")
@@ -171,6 +186,47 @@ const Registration = () => {
 
           <Form onSubmit={handleSubmit}>
             <div className="d-flex flex-column align-items-center p-4 box rounded-4 border-lg-0 m-2 m-lg-0 shadow-sm">
+              <div className="d-flex flex-column align-items-center mb-4">
+                {/* Contenitore principale  */}
+                <div
+                  className="position-relative d-inline-block"
+                  style={{ width: "130px", height: "130px", cursor: "pointer" }}
+                  onClick={() =>
+                    document.getElementById("avatarInput")?.click()
+                  }
+                >
+                  {/* Cerchio foto */}
+                  <div className="w-100 h-100 rounded-circle overflow-hidden bg-light border border-4 border-secondary d-flex align-items-center justify-content-center">
+                    {avatarPreview ? (
+                      <img
+                        src={avatarPreview}
+                        alt="Avatar Preview"
+                        className="w-100 h-100"
+                        style={{ objectFit: "cover" }}
+                      />
+                    ) : (
+                      <PiUserLight size={100} className="text-secondary" />
+                    )}
+                  </div>
+
+                  {/* Icona della fotocamera */}
+                  <div
+                    className="position-absolute bottom-0 end-0 bg-white rounded-circle p-1 shadow-sm border border-primary d-flex align-items-center justify-content-center"
+                    style={{ width: "32px", height: "32px" }}
+                  >
+                    <MdAddAPhoto size={18} className="text-primary" />
+                  </div>
+                </div>
+
+                {/* Input file nascosto */}
+                <input
+                  id="avatarInput"
+                  type="file"
+                  className="d-none"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                />
+              </div>
               {/* NOME*/}
               <Form.Group className="mb-3 w-100" controlId="formName">
                 <Form.Label className="text-dark small-text">Nome</Form.Label>

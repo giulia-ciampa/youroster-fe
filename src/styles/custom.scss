@@ -154,3 +154,18 @@ $light: $light-gold;
   box-shadow: 0 0 0 0.15rem rgb(158, 66, 137, 0.4) !important;
   font-weight: normal;
 }
+
+/* Impedisce alla navbar di alterare le dimensioni e forza il menu a tendina a flottere correttamente */
+.custom-avatar-dropdown .dropdown-menu {
+  position: absolute !important;
+  right: 0 !important;
+  left: auto !important;
+  transform: none !important;
+  margin-top: 0.5rem !important;
+}
+
+@media (min-width: 992px) {
+  .search-input-desktop {
+    width: 25% !important;
+  }
+}

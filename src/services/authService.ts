@@ -3,7 +3,9 @@ import type {
   LoginResponse,
   ApiErrorResponse,
   RegisterPayload,
+  UpdateCredentialsPayload,
 } from "../types/auth"
+import { authFetch } from "./apiClient"
 
 const API_URL = import.meta.env.VITE_API_URL
 
@@ -121,6 +123,9 @@ export async function registration(payload: RegisterPayload) {
   if (payload.taxCodeFront)
     formData.append("taxCodeFront", payload.taxCodeFront)
   if (payload.taxCodeBack) formData.append("taxCodeBack", payload.taxCodeBack)
+  if (payload.avatar) {
+    formData.append("avatar", payload.avatar)
+  }
 
   const response = await fetch(`${API_URL}/auth/registration`, {
     method: "POST",
@@ -134,4 +139,33 @@ export async function registration(payload: RegisterPayload) {
   }
 
   return data
+}
+
+//MODIFICA EMAIL E PASSWORD
+export const updateCredentials = async (
+  credentialsData: UpdateCredentialsPayload,
+) => {
+  const token = localStorage.getItem("accessToken")
+
+  const response = await authFetch(`/auth/credentials`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(credentialsData),
+  })
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null)
+    throw new Error(
+      errorData?.message || "Errore durante l'aggiornamento delle credenziali",
+    )
+  }
+
+  const contentType = response.headers.get("content-type")
+  if (contentType && contentType.includes("application/json")) {
+    return await response.json()
+  }
+  return { success: true }
 }
