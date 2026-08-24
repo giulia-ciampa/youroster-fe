@@ -10,7 +10,7 @@ import { IoMdAdd } from "react-icons/io"
 interface AdminActiveOfficesProps {
   activeOffices: OfficeResponseDTO[]
   allOffices?: OfficeResponseDTO[]
-  onOfficeUpdated: () => void // <-- Aggiunto per gestire anche tutti gli uffici
+  onOfficeUpdated: () => void
 }
 
 const AdminActiveOffices = ({
@@ -176,11 +176,11 @@ const AdminActiveOffices = ({
 
   return (
     <>
-      <Row className="d-flex justify-content-center mt-4">
+      <Row className="d-flex justify-content-center align-items-center mt-4">
         <Col xs={12} lg={10}>
           <div className="d-flex align-items-center">
             <Form.Control
-              className="input w-25 mt-2 border border-1 border-secondary small-text"
+              className="input w-50 search-input-desktop mt-2 border border-1 border-secondary smaller-text"
               type="text"
               placeholder="Cerca ufficio"
               value={searchTerm}
@@ -189,7 +189,7 @@ const AdminActiveOffices = ({
             <Button className="btn-custom2 ms-1 mt-2 small-text p-1">
               Cerca
             </Button>
-            <div className="mt-4 ms-auto">
+            <div className="mt-2 ms-auto">
               <Button
                 className="btn-custom1 rounded-circle d-flex align-items-center justify-content-center small-text"
                 style={{ width: "30px", height: "30px", padding: "0" }}
@@ -330,7 +330,7 @@ const AdminActiveOffices = ({
         </Col>
       </Row>
 
-      {/* Modale Dettagli / Modifica Ufficio (unica modale riusata per entrambi) */}
+      {/* Modale Dettagli / Modifica Ufficio */}
       <Modal
         show={showDetailsModal}
         onHide={handleCloseDetails}

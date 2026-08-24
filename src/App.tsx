@@ -7,6 +7,8 @@ import Login from "./components/auth/Login"
 import LandingPage from "./components/landingPage/LandingPage"
 import AdminDashBoard from "./components/admin/AdminDashboard"
 import AdminOfficesContainer from "./components/admin/AdminOfficesContainer"
+import { Offices } from "./components/offices/Offices"
+import { UserDashboard } from "./components/users/UserDashboard"
 
 function App() {
   return (
@@ -25,6 +27,8 @@ function App() {
               path="/registration-pending"
               element={<RegistrationPending />}
             />
+            <Route path="/offices/user" element={<Offices />} />
+            <Route path="/dashboard/staff" element={<UserDashboard />} />
           </Routes>
         </main>
       </BrowserRouter>
