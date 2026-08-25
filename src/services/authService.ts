@@ -3,11 +3,14 @@ import type {
   LoginResponse,
   ApiErrorResponse,
   RegisterPayload,
+  UpdateCredentialsPayload,
 } from "../types/auth"
+import { authFetch } from "./apiClient"
 
 const API_URL = import.meta.env.VITE_API_URL
+
 //============================
-//LOGIN
+// LOGIN (Usa fetch normale)
 //===============================
 export const loginCall = async (
   payload: LoginPayload,
@@ -31,7 +34,6 @@ export const loginCall = async (
 
   const data: LoginResponse = await response.json()
 
-  // Salvataggio nel localStorage
   localStorage.setItem("accessToken", data.accessToken)
   localStorage.setItem("refreshToken", data.refreshToken)
   localStorage.setItem("photoUrl", data.photoUrl)
@@ -40,7 +42,7 @@ export const loginCall = async (
 }
 
 //==================================
-// Richiesta invio email per password dimenticata
+// Forgot Password (Usa fetch normale)
 //==================================
 export async function forgotPassword(email: string) {
   const response = await fetch(`${API_URL}/auth/forgot-password`, {
@@ -59,11 +61,11 @@ export async function forgotPassword(email: string) {
     throw new Error(errorMessage)
   }
 
-  return data.message // "Se l'email esiste, le istruzioni sono state inviate."
+  return data.message
 }
 
 //==================================
-// Modifica effettiva della password con il token
+// Reset Password (Usa fetch normale)
 //==================================
 export async function resetPassword(token: string, newPassword: string) {
   const response = await fetch(`${API_URL}/auth/reset-password`, {
@@ -84,7 +86,7 @@ export async function resetPassword(token: string, newPassword: string) {
 }
 
 //==================================
-// REGISTRAZIONE
+// REGISTRAZIONE (Usa fetch normale)
 //==================================
 export async function registration(payload: RegisterPayload) {
   const formData = new FormData()
@@ -101,14 +103,19 @@ export async function registration(payload: RegisterPayload) {
   formData.append("zipCode", payload.zipCode)
   formData.append("city", payload.city)
   formData.append("province", payload.province)
-
+  if (payload.referenceOfficeId) {
+    formData.append("referenceOfficeId", payload.referenceOfficeId)
+  }
   formData.append("iban", payload.iban)
   formData.append("documentNumber", payload.documentNumber)
   formData.append("documentType", payload.documentType)
   formData.append("issueDate", payload.issueDate)
   formData.append("expirationDate", payload.expirationDate)
+  formData.append("email", payload.email)
+  formData.append("password", payload.password)
+  formData.append("confirmPassword", payload.confirmPassword)
 
-  // I file vanno aggiunti solo se presenti
+  // File (aggiungili solo se l'utente li ha selezionati)
   if (payload.documentFront)
     formData.append("documentFront", payload.documentFront)
   if (payload.documentBack)
@@ -116,10 +123,9 @@ export async function registration(payload: RegisterPayload) {
   if (payload.taxCodeFront)
     formData.append("taxCodeFront", payload.taxCodeFront)
   if (payload.taxCodeBack) formData.append("taxCodeBack", payload.taxCodeBack)
-
-  formData.append("email", payload.email)
-  formData.append("password", payload.password)
-  formData.append("confirmPassword", payload.confirmPassword)
+  if (payload.avatar) {
+    formData.append("avatar", payload.avatar)
+  }
 
   const response = await fetch(`${API_URL}/auth/registration`, {
     method: "POST",
@@ -133,4 +139,33 @@ export async function registration(payload: RegisterPayload) {
   }
 
   return data
+}
+
+//MODIFICA EMAIL E PASSWORD
+export const updateCredentials = async (
+  credentialsData: UpdateCredentialsPayload,
+) => {
+  const token = localStorage.getItem("accessToken")
+
+  const response = await authFetch(`/auth/credentials`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(credentialsData),
+  })
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null)
+    throw new Error(
+      errorData?.message || "Errore durante l'aggiornamento delle credenziali",
+    )
+  }
+
+  const contentType = response.headers.get("content-type")
+  if (contentType && contentType.includes("application/json")) {
+    return await response.json()
+  }
+  return { success: true }
 }

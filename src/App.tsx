@@ -1,17 +1,23 @@
 import { BrowserRouter, Route, Routes } from "react-router"
-import ForgotPassword from "./components/ForgotPassword"
-import ResetPassword from "./components/ResetPassword"
-import Registration from "./components/Registration"
-import RegistrationPending from "./components/RegistrationPending"
-import Login from "./components/Login"
-import LandingPage from "./components/LandingPage"
+import ForgotPassword from "./components/auth/ForgotPassword"
+import ResetPassword from "./components/auth/ResetPassword"
+import Registration from "./components/auth/Registration"
+import RegistrationPending from "./components/auth/RegistrationPending"
+import Login from "./components/auth/Login"
+import LandingPage from "./components/landingPage/LandingPage"
+import AdminDashBoard from "./components/admin/AdminDashboard"
+import AdminOfficesContainer from "./components/admin/AdminOfficesContainer"
+import { Offices } from "./components/offices/Offices"
+import { UserDashboard } from "./components/users/UserDashboard"
 
 function App() {
   return (
-    <div className="d-flex flex-column min-vh-100">
+    <div className="d-flex flex-column min-vh-100 background2">
       <BrowserRouter>
-        <main className="flex-grow-1">
+        <main className="d-flex flex-column flex-grow-1">
           <Routes>
+            <Route path="/dashboard/admin" element={<AdminDashBoard />} />
+            <Route path="/offices/admin" element={<AdminOfficesContainer />} />
             <Route path="/" element={<LandingPage />} />
             <Route path="/registration" element={<Registration />} />
             <Route path="/login" element={<Login />} />
@@ -21,6 +27,8 @@ function App() {
               path="/registration-pending"
               element={<RegistrationPending />}
             />
+            <Route path="/offices/user" element={<Offices />} />
+            <Route path="/dashboard/staff" element={<UserDashboard />} />
           </Routes>
         </main>
       </BrowserRouter>

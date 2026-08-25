@@ -9,10 +9,12 @@ import {
   ListGroup,
   ListGroupItem,
 } from "react-bootstrap"
-import { registration } from "../services/authService"
+import { registration } from "../../services/authService"
 import { useNavigate } from "react-router"
-import "../styles/registration.css"
-import "../styles/mobileText.css"
+import "../../styles/registration.css"
+import "../../styles/mobileText.css"
+import { PiUserLight } from "react-icons/pi"
+import { MdAddAPhoto } from "react-icons/md"
 
 const Registration = () => {
   const [name, setName] = useState("")
@@ -45,6 +47,18 @@ const Registration = () => {
 
   const [errorsList, setErrorsList] = useState<string[]>([])
   const [warningMessage, setWarningMessage] = useState("")
+
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
+  const [avatar, setAvatar] = useState<File | null>(null)
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0]
+      setAvatar(file)
+      // Crea un URL locale per mostrare l'anteprima tonda immediata
+      setAvatarPreview(URL.createObjectURL(file))
+    }
+  }
 
   const navigate = useNavigate()
 
@@ -79,6 +93,7 @@ const Registration = () => {
         email,
         password,
         confirmPassword,
+        avatar,
       })
 
       navigate("/registration-pending")
@@ -113,12 +128,12 @@ const Registration = () => {
 
   return (
     <Container fluid className="min-vh-100 p-0">
-      <Row className="g-0 min-vh-100">
+      <Row className="g-0 min-vh-100 justify-content-center">
         {/* COLONNA SINISTRA: Brand, Mood e Identità visiva */}
         <Col
           xs={12}
           lg={6}
-          className="background-brand d-none d-lg-flex flex-column justify-content-between p-5 text-white position-relative overflow-hidden"
+          className="background-brand d-none d-lg-flex flex-column justify-content-between p-5 text-white position-sticky top-0 vh-100 overflow-hidden"
         >
           <div className="position-absolute top-0 start-0 w-100 h-100 opacity-10 bg-grid"></div>
 
@@ -149,19 +164,13 @@ const Registration = () => {
         {/* COLONNA DESTRA: Il Form di Registrazione */}
         <Col
           xs={12}
+          md={8}
           lg={6}
-          className="d-flex flex-column align-items-center justify-content-start background2 p-4 p-md-5 overflow-auto vh-100 position-relative overflow-hidden"
+          className="d-flex flex-column align-items-center justify-content-start background2 p-4 p-md-5 overflow-auto min-vh-100 position-relative overflow-hidden"
         >
-          {/* Sfumature decorative di sfondo */}
-          <div className="bg-glow-container">
-            <div className="glow-blob-1"></div>
-            <div className="glow-blob-2"></div>
-          </div>
-
           <div className="d-flex flex-column">
-            <h1 className="fs-5 text-center mb-4 d-lg-none">
-              <span className="text-brand-orange fw-bold fs-1">You</span>
-              <span className="text-brand-magenta fw-bold fs-1">Roster</span>
+            <h1 className="fs-1 text-center mb-4 d-lg-none brand-title">
+              YouRoster
             </h1>
             <div className="w-100">
               <div className="mb-4 text-center text-lg-start">
@@ -176,12 +185,53 @@ const Registration = () => {
           </div>
 
           <Form onSubmit={handleSubmit}>
-            <div className="d-flex flex-column align-items-center p-4 border border-1 border-primary rounded-4 border-lg-0 m-2 m-lg-0 shadow-sm">
+            <div className="d-flex flex-column align-items-center p-4 box rounded-4 border-lg-0 m-2 m-lg-0 shadow-sm">
+              <div className="d-flex flex-column align-items-center mb-4">
+                {/* Contenitore principale  */}
+                <div
+                  className="position-relative d-inline-block"
+                  style={{ width: "130px", height: "130px", cursor: "pointer" }}
+                  onClick={() =>
+                    document.getElementById("avatarInput")?.click()
+                  }
+                >
+                  {/* Cerchio foto */}
+                  <div className="w-100 h-100 rounded-circle overflow-hidden bg-light border border-4 border-secondary d-flex align-items-center justify-content-center">
+                    {avatarPreview ? (
+                      <img
+                        src={avatarPreview}
+                        alt="Avatar Preview"
+                        className="w-100 h-100"
+                        style={{ objectFit: "cover" }}
+                      />
+                    ) : (
+                      <PiUserLight size={100} className="text-secondary" />
+                    )}
+                  </div>
+
+                  {/* Icona della fotocamera */}
+                  <div
+                    className="position-absolute bottom-0 end-0 bg-white rounded-circle p-1 shadow-sm border border-primary d-flex align-items-center justify-content-center"
+                    style={{ width: "32px", height: "32px" }}
+                  >
+                    <MdAddAPhoto size={18} className="text-primary" />
+                  </div>
+                </div>
+
+                {/* Input file nascosto */}
+                <input
+                  id="avatarInput"
+                  type="file"
+                  className="d-none"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                />
+              </div>
               {/* NOME*/}
               <Form.Group className="mb-3 w-100" controlId="formName">
                 <Form.Label className="text-dark small-text">Nome</Form.Label>
                 <Form.Control
-                  className="border border-1 border-secondary"
+                  className="input"
                   type="text"
                   placeholder="Nome"
                   value={name}
@@ -198,7 +248,7 @@ const Registration = () => {
                   Cognome
                 </Form.Label>
                 <Form.Control
-                  className="border border-1 border-secondary"
+                  className="input"
                   type="text"
                   placeholder="Cognome"
                   value={surname}
@@ -216,7 +266,7 @@ const Registration = () => {
                   Codice Fiscale
                 </Form.Label>
                 <Form.Control
-                  className="border border-1 border-secondary"
+                  className="input"
                   type="text"
                   placeholder="Codice fiscale"
                   value={taxCode}
@@ -234,7 +284,7 @@ const Registration = () => {
                   Data di nascita
                 </Form.Label>
                 <Form.Control
-                  className="border border-1 border-secondary"
+                  className="input"
                   type="date"
                   placeholder="Data di nascita"
                   value={dateOfBirth}
@@ -252,7 +302,7 @@ const Registration = () => {
                   Luogo di nascita
                 </Form.Label>
                 <Form.Control
-                  className="border border-1 border-secondary"
+                  className="input"
                   type="text"
                   placeholder="Luogo di nascita"
                   value={placeOfBirth}
@@ -270,7 +320,7 @@ const Registration = () => {
                   Nazionalità
                 </Form.Label>
                 <Form.Control
-                  className="border border-1 border-secondary"
+                  className="input"
                   type="text"
                   placeholder="Nazionalità"
                   value={nationality}
@@ -288,7 +338,7 @@ const Registration = () => {
                   Numero di telefono
                 </Form.Label>
                 <Form.Control
-                  className="border border-1 border-secondary"
+                  className="input"
                   type="tel"
                   placeholder="Numero di telefono"
                   value={phoneNumber}
@@ -306,7 +356,7 @@ const Registration = () => {
                   Via/Piazza
                 </Form.Label>
                 <Form.Control
-                  className="border border-1 border-secondary"
+                  className="input"
                   type="text"
                   placeholder="Via/Piazza"
                   value={streetAddress}
@@ -324,7 +374,7 @@ const Registration = () => {
                   Numero civico
                 </Form.Label>
                 <Form.Control
-                  className="border border-1 border-secondary"
+                  className="input"
                   type="text"
                   placeholder="Via/Piazza"
                   value={houseNumber}
@@ -342,7 +392,7 @@ const Registration = () => {
                   Codice postale
                 </Form.Label>
                 <Form.Control
-                  className="border border-1 border-secondary"
+                  className="input"
                   type="text"
                   inputMode="numeric"
                   placeholder="Codice postale"
@@ -359,7 +409,7 @@ const Registration = () => {
               <Form.Group className="mb-3 w-100" controlId="formCity">
                 <Form.Label className="text-dark small-text">Città</Form.Label>
                 <Form.Control
-                  className="border border-1 border-secondary"
+                  className="input"
                   type="text"
                   placeholder="Città"
                   value={city}
@@ -377,7 +427,7 @@ const Registration = () => {
                   Provincia
                 </Form.Label>
                 <Form.Control
-                  className="border border-1 border-secondary"
+                  className="input"
                   type="text"
                   placeholder="Provincia"
                   value={province}
@@ -393,7 +443,7 @@ const Registration = () => {
               <Form.Group className="mb-3 w-100" controlId="formIban">
                 <Form.Label className="text-dark small-text">Iban</Form.Label>
                 <Form.Control
-                  className="border border-1 border-secondary"
+                  className="input"
                   type="text"
                   placeholder="Iban"
                   value={iban}
@@ -419,7 +469,7 @@ const Registration = () => {
                   }}
                 >
                   <Dropdown.Toggle
-                    className="w-100 bg-white text-dark text-start border border-1 border-secondary d-flex justify-content-between align-items-center"
+                    className="w-100 bg-white small-text text-muted text-start input d-flex justify-content-between align-items-center"
                     id="dropdown-document-type"
                   >
                     {documentType === "IDENTITY_CARD"
@@ -452,7 +502,7 @@ const Registration = () => {
                   Numero di documento
                 </Form.Label>
                 <Form.Control
-                  className="border border-1 border-secondary"
+                  className="input"
                   type="text"
                   placeholder="Numero di documento"
                   value={documentNumber}
@@ -470,7 +520,7 @@ const Registration = () => {
                   Data di emissione
                 </Form.Label>
                 <Form.Control
-                  className="border border-1 border-secondary"
+                  className="input"
                   type="date"
                   placeholder="Data di emissione"
                   value={issueDate}
@@ -488,7 +538,7 @@ const Registration = () => {
                   Data di scadenza
                 </Form.Label>
                 <Form.Control
-                  className="border border-1 border-secondary"
+                  className="input"
                   type="date"
                   placeholder="Data di scadenza"
                   value={expirationDate}
@@ -506,7 +556,7 @@ const Registration = () => {
                   Fronte documento
                 </Form.Label>
                 <Form.Control
-                  className="border border-1 border-secondary"
+                  className="input"
                   type="file"
                   placeholder="Fronte documento"
                   onChange={(e) => {
@@ -526,7 +576,7 @@ const Registration = () => {
                   Retro documento
                 </Form.Label>
                 <Form.Control
-                  className="border border-1 border-secondary"
+                  className="input"
                   type="file"
                   placeholder="Retro documento"
                   onChange={(e) => {
@@ -546,7 +596,7 @@ const Registration = () => {
                   Fronte codice fiscale
                 </Form.Label>
                 <Form.Control
-                  className="border border-1 border-secondary"
+                  className="input"
                   type="file"
                   placeholder="Fronte codice fiscale"
                   onChange={(e) => {
@@ -566,7 +616,7 @@ const Registration = () => {
                   Retro codice fiscale
                 </Form.Label>
                 <Form.Control
-                  className="border border-1 border-secondary"
+                  className="input"
                   type="file"
                   placeholder="Retro codice fiscale"
                   onChange={(e) => {
@@ -584,7 +634,7 @@ const Registration = () => {
               <Form.Group className="mb-3 w-100" controlId="formEmail">
                 <Form.Label className="text-dark small-text">Email</Form.Label>
                 <Form.Control
-                  className="border border-1 border-secondary"
+                  className="input"
                   type="email"
                   placeholder="Email"
                   value={email}
@@ -603,7 +653,7 @@ const Registration = () => {
                   Password
                 </Form.Label>
                 <Form.Control
-                  className="border border-1 border-secondary"
+                  className="input"
                   type="password"
                   placeholder="Password"
                   onChange={(e) => {
@@ -624,7 +674,7 @@ const Registration = () => {
                   Conferma password
                 </Form.Label>
                 <Form.Control
-                  className="border border-1 border-secondary"
+                  className="input"
                   type="password"
                   placeholder="Conferma password"
                   onChange={(e) => {
@@ -635,44 +685,44 @@ const Registration = () => {
                   autoComplete="new-password"
                 />
               </Form.Group>
-            </div>
 
-            <div className="d-flex flex-column align-items-center mx-auto">
-              {error.toLowerCase().includes("validation") &&
-              errorsList.length > 0 ? (
-                // Se è un errore di validazione, mostriamo SOLO la lista degli errori specifici
-                <div className="border border-1 border-warning rounded-4">
-                  <ListGroup variant="flush" className="mb-0 text-start">
-                    {errorsList.map((errItem, index) => (
-                      <ListGroupItem
-                        key={index}
-                        className="bg-transparent text-warning border-0 small-text"
-                      >
-                        {errItem}
-                      </ListGroupItem>
-                    ))}
-                  </ListGroup>
-                </div>
-              ) : (
-                // Altrimenti mostriamo il normale messaggio di errore generico
-                <p className="mb-0">{error}</p>
-              )}
-            </div>
-
-            {warningMessage && (
-              <div className="mb-3 text-warning text-center">
-                {warningMessage}
+              <div className="d-flex flex-column align-items-center mx-auto">
+                {error.toLowerCase().includes("validation") &&
+                errorsList.length > 0 ? (
+                  // Se è un errore di validazione, mostriamo SOLO la lista degli errori specifici
+                  <div className="border border-1 border-warning rounded-4">
+                    <ListGroup variant="flush" className="mb-0 text-start">
+                      {errorsList.map((errItem, index) => (
+                        <ListGroupItem
+                          key={index}
+                          className="bg-transparent text-warning border-0 small-text"
+                        >
+                          {errItem}
+                        </ListGroupItem>
+                      ))}
+                    </ListGroup>
+                  </div>
+                ) : (
+                  // Altrimenti mostriamo il normale messaggio di errore generico
+                  <p className="mb-0">{error}</p>
+                )}
               </div>
-            )}
 
-            <div className="d-flex justify-content-center mt-3">
-              <Button
-                variant="outline-primary"
-                type="submit"
-                disabled={isLoading}
-              >
-                Registrati
-              </Button>
+              {warningMessage && (
+                <div className="mb-3 text-warning text-center">
+                  {warningMessage}
+                </div>
+              )}
+
+              <div className="d-flex justify-content-center mt-3">
+                <Button
+                  className="btn-custom1"
+                  type="submit"
+                  disabled={isLoading}
+                >
+                  Registrati
+                </Button>
+              </div>
             </div>
           </Form>
         </Col>

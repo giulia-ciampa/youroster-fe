@@ -1,12 +1,12 @@
 import { Button, Col, Container, Row } from "react-bootstrap"
-import "../styles/mobileText.css"
+import "../../styles/mobileText.css"
 import { useNavigate } from "react-router"
 
 const RegistrationPending = () => {
   const navigate = useNavigate()
   return (
     <Container fluid className="min-vh-100 p-0">
-      <Row className="g-0 min-vh-100">
+      <Row className="g-0 min-vh-100 justify-content-center">
         {/* COLONNA SINISTRA: Brand, Mood e Identità visiva */}
         <Col
           xs={12}
@@ -42,6 +42,7 @@ const RegistrationPending = () => {
         {/* COLONNA DESTRA: REGISTRATION PENDING */}
         <Col
           xs={12}
+          md={8}
           lg={6}
           className="d-flex flex-column align-items-center justify-content-center background2 p-4 p-md-5 position-relative overflow-hidden"
         >
@@ -51,10 +52,9 @@ const RegistrationPending = () => {
             <div className="glow-blob-2"></div>
           </div>
 
-          <div className="w-75 text-center border-lg-0 p-5 border border-1 border-secondary rounded-4 m-3 m-lg-0 shadow-sm">
-            <h1 className="fs-5 text-center mb-4 d-lg-none">
-              <span className="text-brand-orange fw-bold fs-1">You</span>
-              <span className="text-brand-magenta fw-bold fs-1">Roster</span>
+          <div className="w-100 m-lg-5 text-center p-4 box rounded-4 shadow-sm">
+            <h1 className="fs-1 brand-title text-center mb-4 d-lg-none">
+              YouRoster
             </h1>
             <h2 className="fw-bold mb-3 text-primary small-title">
               Registrazione avvenuta con successo
@@ -65,8 +65,11 @@ const RegistrationPending = () => {
             </p>
 
             {/* Eventuale pulsante per tornare al login o alla home */}
-            <Button variant="outline-primary" onClick={() => navigate("/")}>
-              Torna alla home
+            <Button
+              className="btn-custom1 small-text"
+              onClick={() => navigate("/")}
+            >
+              Torna alla Home
             </Button>
           </div>
         </Col>

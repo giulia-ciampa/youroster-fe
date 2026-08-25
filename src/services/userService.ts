@@ -1,0 +1,47 @@
+import type { UserProfileResponse } from "../types/users"
+import { authFetch } from "./apiClient"
+
+//GET MY PROFILE
+export const getMyProfile = async (): Promise<UserProfileResponse> => {
+  const token = localStorage.getItem("accessToken")
+
+  const response = await authFetch(`/users/me`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  })
+
+  if (!response.ok) {
+    throw new Error("Errore nel recupero del profilo utente.")
+  }
+
+  const data: UserProfileResponse = await response.json()
+  return data
+}
+
+//UPLOAD FOTO
+export const updateMyAvatar = async (
+  file: File,
+): Promise<UserProfileResponse> => {
+  const token = localStorage.getItem("accessToken")
+
+  const formData = new FormData()
+
+  formData.append("photoUrl", file)
+
+  const response = await authFetch(`/users/me/avatar`, {
+    method: "PATCH",
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: formData,
+  })
+
+  if (!response.ok) {
+    throw new Error("Errore durante l'aggiornamento dell'avatar")
+  }
+
+  return await response.json()
+}

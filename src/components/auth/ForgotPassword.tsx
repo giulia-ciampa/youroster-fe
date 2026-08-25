@@ -1,8 +1,8 @@
 import { useState } from "react"
-import { forgotPassword } from "../services/authService"
+import { forgotPassword } from "../../services/authService"
 import { Col, Container, Row, Form, Button } from "react-bootstrap"
 import { CiWarning } from "react-icons/ci"
-import "../styles/mobileText.css"
+import "../../styles/mobileText.css"
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("")
@@ -42,7 +42,7 @@ const ForgotPassword = () => {
 
   return (
     <Container fluid className="min-vh-100 p-0">
-      <Row className="g-0 min-vh-100">
+      <Row className="g-0 min-vh-100 justify-content-center">
         {/* COLONNA SINISTRA: Brand, Mood e Identità visiva */}
         <Col
           xs={12}
@@ -78,19 +78,13 @@ const ForgotPassword = () => {
         {/*COLONNA DI DESTRA - RECUPER PASSWORD */}
         <Col
           xs={12}
+          md={8}
           lg={6}
-          className="d-flex align-items-center justify-content-center background2 p-4 p-md-5 min-vh-100 position-relative overflow-hidden"
+          className="d-flex align-items-center justify-content-center background2 p-4 min-vh-100 position-relative overflow-hidden"
         >
-          {/* Sfumature decorative di sfondo */}
-          <div className="bg-glow-container">
-            <div className="glow-blob-1"></div>
-            <div className="glow-blob-2"></div>
-          </div>
-
-          <div className="d-flex flex-column border border-3 border-primary shadow-lg rounded-4 p-4">
-            <h1 className="fs-5 text-center mb-4 d-lg-none">
-              <span className="text-brand-orange fw-bold fs-1">You</span>
-              <span className="text-brand-magenta fw-bold fs-1">Roster</span>
+          <div className="d-flex flex-column box shadow-lg p-4 w-100">
+            <h1 className="fs-1 text-center mb-4 d-lg-none brand-title">
+              YouRoster
             </h1>
 
             <div className="mb-4 text-center">
@@ -112,7 +106,7 @@ const ForgotPassword = () => {
                     Email
                   </Form.Label>
                   <Form.Control
-                    className="border border-2 border-secondary"
+                    className="input"
                     type="email"
                     placeholder="mario.rossi@example.com"
                     value={email}
@@ -128,8 +122,7 @@ const ForgotPassword = () => {
 
               <div className="d-flex justify-content-center mt-3">
                 <Button
-                  className="border border-3 border-primary fw-bold small-text"
-                  variant="outline-primary"
+                  className="btn-custom1 fw-bold small-text"
                   type="submit"
                   disabled={isLoading}
                 >
