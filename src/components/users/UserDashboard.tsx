@@ -8,6 +8,7 @@ import {
   Spinner,
   Alert,
   Button,
+  Modal,
 } from "react-bootstrap"
 import { PiUserLight } from "react-icons/pi"
 import { UserNavbar } from "./UserNavbar"
@@ -25,6 +26,7 @@ import { setUser } from "../../redux/reducers/userSlice"
 import {
   getMyClockingForDate,
   handleClockIn,
+  handleClockOut,
 } from "../../services/clockingsService"
 
 export const UserDashboard = () => {
@@ -46,6 +48,12 @@ export const UserDashboard = () => {
 
   const [clocking, setClocking] = useState<Clocking | null>(null)
   const [loading, setLoading] = useState(false)
+
+  const [showClockInModal, setShowClockInModal] = useState(false)
+  const [clockInNote, setClockInNote] = useState("")
+
+  const [showClockOutModal, setShowClockOutModal] = useState(false)
+  const [clockOutNote, setClockOutNote] = useState("")
 
   const dispatch = useDispatch()
 
@@ -100,7 +108,7 @@ export const UserDashboard = () => {
   }, [selectedDate])
   console.log(userProfile)
 
-  //TIMBRATURA ENTRATA PER DATA
+  //VISUALIZZA TIMBRATURA
   useEffect(() => {
     const fetchClocking = async () => {
       try {
@@ -118,16 +126,57 @@ export const UserDashboard = () => {
     fetchClocking()
   }, [selectedDate])
 
-  //
+  //APERTURA MODALE ENTRATA
   const handleClockInClick = async () => {
+    setShowClockInModal(true)
+  }
+
+  // APERTURA MODALE USCITA
+  const handleClockOutClick = () => {
+    setShowClockOutModal(true)
+  }
+
+  //CONFERMA TIMBRATURA ENTRATA
+  const handleConfirmClockIn = async () => {
     setLoading(true)
 
     try {
-      const success = await handleClockIn()
+      const success = await handleClockIn(clockInNote)
 
       if (success) {
         const data = await getMyClockingForDate(selectedDate)
         setClocking(data)
+
+        // Chiudo il modale
+        setShowClockInModal(false)
+
+        // Pulisco la nota
+        setClockInNote("")
+      }
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // CONFERMA TIMBRATURA USCITA
+  const handleConfirmClockOut = async () => {
+    setLoading(true)
+
+    try {
+      const success = await handleClockOut(clockOutNote)
+
+      if (success) {
+        // Ricarichiamo i dati aggiornati dal backend per quella data
+        const data = await getMyClockingForDate(selectedDate)
+        setClocking(data)
+
+        // Chiudiamo il modale
+        setShowClockOutModal(false)
+
+        // Puliamo la nota
+        setClockOutNote("")
       }
     } catch (error) {
       console.error(error)
@@ -252,23 +301,147 @@ export const UserDashboard = () => {
             <div className="w-100 mt-4 text-center">
               <h5 className="fw-semibold mb-3">Gestione Presenze</h5>
               <div className="d-flex flex-column align-items-center gap-2">
+                {/*BOTTONE PER APRIRE IL MODALE */}
                 <Button
-                  className="w-75 p-3 btn-custom1"
+                  disabled={clocking?.actualStartTime != null}
                   onClick={handleClockInClick}
-                  disabled={loading || clocking !== null}
+                  className="w-75 btn-custom1 p-3"
                 >
-                  {loading
-                    ? "Timbratura in corso..."
-                    : clocking
-                      ? "Entrata Timbrata"
-                      : "Timbra Entrata"}
+                  {clocking?.actualStartTime
+                    ? `Entrata timbrata`
+                    : "Timbra entrata"}
                 </Button>
-                <Button className="w-75 p-3 btn-custom1">Timbra Uscita</Button>
-                {clocking && (
-                  <p className="text-muted mt-2">
-                    Entrata: {clocking.actualStartTime}
-                  </p>
-                )}
+                {/* Bottone Uscita */}
+                <Button
+                  onClick={handleClockOutClick}
+                  disabled={
+                    !clocking?.actualStartTime ||
+                    clocking?.actualEndTime != null ||
+                    loading
+                  }
+                  className="w-75 btn-custom1 p-3"
+                >
+                  {clocking?.actualEndTime != null
+                    ? "Uscita Timbrata"
+                    : "Timbra Uscita"}
+                </Button>
+                <Modal
+                  show={showClockInModal}
+                  onHide={() => setShowClockInModal(false)}
+                  centered
+                >
+                  <Modal.Header closeButton>
+                    <Modal.Title>Timbra entrata</Modal.Title>
+                  </Modal.Header>
+
+                  <Modal.Body>
+                    <Form.Group>
+                      <Form.Label>Nota (facoltativa)</Form.Label>
+
+                      <Form.Control
+                        type="text"
+                        value={clockInNote}
+                        onChange={(e) => setClockInNote(e.target.value)}
+                        placeholder="Inserisci una nota..."
+                      />
+                    </Form.Group>
+                  </Modal.Body>
+
+                  <Modal.Footer>
+                    <Button
+                      className="btn-custom1"
+                      onClick={handleConfirmClockIn}
+                      disabled={loading}
+                    >
+                      {loading ? "Timbratura..." : "Timbra"}
+                    </Button>
+                    <Button
+                      className="btn-custom2"
+                      onClick={() => {
+                        setShowClockInModal(false)
+                        setClockInNote("")
+                      }}
+                      disabled={loading}
+                    >
+                      Annulla
+                    </Button>
+                  </Modal.Footer>
+                </Modal>
+                <Modal
+                  show={showClockOutModal}
+                  onHide={() => setShowClockOutModal(false)}
+                  centered
+                >
+                  <Modal.Header closeButton>
+                    <Modal.Title>Timbra uscita</Modal.Title>
+                  </Modal.Header>
+
+                  <Modal.Body>
+                    <Form.Group>
+                      <Form.Label>Nota (facoltativa)</Form.Label>
+
+                      <Form.Control
+                        type="text"
+                        value={clockOutNote}
+                        onChange={(e) => setClockOutNote(e.target.value)}
+                        placeholder="Inserisci una nota..."
+                      />
+                    </Form.Group>
+                  </Modal.Body>
+
+                  <Modal.Footer>
+                    <Button
+                      variant="secondary"
+                      onClick={() => {
+                        setShowClockOutModal(false)
+                        setClockOutNote("")
+                      }}
+                      disabled={loading}
+                    >
+                      Annulla
+                    </Button>
+
+                    <Button
+                      className="btn-custom2"
+                      onClick={handleConfirmClockOut}
+                      disabled={loading}
+                    >
+                      {loading ? "Timbratura..." : "Timbra"}
+                    </Button>
+                  </Modal.Footer>
+                </Modal>
+                <div>
+                  {clocking?.actualStartTime && (
+                    <p className="text-muted mt-2">
+                      Entrata ore:{" "}
+                      <span className="text-dark">
+                        {clocking.actualStartTime}
+                      </span>
+                      <br></br>
+                      {clocking.note && (
+                        <>
+                          Note:{" "}
+                          <span className="text-dark">{clocking.note}</span>
+                        </>
+                      )}
+                    </p>
+                  )}
+                  {clocking?.actualEndTime && (
+                    <p className="text-muted mt-2">
+                      Usicta ore:{" "}
+                      <span className="text-dark">
+                        {clocking.actualEndTime}
+                      </span>
+                      <br></br>
+                      {clocking.note && (
+                        <>
+                          Note:{" "}
+                          <span className="text-dark">{clocking.note}</span>
+                        </>
+                      )}
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
 

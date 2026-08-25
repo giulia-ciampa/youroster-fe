@@ -36,11 +36,21 @@ export interface ShiftTask {
   shiftAssignment?: ShiftAssignment
 }
 
+export interface AttendanceStatus {
+  ON_TIME?: string
+  LATE?: string
+  ABSENT: string
+  COMPLETED: string
+  EARLY_DEPARTURE: string
+}
+
 export interface Clocking {
   id: string
   actualStartTime?: string
   actualEndTime?: string
-  attendanceStatus?: string
   workedMinutes?: number
   workedHours?: number
+  officeName?: string
+  note?: string
+  attendanceStatus?: AttendanceStatus
 }
