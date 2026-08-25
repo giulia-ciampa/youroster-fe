@@ -12,7 +12,7 @@ import {
 import { PiUserLight } from "react-icons/pi"
 import { UserNavbar } from "./UserNavbar"
 import { useEffect, useState } from "react"
-import type { ShiftAssignment } from "../../types/shift"
+import type { Clocking, ShiftAssignment } from "../../types/shift"
 import {
   getColleaguesWithMyShift,
   getMyAssignmentsByDate,
@@ -22,6 +22,10 @@ import type { UserProfileResponse } from "../../types/users"
 import { MdAddAPhoto } from "react-icons/md"
 import { useDispatch } from "react-redux"
 import { setUser } from "../../redux/reducers/userSlice"
+import {
+  getMyClockingForDate,
+  handleClockIn,
+} from "../../services/clockingsService"
 
 export const UserDashboard = () => {
   const [userProfile, setUserProfile] = useState<UserProfileResponse | null>(
@@ -39,6 +43,9 @@ export const UserDashboard = () => {
 
   const [showAlert, setShowAlert] = useState(false)
   const [alertMessage, setAlertMessage] = useState("")
+
+  const [clocking, setClocking] = useState<Clocking | null>(null)
+  const [loading, setLoading] = useState(false)
 
   const dispatch = useDispatch()
 
@@ -93,6 +100,42 @@ export const UserDashboard = () => {
   }, [selectedDate])
   console.log(userProfile)
 
+  //TIMBRATURA ENTRATA PER DATA
+  useEffect(() => {
+    const fetchClocking = async () => {
+      try {
+        const data = await getMyClockingForDate(selectedDate)
+
+        console.log("TIMBRATURA:", data)
+
+        setClocking(data)
+      } catch (error) {
+        console.error("Errore nel recupero della timbratura:", error)
+        setClocking(null)
+      }
+    }
+
+    fetchClocking()
+  }, [selectedDate])
+
+  //
+  const handleClockInClick = async () => {
+    setLoading(true)
+
+    try {
+      const success = await handleClockIn()
+
+      if (success) {
+        const data = await getMyClockingForDate(selectedDate)
+        setClocking(data)
+      }
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   // Upload foto
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -138,7 +181,6 @@ export const UserDashboard = () => {
           <Col
             xs={12}
             md={4}
-            lg={4}
             className="d-flex flex-column align-items-center p-4 border rounded"
           >
             {showAlert && (
@@ -209,9 +251,24 @@ export const UserDashboard = () => {
             )}
             <div className="w-100 mt-4 text-center">
               <h5 className="fw-semibold mb-3">Gestione Presenze</h5>
-              <div className="d-grid gap-2">
-                <Button className="w-100 p-3">Timbra Entrata</Button>
-                <Button className="w-100 p-3">Timbra Uscita</Button>
+              <div className="d-flex flex-column align-items-center gap-2">
+                <Button
+                  className="w-75 p-3 btn-custom1"
+                  onClick={handleClockInClick}
+                  disabled={loading || clocking !== null}
+                >
+                  {loading
+                    ? "Timbratura in corso..."
+                    : clocking
+                      ? "Entrata Timbrata"
+                      : "Timbra Entrata"}
+                </Button>
+                <Button className="w-75 p-3 btn-custom1">Timbra Uscita</Button>
+                {clocking && (
+                  <p className="text-muted mt-2">
+                    Entrata: {clocking.actualStartTime}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -219,7 +276,7 @@ export const UserDashboard = () => {
           </Col>
 
           {/* COLONNA DESTRA: Turno del giorno + Tabella colleghi */}
-          <Col xs={12} md={8} lg={8}>
+          <Col xs={12} md={8}>
             {/* Box del turno del giorno */}
             <Card className="mb-4 shadow-sm">
               <Card.Body>
@@ -245,19 +302,32 @@ export const UserDashboard = () => {
                   <Table striped bordered hover responsive>
                     <thead>
                       <tr>
-                        <th className="text-center">Ufficio/Sede</th>
-                        <th className="text-center">Turno</th>
+                        <th className="text-center text-smaller text-dark">
+                          Ufficio/Sede
+                        </th>
+                        <th className="text-center text-smaller text-dark">
+                          Turno
+                        </th>
 
-                        <th className="text-center">Mansioni</th>
+                        <th className="text-center text-smaller text-dark">
+                          Mansioni
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr>
-                        <td> {todayAssignment.officeName || "Nessuna sede"}</td>
-                        <td>
+                        <td className="text-center text-smaller text-dark">
+                          {" "}
+                          {todayAssignment.officeName || "Nessuna sede"}
+                        </td>
+                        <td className="text-center text-smaller text-dark">
                           {" "}
                           {todayAssignment.startTime || "Inizio turno"} -{" "}
                           {todayAssignment.endTime || "Fine turno"}
+                        </td>
+                        <td className="text-center text-smaller text-dark">
+                          {todayAssignment.tasks ||
+                            "Non ci sono mansioni assegnate"}
                         </td>
                       </tr>
                     </tbody>
@@ -270,19 +340,27 @@ export const UserDashboard = () => {
                   <Table striped bordered hover responsive>
                     <thead>
                       <tr>
-                        <th className="text-center">Ufficio/Sede</th>
-                        <th className="text-center">Turno</th>
+                        <th className="text-center text-smaller text-dark">
+                          Ufficio/Sede
+                        </th>
+                        <th className="text-center text-smaller text-dark">
+                          Turno
+                        </th>
 
-                        <th className="text-center">Mansioni</th>
+                        <th className="text-center text-smaller text-dark">
+                          Mansioni
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr>
-                        <td className="text-center">
+                        <td className="text-center text-smaller text-dark">
                           Nessun ufficio assegnato
                         </td>
-                        <td className="text-center">00:00 - 00:00</td>
-                        <td className="text-center">
+                        <td className="text-center text-smaller text-dark">
+                          00:00 - 00:00
+                        </td>
+                        <td className="text-center text-smaller text-dark">
                           Non ci sono mansioni assegnate
                         </td>
                       </tr>
@@ -295,26 +373,42 @@ export const UserDashboard = () => {
             {/* Tabella chi è in turno con te */}
             <Card className="shadow-sm">
               <Card.Body>
-                <Card.Title className="fw-bold mb-3">
+                <Card.Title className="text-primary mb-3">
                   Colleghi in turno con te
                 </Card.Title>
                 <Table striped bordered hover responsive>
                   <thead>
                     <tr>
-                      <th className="text-center">Nome</th>
-                      <th className="text-center">Cognome</th>
-                      <th className="text-center">Ruolo</th>
-                      <th className="text-center">Mansioni</th>
+                      <th className="text-center text-smaller text-dark">
+                        Nome
+                      </th>
+                      <th className="text-center text-smaller text-dark">
+                        Cognome
+                      </th>
+                      <th className="text-center text-smaller text-dark">
+                        Ruolo
+                      </th>
+                      <th className="text-center text-smaller text-dark">
+                        Mansioni
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {coworkers.length > 0 ? (
                       coworkers.map((colleague, index) => (
                         <tr key={index}>
-                          <td>{colleague.userName}</td>
-                          <td>{colleague.userSurname}</td>
-                          <td>{colleague.roleNames}</td>
-                          <td>{colleague.tasks}</td>
+                          <td className="text-center text-smaller text-dark">
+                            {colleague.userName}
+                          </td>
+                          <td className="text-center text-smaller text-dark">
+                            {colleague.userSurname}
+                          </td>
+                          <td className="text-center text-smaller text-dark">
+                            {colleague.roleNames}
+                          </td>
+                          <td className="text-center text-smaller text-dark">
+                            {colleague.tasks}
+                          </td>
                         </tr>
                       ))
                     ) : (

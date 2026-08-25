@@ -103,7 +103,7 @@ export const UserNavbar = () => {
           >
             <NavDropdown.Item
               as={NavLink}
-              to={"/dashboard/user"}
+              to={"/dashboard/staff"}
               className="text-dark"
             >
               Dashboard
@@ -146,7 +146,7 @@ export const UserNavbar = () => {
           <Nav className="d-none d-sm-flex flex-row gap-3">
             <Nav.Link
               as={NavLink}
-              to={"/dashboard/user"}
+              to={"/dashboard/staff"}
               className="text-light"
             >
               Dashboard
