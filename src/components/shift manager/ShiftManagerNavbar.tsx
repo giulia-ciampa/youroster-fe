@@ -1,3 +1,4 @@
+import { useState } from "react"
 import {
   Container,
   Modal,
@@ -8,45 +9,42 @@ import {
   Button,
 } from "react-bootstrap"
 import { PiUserCircleThin } from "react-icons/pi"
-import "../../styles/login.css"
-import { IoIosArrowDown } from "react-icons/io"
+import { useDispatch, useSelector } from "react-redux"
 import { NavLink, useNavigate } from "react-router"
-import { useState } from "react"
-import { updateCredentials } from "../../services/authService"
+import { clearUser } from "../../redux/reducers/userSlice"
 import type { UpdateCredentialsPayload } from "../../types/auth"
+import type { RootState } from "../../redux/store/store"
+import { updateCredentials } from "../../services/authService"
+import { IoIosArrowDown } from "react-icons/io"
 
-const AdminNavbar = () => {
+export const ShiftManagerNavbar = () => {
   const [openModal, setOpenModal] = useState(false)
-  const storedPhoto = localStorage.getItem("photoUrl")
-  const userPhoto =
-    storedPhoto && storedPhoto !== "undefined" ? storedPhoto : null
-
-  const userAvatar = userPhoto ? (
-    <img
-      src={userPhoto}
-      alt="Admin Avatar"
-      className="avatar-circle"
-      style={{ width: "35px", height: "35px", objectFit: "cover" }}
-    />
-  ) : (
-    <PiUserCircleThin size={32} className="text-white" />
-  )
 
   const [email, setEmail] = useState("")
   const [oldPassword, setOldPassword] = useState("")
   const [newPassword, setNewPassword] = useState("")
   const [confirmNewPassword, setConfirmNewPassword] = useState("")
 
+  const userPhoto = useSelector((state: RootState) => state.user.photoUrl)
+
+  const userAvatar =
+    userPhoto && userPhoto !== "undefined" ? (
+      <img
+        src={userPhoto}
+        alt="User Avatar"
+        className="avatar-circle"
+        style={{ width: "35px", height: "35px", objectFit: "cover" }}
+      />
+    ) : (
+      <PiUserCircleThin size={32} className="text-white" />
+    )
+
   const navigate = useNavigate()
+  const dispatch = useDispatch()
 
   //funzione logout
   const handleLogout = () => {
-    // Rimuovi i dati salvati nel browser
-    localStorage.removeItem("accessToken")
-    localStorage.removeItem("photoUrl")
-    localStorage.removeItem("refreshToken")
-    localStorage.removeItem("roleName")
-
+    dispatch(clearUser())
     navigate("/")
   }
 
@@ -69,7 +67,7 @@ const AdminNavbar = () => {
       setConfirmNewPassword("")
     } catch (error: unknown) {
       console.error("Errore durante l'aggiornamento:", error)
-      // Gestione sicura dell'errore senza 'any'
+
       const errMessage =
         error instanceof Error
           ? error.message
@@ -106,26 +104,42 @@ const AdminNavbar = () => {
           >
             <NavDropdown.Item
               as={NavLink}
-              to={"/dashboard/admin"}
+              to={"/dashboard/shift-manager"}
               className="text-dark"
             >
               Dashboard
             </NavDropdown.Item>
-            <NavDropdown.Item href="#utenti" className="text-dark">
-              Utenti
-            </NavDropdown.Item>
+
             <NavDropdown.Item
               as={NavLink}
-              to={"/offices/admin"}
+              to={"/personal-data/shift-manager"}
+              className="text-dark"
+            >
+              Anagrafica
+            </NavDropdown.Item>
+
+            <NavDropdown.Item
+              as={NavLink}
+              to={"/shifts/shift-manager"}
+              className="text-dark"
+            >
+              Turni
+            </NavDropdown.Item>
+
+            <NavDropdown.Item
+              as={NavLink}
+              to={"/requests/shift-manager"}
+              className="text-dark"
+            >
+              Richieste
+            </NavDropdown.Item>
+
+            <NavDropdown.Item
+              as={NavLink}
+              to={"/offices/shift-manager"}
               className="text-dark"
             >
               Uffici
-            </NavDropdown.Item>
-            <NavDropdown.Item href="#ruoli" className="text-dark">
-              Ruoli
-            </NavDropdown.Item>
-            <NavDropdown.Item href="#turni" className="text-dark">
-              Turni
             </NavDropdown.Item>
           </NavDropdown>
 
@@ -133,22 +147,42 @@ const AdminNavbar = () => {
           <Nav className="d-none d-sm-flex flex-row gap-3">
             <Nav.Link
               as={NavLink}
-              to={"/dashboard/admin"}
+              to={"/dashboard/shift-manager"}
               className="text-light"
             >
               Dashboard
             </Nav.Link>
-            <Nav.Link href="#utenti" className="text-light">
-              Utenti
+
+            <Nav.Link
+              as={NavLink}
+              to={"/personal-data/shift-manager"}
+              className="text-light"
+            >
+              Anagrafica
             </Nav.Link>
-            <Nav.Link as={NavLink} to={"/offices/admin"} className="text-light">
-              Uffici
-            </Nav.Link>
-            <Nav.Link href="#ruoli" className="text-light">
-              Ruoli
-            </Nav.Link>
-            <Nav.Link href="#turni" className="text-light">
+
+            <Nav.Link
+              as={NavLink}
+              to={"/shifts/shift-manager"}
+              className="text-light"
+            >
               Turni
+            </Nav.Link>
+
+            <Nav.Link
+              as={NavLink}
+              to={"/requests/shift-manager"}
+              className="text-light"
+            >
+              Richieste
+            </Nav.Link>
+
+            <Nav.Link
+              as={NavLink}
+              to={"/offices/shift-manager"}
+              className="text-light"
+            >
+              Uffici
             </Nav.Link>
           </Nav>
         </div>
@@ -176,7 +210,7 @@ const AdminNavbar = () => {
             <Modal.Title>Modifica Credenziali</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            {/*form per email e password */}
+            {/* form per email e password */}
 
             <h5 className="small-title text-dark">Modifica email</h5>
 
@@ -257,5 +291,3 @@ const AdminNavbar = () => {
     </Navbar>
   )
 }
-
-export default AdminNavbar

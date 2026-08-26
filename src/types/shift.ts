@@ -5,14 +5,36 @@ export interface User {
   email: string
 }
 
-export interface Shift {
-  id: string
+export interface CreateShiftPayload {
+  officeName: string
   startTime: string
   endTime: string
-  office?: {
-    id: string
-    name: string
-  }
+  isActive: boolean
+}
+
+export interface Shift {
+  id: string
+  officeName: string
+  startTime: string
+  endTime: string
+  isActive: boolean
+}
+
+export interface ShiftPage {
+  content: Shift[]
+  totalElements: number
+  totalPages: number
+  size: number
+  number: number
+  first: boolean
+  last: boolean
+}
+
+export interface ShiftToUpdatePayload {
+  officeName: string
+  startTime: string
+  endTime: string
+  isActive: boolean
 }
 export interface ShiftAssignment {
   id: string

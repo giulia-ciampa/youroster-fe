@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react"
+import type { OfficeResponseDTO } from "../../types/office"
 import {
   fetchActiveOffices,
   fetchAllOffices,
 } from "../../services/officeService"
-import type { OfficeResponseDTO } from "../../types/office"
-import { Col, Container, Row, Form, Button } from "react-bootstrap"
-import { UserNavbar } from "../users/UserNavbar"
 
-export const Offices = () => {
+import { Col, Container, Row, Form, Button } from "react-bootstrap"
+import { ShiftManagerNavbar } from "../shift manager/ShiftManagerNavbar"
+
+export const ShiftManagerOffices = () => {
   const [activeOfficesList, setActiveOfficesList] = useState<
     OfficeResponseDTO[]
   >([])
@@ -53,7 +54,7 @@ export const Offices = () => {
 
   return (
     <>
-      <UserNavbar />
+      <ShiftManagerNavbar />
       <Container fluid className="px-3 min-vh-100">
         {/* Barra di ricerca */}
         <Row className="d-flex justify-content-center mt-4">
