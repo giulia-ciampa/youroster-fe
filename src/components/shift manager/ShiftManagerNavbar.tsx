@@ -128,6 +128,14 @@ export const ShiftManagerNavbar = () => {
 
             <NavDropdown.Item
               as={NavLink}
+              to={"/shifts-assignment/shift-manager"}
+              className="text-dark text-nowrap"
+            >
+              Assegnazione turni
+            </NavDropdown.Item>
+
+            <NavDropdown.Item
+              as={NavLink}
               to={"/requests/shift-manager"}
               className="text-dark"
             >
@@ -144,7 +152,7 @@ export const ShiftManagerNavbar = () => {
           </NavDropdown>
 
           {/* Link desktop */}
-          <Nav className="d-none d-sm-flex flex-row gap-3">
+          <Nav className="d-none d-sm-flex flex-row gap-5">
             <Nav.Link
               as={NavLink}
               to={"/dashboard/shift-manager"}
@@ -167,6 +175,14 @@ export const ShiftManagerNavbar = () => {
               className="text-light"
             >
               Turni
+            </Nav.Link>
+
+            <Nav.Link
+              as={NavLink}
+              to={"/shifts-assignment/shift-manager"}
+              className="text-light text-nowrap"
+            >
+              Assegnazione turni
             </Nav.Link>
 
             <Nav.Link

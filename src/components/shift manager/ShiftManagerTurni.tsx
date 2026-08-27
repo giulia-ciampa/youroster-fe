@@ -228,7 +228,7 @@ export const ShiftManagerTurni = () => {
         </Row>
       </Container>
 
-      {/* Modale (Crea / Modifica) */}
+      {/* Modale(Crea / Modifica) */}
       <Modal
         show={showModal}
         onHide={() => setShowModal(false)}

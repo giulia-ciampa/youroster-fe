@@ -12,6 +12,7 @@ import { UserDashboard } from "./components/users/UserDashboard"
 import { ShiftManagerDashboard } from "./components/shift manager/ShiftManagerDashboard"
 import { ShiftManagerTurni } from "./components/shift manager/ShiftManagerTurni"
 import { ShiftManagerOffices } from "./components/offices/ShiftManagerOffices"
+import { ShiftManagerAssignment } from "./components/shift manager/ShiftManagerAssignment"
 
 function App() {
   return (
@@ -43,6 +44,11 @@ function App() {
             <Route
               path="/shifts/shift-manager"
               element={<ShiftManagerTurni />}
+            />
+
+            <Route
+              path="/shifts-assignment/shift-manager"
+              element={<ShiftManagerAssignment />}
             />
           </Routes>
         </main>
