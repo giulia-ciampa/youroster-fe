@@ -45,3 +45,25 @@ export const updateMyAvatar = async (
 
   return await response.json()
 }
+
+//GET PER LISTA UTENTI PER NOME
+
+export const getActiveUsersForAssignment = async () => {
+  try {
+    const response = await authFetch(`/users/active-for-assignment`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`Errore HTTP: ${response.status}`)
+    }
+
+    return await response.json()
+  } catch (error) {
+    console.error("Errore durante il recupero degli utenti attivi:", error)
+    throw error
+  }
+}

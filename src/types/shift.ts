@@ -5,15 +5,50 @@ export interface User {
   email: string
 }
 
-export interface Shift {
-  id: string
+export interface CreateShiftPayload {
+  officeName: string
   startTime: string
   endTime: string
-  office?: {
-    id: string
-    name: string
-  }
+  isActive: boolean
 }
+
+export interface Shift {
+  id: string
+  officeName: string
+  startTime: string
+  endTime: string
+  isActive: boolean
+}
+
+export interface ShiftPage {
+  content: Shift[]
+  totalElements: number
+  totalPages: number
+  size: number
+  number: number
+  first: boolean
+  last: boolean
+}
+
+export interface ShiftToUpdatePayload {
+  officeName: string
+  startTime: string
+  endTime: string
+  isActive: boolean
+}
+
+export type AssignmentType =
+  | "WORK"
+  | "ON_HOLIDAY"
+  | "SICK"
+  | "OFF"
+  | "PERMISSION"
+  | "MATERNITY"
+  | "PATERNITY"
+  | "PARENTAL_LEAVE"
+  | "PROTECTED_LEAVE"
+  | "ABSENT"
+
 export interface ShiftAssignment {
   id: string
   userId: string
@@ -25,8 +60,9 @@ export interface ShiftAssignment {
   startTime: string
   endTime: string
   shiftDate: string
-  assignmentType: string
+  assignmentType: AssignmentType
   tasks: string[]
+  shiftId?: string
 }
 
 export interface ShiftTask {
@@ -53,4 +89,22 @@ export interface Clocking {
   officeName?: string
   note?: string
   attendanceStatus?: AttendanceStatus
+}
+
+export interface ShiftAssignmentDTO {
+  userId: string
+  shiftId?: string
+  shiftDate: string
+  assignmentType: AssignmentType
+}
+
+export interface AssignedUser {
+  userId: string
+  name: string
+}
+
+export interface UpdateShiftAssignmentDTO {
+  userId?: string
+  shiftId?: string
+  assignmentType?: AssignmentType
 }

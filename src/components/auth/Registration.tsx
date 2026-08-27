@@ -168,7 +168,7 @@ const Registration = () => {
           lg={6}
           className="d-flex flex-column align-items-center justify-content-start background2 p-4 p-md-5 overflow-auto min-vh-100 position-relative overflow-hidden"
         >
-          <div className="d-flex flex-column">
+          <div className="d-flex flex-column w-100 mx-5">
             <h1 className="fs-1 text-center mb-4 d-lg-none brand-title">
               YouRoster
             </h1>
@@ -177,15 +177,15 @@ const Registration = () => {
                 <h2 className="fw-bold mb-1 text-primary text-center small-title">
                   Benvenuto
                 </h2>
-                <p className="text-muted small-text">
+                <p className="text-muted small-text text-center mb-5">
                   Inserisci i tuoi dati per proseguire con la registrazione.
                 </p>
               </div>
             </div>
           </div>
 
-          <Form onSubmit={handleSubmit}>
-            <div className="d-flex flex-column align-items-center p-4 box rounded-4 border-lg-0 m-2 m-lg-0 shadow-sm">
+          <Form onSubmit={handleSubmit} className="w-100 mx-5">
+            <div className="d-flex flex-column align-items-center p-4 box rounded-4 border-lg-0 shadow-sm">
               <div className="d-flex flex-column align-items-center mb-4">
                 {/* Contenitore principale  */}
                 <div

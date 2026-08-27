@@ -5,6 +5,8 @@ import { loginCall } from "../../services/authService"
 import { PiUserLight } from "react-icons/pi"
 import { CiWarning } from "react-icons/ci"
 import "../../styles/login.css"
+import { useDispatch } from "react-redux"
+import { setUser } from "../../redux/reducers/userSlice"
 
 const Login = () => {
   const [email, setEmail] = useState("")
@@ -17,6 +19,8 @@ const Login = () => {
   const userPhoto =
     storedPhoto && storedPhoto !== "undefined" ? storedPhoto : null
 
+  const dispatch = useDispatch()
+
   const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault()
     setIsLoading(true)
@@ -25,33 +29,32 @@ const Login = () => {
     try {
       const response = await loginCall({ email, password })
 
-      // 1. Salviamo i dati ricevuti dal backend nel localStorage
+      console.log("LOGIN RESPONSE:", response)
+
+      // Salviamo i token
       localStorage.setItem("accessToken", response.accessToken)
       localStorage.setItem("refreshToken", response.refreshToken)
       localStorage.setItem("photoUrl", response.photoUrl)
-      localStorage.setItem("roleName", response.roleName)
 
-      // 2. Smistamento in base al ruolo restituito
-      switch (response.roleName) {
-        case "ADMIN":
-          navigate("/dashboard/admin")
-          break
-        case "HR":
-          navigate("/dashboard/hr")
-          break
-        case "SHIFT_MANAGER":
-          navigate("/dashboard/shift-manager")
-          break
-        case "COORDINATOR":
-          navigate("/dashboard/coordinator")
-          break
-        case "AP E PAYROLL SPECIALIST":
-          navigate("/dashboard/payroll")
-          break
-        case "STAFF":
-        default:
-          navigate("/dashboard/staff")
-          break
+      const roleName = response.roleName
+
+      // array di ruoli
+      dispatch(
+        setUser({
+          photoUrl: response.photoUrl,
+          roleNames: [roleName],
+        }),
+      )
+
+      // Redirect in base al ruolo
+      if (roleName === "ADMIN") {
+        navigate("/dashboard/admin")
+      } else if (roleName === "HR") {
+        navigate("/dashboard/hr")
+      } else if (roleName === "SHIFT MANAGER") {
+        navigate("/dashboard/shift-manager")
+      } else {
+        navigate("/dashboard/staff")
       }
     } catch (err: unknown) {
       setError((err as Error).message || "Credenziali errate")

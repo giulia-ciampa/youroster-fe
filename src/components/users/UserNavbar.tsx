@@ -85,7 +85,8 @@ export const UserNavbar = () => {
         {/* PARTE SINISTRA: Logo YouRoster (desktop) o Menu a tendina (mobile) */}
         <div className="d-flex align-items-center">
           <Navbar.Brand
-            href="#"
+            as={NavLink}
+            to={"/"}
             className="fw-bold tracking-wide text-light d-none d-sm-inline me-3"
           >
             YouRoster
@@ -111,7 +112,7 @@ export const UserNavbar = () => {
 
             <NavDropdown.Item
               as={NavLink}
-              to={"/personal-data"}
+              to={"/personal-data/staff"}
               className="text-dark"
             >
               Anagrafica
@@ -135,7 +136,7 @@ export const UserNavbar = () => {
 
             <NavDropdown.Item
               as={NavLink}
-              to={"/offices/user"}
+              to={"/offices/staff"}
               className="text-dark"
             >
               Uffici
@@ -152,7 +153,11 @@ export const UserNavbar = () => {
               Dashboard
             </Nav.Link>
 
-            <Nav.Link as={NavLink} to={"/personal-data"} className="text-light">
+            <Nav.Link
+              as={NavLink}
+              to={"/personal-data/staff"}
+              className="text-light"
+            >
               Anagrafica
             </Nav.Link>
 
@@ -164,7 +169,7 @@ export const UserNavbar = () => {
               Richieste
             </Nav.Link>
 
-            <Nav.Link as={NavLink} to={"/offices/user"} className="text-light">
+            <Nav.Link as={NavLink} to={"/offices/staff"} className="text-light">
               Uffici
             </Nav.Link>
           </Nav>

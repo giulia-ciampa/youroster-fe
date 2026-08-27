@@ -1,35 +1,36 @@
-import {
-  Col,
-  Container,
-  Row,
-  Form,
-  Table,
-  Card,
-  Spinner,
-  Alert,
-  Button,
-  Modal,
-} from "react-bootstrap"
-import { PiUserLight } from "react-icons/pi"
-import { UserNavbar } from "./UserNavbar"
 import { useEffect, useState } from "react"
+import { useDispatch } from "react-redux"
 import type { Clocking, ShiftAssignment } from "../../types/shift"
+import type { UserProfileResponse } from "../../types/users"
+import { getMyProfile, updateMyAvatar } from "../../services/userService"
+import { setUser } from "../../redux/reducers/userSlice"
 import {
   getColleaguesWithMyShift,
   getMyAssignmentsByDate,
 } from "../../services/shiftAssignmentService"
-import { getMyProfile, updateMyAvatar } from "../../services/userService" // <-- La funzione per i dati utente
-import type { UserProfileResponse } from "../../types/users"
-import { MdAddAPhoto } from "react-icons/md"
-import { useDispatch } from "react-redux"
-import { setUser } from "../../redux/reducers/userSlice"
 import {
   getMyClockingForDate,
   handleClockIn,
   handleClockOut,
 } from "../../services/clockingsService"
 
-export const UserDashboard = () => {
+import {
+  Alert,
+  Button,
+  Col,
+  Container,
+  Modal,
+  Row,
+  Spinner,
+  Form,
+  Card,
+  Table,
+} from "react-bootstrap"
+import { PiUserLight } from "react-icons/pi"
+import { MdAddAPhoto } from "react-icons/md"
+import { ShiftManagerNavbar } from "./ShiftManagerNavbar"
+
+export const ShiftManagerDashboard = () => {
   const [userProfile, setUserProfile] = useState<UserProfileResponse | null>(
     null,
   )
@@ -228,7 +229,7 @@ export const UserDashboard = () => {
 
   return (
     <>
-      <UserNavbar />
+      <ShiftManagerNavbar />
       <Container
         fluid
         className="d-flex justify-content-center align-items-center flex-grow-1"
@@ -452,8 +453,6 @@ export const UserDashboard = () => {
                 </div>
               </div>
             </div>
-
-            {/* Resto del form data... */}
           </Col>
 
           {/* COLONNA DESTRA: Turno del giorno + Tabella colleghi */}

@@ -7,8 +7,12 @@ import Login from "./components/auth/Login"
 import LandingPage from "./components/landingPage/LandingPage"
 import AdminDashBoard from "./components/admin/AdminDashboard"
 import AdminOfficesContainer from "./components/admin/AdminOfficesContainer"
-import { Offices } from "./components/offices/Offices"
+import { UserOffices } from "./components/offices/UserOffices"
 import { UserDashboard } from "./components/users/UserDashboard"
+import { ShiftManagerDashboard } from "./components/shift manager/ShiftManagerDashboard"
+import { ShiftManagerTurni } from "./components/shift manager/ShiftManagerTurni"
+import { ShiftManagerOffices } from "./components/offices/ShiftManagerOffices"
+import { ShiftManagerAssignment } from "./components/shift manager/ShiftManagerAssignment"
 
 function App() {
   return (
@@ -18,6 +22,10 @@ function App() {
           <Routes>
             <Route path="/dashboard/admin" element={<AdminDashBoard />} />
             <Route path="/offices/admin" element={<AdminOfficesContainer />} />
+            <Route
+              path="/offices/shift-manager"
+              element={<ShiftManagerOffices />}
+            />
             <Route path="/" element={<LandingPage />} />
             <Route path="/registration" element={<Registration />} />
             <Route path="/login" element={<Login />} />
@@ -27,8 +35,21 @@ function App() {
               path="/registration-pending"
               element={<RegistrationPending />}
             />
-            <Route path="/offices/user" element={<Offices />} />
+            <Route path="/offices/staff" element={<UserOffices />} />
             <Route path="/dashboard/staff" element={<UserDashboard />} />
+            <Route
+              path="/dashboard/shift-manager"
+              element={<ShiftManagerDashboard />}
+            />
+            <Route
+              path="/shifts/shift-manager"
+              element={<ShiftManagerTurni />}
+            />
+
+            <Route
+              path="/shifts-assignment/shift-manager"
+              element={<ShiftManagerAssignment />}
+            />
           </Routes>
         </main>
       </BrowserRouter>
