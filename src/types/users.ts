@@ -95,3 +95,17 @@ export interface CoordinatorResponse {
   officeName: string
   roleNames: string[]
 }
+
+//SUMMARY
+
+export interface UserSummaryResponse {
+  accruedDaysTotal: number
+  accruedDaysThisMonth: number
+  usedDays: number
+  remainingDays: number
+
+  accruedHoursTotal: number
+  accruedHoursThisMonth: number
+  usedHours: number
+  remainingHours: number
+}

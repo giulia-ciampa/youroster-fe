@@ -55,15 +55,17 @@ export const getMyClockingForDate = async (
 ): Promise<Clocking | null> => {
   const response = await authFetch(`/clockings/me/date?date=${date}`)
 
-  if (response.status === 404) {
-    return null
-  }
-
   if (!response.ok) {
     throw new Error("Errore nel recupero della timbratura")
   }
 
-  return await response.json()
+  const text = await response.text()
+
+  if (!text) {
+    return null
+  }
+
+  return JSON.parse(text)
 }
 
 //TIMBRATURA USCITA

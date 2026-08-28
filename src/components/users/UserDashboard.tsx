@@ -231,9 +231,19 @@ export const UserDashboard = () => {
       <UserNavbar />
       <Container
         fluid
-        className="d-flex justify-content-center align-items-center flex-grow-1"
+        className="d-flex flex-column justify-content-center align-items-center flex-grow-1 my-2"
       >
-        <Row className="g-4 w-100 justify-content-center">
+        {/* TITOLO */}
+        <Row className="w-100 justify-content-center mb-3">
+          <Col xs={12} md={11} className="ps-0">
+            <div className="text-start">
+              <h3 className="small-title text-dark mb-0">
+                Panoramica giornaliera
+              </h3>
+            </div>
+          </Col>
+        </Row>
+        <Row className=" w-100 justify-content-center">
           {/* COLONNA SINISTRA: Foto profilo, nome, cognome, email */}
           <Col
             xs={12}
@@ -460,7 +470,7 @@ export const UserDashboard = () => {
           <Col
             xs={12}
             md={7}
-            className="bg-light ms-3 d-flex flex-column justify-content-center p-4 border border-secondary rounded shadow-sm"
+            className="ms-lg-3 bg-light d-flex flex-column justify-content-center p-4 border border-secondary rounded shadow-sm"
           >
             {/* Box del turno del giorno */}
             <Card className="mb-4 shadow-sm">
@@ -471,7 +481,7 @@ export const UserDashboard = () => {
                 <Form>
                   <Form.Group className="mb-3" controlId="FormDate">
                     <Form.Control
-                      className="w-25 mt-3 input"
+                      className="w-50 mt-3 input"
                       type="date"
                       value={selectedDate}
                       onChange={(e) => setSelectedDate(e.target.value)}
