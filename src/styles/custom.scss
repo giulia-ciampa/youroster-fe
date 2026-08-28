@@ -186,5 +186,23 @@ $light: $light-gold;
 }
 
 .backgroundOrange {
-  background-color: #ff7045;
+  background-color: #ff7045e4;
+}
+
+.backgroundPink {
+  background-color: #9e4289c6;
+}
+
+.btn-custom1:disabled {
+  background-color: transparent !important;
+  border-color: #700aff !important;
+  color: #700aff !important;
+  opacity: 0.5;
+}
+
+.btn-custom3:disabled {
+  background-color: transparent;
+  border-color: 2px solid #dc3545;
+  color: #dc3545;
+  opacity: 0.5;
 }

@@ -14,7 +14,7 @@ export const getMyAssignmentsByDate = async (
 
   // startDate ed endDate uguali alla data di oggi per isolare il turno
   const response = await authFetch(
-    `/shift-assignment/me?startDate=${dateString}&endDate=${dateString}`,
+    `/shift-assignments/me?startDate=${dateString}&endDate=${dateString}`,
     {
       method: "GET",
       headers: {
@@ -39,7 +39,7 @@ export const getColleaguesWithMyShift = async (
   const token = localStorage.getItem("accessToken")
 
   const response = await authFetch(
-    `/shift-assignment/colleagues-onshift?shiftDate=${dateString}`,
+    `/shift-assignments/colleagues-onshift?shiftDate=${dateString}`,
     {
       method: "GET",
       headers: {

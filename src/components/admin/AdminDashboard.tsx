@@ -190,9 +190,7 @@ const AdminDashBoard = () => {
         <Row className="g-4 w-100 justify-content-center">
           <Col xs={12} lg={10}>
             <div className="d-flex justify-content-between align-items-center mb-4">
-              <h2 className="text-dark small-title">
-                Dashboard - Panoramica Giornaliera
-              </h2>
+              <h3 className="text-dark small-title">Panoramica Giornaliera</h3>
               {/* Selettore della data */}
               <div className="d-flex align-items-center">
                 <Form>
