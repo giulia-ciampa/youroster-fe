@@ -144,3 +144,34 @@ export const deleteShiftAssignment = async (id: string): Promise<void> => {
     )
   }
 }
+
+// GET LE PROPRIE ASSEGNAZIONI TRA DUE DATE
+export const getMyAssignmentsBetweenDates = async (
+  startDate: string,
+  endDate: string,
+): Promise<ShiftAssignment[]> => {
+  const token = localStorage.getItem("accessToken")
+
+  const response = await authFetch(
+    `/shift-assignments/me?startDate=${startDate}&endDate=${endDate}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+    },
+  )
+
+  if (!response.ok) {
+    const errorData = await response.json()
+
+    throw new Error(
+      errorData.message || "Errore nel recupero delle proprie assegnazioni.",
+    )
+  }
+
+  const pageData: PageResponse<ShiftAssignment> = await response.json()
+
+  return pageData.content
+}

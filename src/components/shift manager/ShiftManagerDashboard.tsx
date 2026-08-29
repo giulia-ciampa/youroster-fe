@@ -470,7 +470,7 @@ export const ShiftManagerDashboard = () => {
                 <Form>
                   <Form.Group className="mb-3" controlId="FormDate">
                     <Form.Control
-                      className="w-25 mt-3 input"
+                      className="w-50 mt-3 input"
                       type="date"
                       value={selectedDate}
                       onChange={(e) => setSelectedDate(e.target.value)}

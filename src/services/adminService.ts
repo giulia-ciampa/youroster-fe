@@ -16,7 +16,7 @@ export const fetchAssignmentsByDate = async (
 
   // Passiamo solo il percorso relativo, authFetch aggiungerà API_URL in automatico
   const response = await authFetch(
-    `/shift-assignment/by-date?${params.toString()}`,
+    `/shift-assignments/by-date?${params.toString()}`,
     {
       method: "GET",
     },

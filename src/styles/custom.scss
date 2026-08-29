@@ -202,7 +202,63 @@ $light: $light-gold;
 
 .btn-custom3:disabled {
   background-color: transparent;
-  border-color: 2px solid #dc3545;
+  border: 2px solid #dc3545;
   color: #dc3545;
   opacity: 0.5;
+}
+
+.turno {
+  background-color: rgba(112, 10, 255, 0.08) !important;
+  color: #312d20;
+}
+
+.permesso {
+  background-color: rgba(13, 110, 253, 0.08) !important;
+  color: #312d20;
+  font-weight: bold;
+}
+
+.off {
+  background-color: rgba(227, 82, 38, 0.08) !important;
+  color: #312d20;
+  font-weight: bold;
+}
+
+.ferie {
+  background-color: rgba(255, 193, 7, 0.3) !important;
+  color: #312d20;
+  font-weight: bold;
+}
+
+.richiesta_certificato {
+  background-color: rgba(25, 135, 84, 0.08) !important;
+  color: #312d20;
+  font-weight: bold;
+}
+
+@media (max-width: 576px) {
+  .ferie {
+    font-size: 0.8rem !important;
+    padding: 0.25rem 0.5rem !important;
+  }
+
+  .turno {
+    font-size: 0.8rem !important;
+    padding: 0.25rem 0.5rem !important;
+  }
+
+  .permesso {
+    font-size: 0.8rem !important;
+    padding: 0.25rem 0.5rem !important;
+  }
+
+  .off {
+    font-size: 0.8rem !important;
+    padding: 0.25rem 0.5rem !important;
+  }
+
+  .richiesta_certificato {
+    font-size: 0.8rem !important;
+    padding: 0.25rem 0.5rem !important;
+  }
 }
