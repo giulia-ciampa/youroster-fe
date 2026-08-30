@@ -17,6 +17,8 @@ import {
   Dropdown,
   Button,
   Modal,
+  Table,
+  Card,
 } from "react-bootstrap"
 import { PiBellRingingLight } from "react-icons/pi"
 import "../../styles/mobileText.css"
@@ -185,16 +187,18 @@ const AdminDashBoard = () => {
       <AdminNavbar />
       <Container
         fluid
-        className="d-flex justify-content-center align-items-center flex-grow-1"
+        className="d-flex justify-content-center align-items-center flex-grow-1 my-4"
       >
         <Row className="g-4 w-100 justify-content-center">
-          <Col xs={12} lg={10}>
+          <Col xs={12} md={11}>
             <div className="d-flex justify-content-between align-items-center mb-4">
-              <h3 className="text-dark small-title">Panoramica Giornaliera</h3>
+              <h3 className="text-dark small-title mb-0">
+                Panoramica Giornaliera
+              </h3>
               {/* Selettore della data */}
               <div className="d-flex align-items-center">
                 <Form>
-                  <Form.Group className="mb-3 w-75" controlId="formDate">
+                  <Form.Group controlId="formDate">
                     <Form.Control
                       type="date"
                       className="form-control w-auto border border-1 border-secondary"
@@ -208,22 +212,18 @@ const AdminDashBoard = () => {
                 <Dropdown align="end" className="myDropDown">
                   <Dropdown.Toggle
                     as="div"
-                    className="cursor-pointer position-relative d-inline-block p-2"
+                    className="position-relative d-inline-block"
                   >
-                    <p>
+                    <Button className="text-secondary border-0 bg-transparent">
                       {" "}
-                      <PiBellRingingLight
-                        size={26}
-                        className="text-secondary small-text"
-                        style={{ cursor: "pointer" }}
-                      />
-                    </p>
+                      <PiBellRingingLight size={26} />
+                    </Button>
 
                     {/* Mostra il badge rosso solo se ci sono richieste in sospeso */}
                     {pendingAccounts.length > 0 && (
                       <span
                         className="position-absolute top-0 start-100  badge rounded-pill bg-danger"
-                        style={{ fontSize: "0.5rem", translate: "-90% 12%" }}
+                        style={{ fontSize: "0.5rem", translate: "-100% -7%" }}
                       >
                         {pendingAccounts.length}
                       </span>
@@ -435,171 +435,164 @@ const AdminDashBoard = () => {
             </div>
 
             {/* Tabella principale */}
-            <div className="card shadow-sm border border-1 border-secondary mb-4">
-              <div className="p-2">
-                <h4 className="text-dark mb-3 small-title">Turnazioni</h4>
-                <div className="table-responsive">
-                  <table className="table table-hover align-middle">
-                    <thead className="table-secondary">
-                      <tr>
-                        <th className="text-dark smaller-text">Dipendente</th>
-                        <th className="text-dark smaller-text">
-                          Ufficio / Sede
-                        </th>
-                        <th className="text-dark smaller-text">
-                          Turno Previsto
-                        </th>
-                        <th className="text-dark smaller-text">Ruolo</th>
-                        <th className="text-dark smaller-text">
-                          Task Assegnato
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {assignments.length > 0 ? (
-                        assignments.map((assignment) => {
-                          // Trova il task corrispondente per questo turno/utente se c'è un collegamento
-                          const matchedTask = tasks.find(
-                            (t) => t.shiftAssignment?.id === assignment.id,
-                          )
+            <Card className="bg-light border border-secondary rounded shadow-sm">
+              <Card.Body className="p-4">
+                <h4 className="text-primary fw-semibold mb-4 small-title">
+                  Turnazioni
+                </h4>
+                <Table
+                  bordered
+                  hover
+                  responsive
+                  className="text-center align-middle"
+                >
+                  <thead className="table-secondary">
+                    <tr>
+                      <th className="text-dark smaller-text">Dipendente</th>
+                      <th className="text-dark smaller-text">Ufficio / Sede</th>
+                      <th className="text-dark smaller-text">Turno Previsto</th>
+                      <th className="text-dark smaller-text">Ruolo</th>
+                      <th className="text-dark smaller-text">Task Assegnato</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {assignments.length > 0 ? (
+                      assignments.map((assignment) => {
+                        // Trova il task corrispondente per questo turno/utente se c'è un collegamento
+                        const matchedTask = tasks.find(
+                          (t) => t.shiftAssignment?.id === assignment.id,
+                        )
 
-                          return (
-                            <tr key={assignment.id}>
-                              <td>
-                                <strong>
-                                  {assignment.userName} {assignment.userSurname}
-                                </strong>
-                              </td>
-                              <td>
-                                {assignment.officeName ||
-                                  "Nessun ufficio assegnato"}
-                              </td>
-                              <td>
-                                {assignment.startTime} - {assignment.endTime}
-                              </td>
-                              <td>{assignment.roleNames}</td>
-                              <td>
-                                {matchedTask ? (
-                                  <span>
-                                    {matchedTask.title ||
-                                      matchedTask.description ||
-                                      "Task attivo"}
-                                  </span>
-                                ) : (
-                                  <span className="text-muted">
-                                    Nessun task
-                                  </span>
-                                )}
-                              </td>
-                            </tr>
-                          )
-                        })
-                      ) : (
-                        <tr>
-                          <td
-                            colSpan={5}
-                            className="text-center py-4 text-muted"
-                          >
-                            Nessun turno trovato per la data selezionata.
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
+                        return (
+                          <tr key={assignment.id}>
+                            <td>
+                              <strong>
+                                {assignment.userName} {assignment.userSurname}
+                              </strong>
+                            </td>
+                            <td>
+                              {assignment.officeName ||
+                                "Nessun ufficio assegnato"}
+                            </td>
+                            <td>
+                              {assignment.startTime} - {assignment.endTime}
+                            </td>
+                            <td>{assignment.roleNames}</td>
+                            <td>
+                              {matchedTask ? (
+                                <span>
+                                  {matchedTask.title ||
+                                    matchedTask.description ||
+                                    "Task attivo"}
+                                </span>
+                              ) : (
+                                <span className="text-muted">Nessun task</span>
+                              )}
+                            </td>
+                          </tr>
+                        )
+                      })
+                    ) : (
+                      <tr>
+                        <td colSpan={5} className="text-center py-4 text-muted">
+                          Nessun turno trovato per la data selezionata.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </Table>
+              </Card.Body>
+            </Card>
           </Col>
           {/* Seconda Tabella: Timbrature */}
-          <Col xs={12} lg={10}>
-            <div className="card shadow-sm border border-1 border-secondary mt-4">
-              <div className="p-2">
-                <h4 className="text-dark mb-3 small-title">
-                  Timbrature Giornaliere
+          <Col xs={12} md={11}>
+            <Card className="bg-light border border-secondary rounded shadow-sm">
+              <Card.Body className="p-4">
+                <h4 className="text-primary fw-semibold mb-4 small-title">
+                  Timbrature giornaliere
                 </h4>
-                <div className="table-responsive">
-                  <table className="table table-hover align-middle">
-                    <thead className="table-secondary">
-                      <tr>
-                        <th className="text-dark smaller-text">Dipendente</th>
-                        <th className="text-dark smaller-text">Entrata</th>
-                        <th className="text-dark smaller-text">Uscita</th>
-                        <th className="text-dark smaller-text">Ore lavorate</th>
-                        <th className="text-dark smaller-text">
-                          Minuti lavorati
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {assignments.length > 0 ? (
-                        assignments.map((assignment) => {
-                          const userId = assignment.userId
-                          // Recuperiamo la timbratura associata a questo utente tramite il suo ID
-                          const userClocking = userId
-                            ? clockings[userId]
-                            : undefined
 
-                          return (
-                            <tr key={`clocking-${assignment.id}`}>
-                              <td>
-                                <strong>
-                                  {assignment.userName} {assignment.userSurname}
-                                </strong>
-                              </td>
-                              <td>
-                                {userClocking?.actualStartTime ? (
-                                  <span className="text-success fw-bold">
-                                    {userClocking.actualStartTime}
-                                  </span>
-                                ) : (
-                                  <span className="text-muted">
-                                    Non timbrato
-                                  </span>
-                                )}
-                              </td>
-                              <td>
-                                {userClocking?.actualEndTime ? (
-                                  <span className="text-danger fw-bold">
-                                    {userClocking.actualEndTime}
-                                  </span>
-                                ) : (
-                                  <span className="text-muted">
-                                    Non timbrato / Non timbrato
-                                  </span>
-                                )}
-                              </td>
-                              <td>
-                                {userClocking?.workedHours ? (
-                                  <span>{userClocking.workedHours} h</span>
-                                ) : (
-                                  <span className="text-muted">-</span>
-                                )}
-                              </td>
-                              <td>
-                                {userClocking?.workedMinutes ? (
-                                  <span>{userClocking.workedMinutes} h</span>
-                                ) : (
-                                  <span className="text-muted">-</span>
-                                )}
-                              </td>
-                            </tr>
-                          )
-                        })
-                      ) : (
-                        <tr>
-                          <td
-                            colSpan={5}
-                            className="text-center py-4 text-muted"
-                          >
-                            Nessuna timbratura trovata per la data selezionata.
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
+                <Table
+                  bordered
+                  hover
+                  responsive
+                  className="text-center align-middle"
+                >
+                  <thead className="table-secondary">
+                    <tr>
+                      <th className="text-dark smaller-text">Dipendente</th>
+                      <th className="text-dark smaller-text">Entrata</th>
+                      <th className="text-dark smaller-text">Uscita</th>
+                      <th className="text-dark smaller-text">Ore lavorate</th>
+                      <th className="text-dark smaller-text">
+                        Minuti lavorati
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {assignments.length > 0 ? (
+                      assignments.map((assignment) => {
+                        const userId = assignment.userId
+                        // Recuperiamo la timbratura associata a questo utente tramite il suo ID
+                        const userClocking = userId
+                          ? clockings[userId]
+                          : undefined
+
+                        return (
+                          <tr key={`clocking-${assignment.id}`}>
+                            <td>
+                              <strong>
+                                {assignment.userName} {assignment.userSurname}
+                              </strong>
+                            </td>
+                            <td>
+                              {userClocking?.actualStartTime ? (
+                                <span className="text-success fw-bold">
+                                  {userClocking.actualStartTime}
+                                </span>
+                              ) : (
+                                <span className="text-muted">Non timbrato</span>
+                              )}
+                            </td>
+                            <td>
+                              {userClocking?.actualEndTime ? (
+                                <span className="text-danger fw-bold">
+                                  {userClocking.actualEndTime}
+                                </span>
+                              ) : (
+                                <span className="text-muted">
+                                  Non timbrato / Non timbrato
+                                </span>
+                              )}
+                            </td>
+                            <td>
+                              {userClocking?.workedHours ? (
+                                <span>{userClocking.workedHours} h</span>
+                              ) : (
+                                <span className="text-muted">-</span>
+                              )}
+                            </td>
+                            <td>
+                              {userClocking?.workedMinutes ? (
+                                <span>{userClocking.workedMinutes} h</span>
+                              ) : (
+                                <span className="text-muted">-</span>
+                              )}
+                            </td>
+                          </tr>
+                        )
+                      })
+                    ) : (
+                      <tr>
+                        <td colSpan={5} className="text-center py-4 text-muted">
+                          Nessuna timbratura trovata per la data selezionata.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </Table>
+              </Card.Body>
+            </Card>
           </Col>
         </Row>
       </Container>

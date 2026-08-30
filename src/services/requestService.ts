@@ -5,6 +5,7 @@ import type {
   HolidayRequestResponse,
   LeaveHoursRequestDTO,
   LeaveHoursRequestResponse,
+  RequestResponse,
   UpdateCertificationRequestDTO,
   UpdateHolidayRequestDTO,
   UpdateLeaveHoursRequestDTO,
@@ -88,7 +89,7 @@ export const createAbsenceCertificationRequest = async (
   return response.json()
 }
 
-//GET -----------------------------------------------------------------
+//GET MIE RICHIESTE -----------------------------------------------------------------
 
 //GET FERIE
 export const getMyHolidayRequests = async (
@@ -166,9 +167,9 @@ export const getUserLeaveSummary = async (): Promise<UserSummaryResponse> => {
   return response.json()
 }
 
-//-----MODIFICA
+//-----MODIFICA MIE RICHIESTE
 
-//MODIFICA FERIE
+//MODIFICA MIE FERIE
 
 export const updateHolidayRequest = async (
   requestId: string,
@@ -193,7 +194,7 @@ export const updateHolidayRequest = async (
   return response.json()
 }
 
-//MODIFICA ORE DI PERMESSO
+//MODIFICA MIE ORE DI PERMESSO
 export const updateLeaveHoursRequest = async (
   requestId: string,
   payload: UpdateLeaveHoursRequestDTO,
@@ -217,7 +218,7 @@ export const updateLeaveHoursRequest = async (
   return response.json()
 }
 
-//MODIFICA ASSENZE CERTIFICATE
+//MODIFICA MIE ASSENZE CERTIFICATE
 export const updateAbsenceCertificationRequest = async (
   requestId: string,
   payload: UpdateCertificationRequestDTO,
@@ -268,9 +269,9 @@ export const updateAbsenceCertificationRequest = async (
   return response.json()
 }
 
-//----ELIMINA
+//----ELIMINA(PROPRIE)
 
-//ELIMINA FERIE
+//ELIMINA MIE FERIE
 export const deleteHolidayRequest = async (requestId: string) => {
   const response = await authFetch(`/holidays/${requestId}`, {
     method: "DELETE",
@@ -285,7 +286,7 @@ export const deleteHolidayRequest = async (requestId: string) => {
   }
 }
 
-//ELIMINA ORE PERMESSO
+//ELIMINA MIE ORE PERMESSO
 export const deleteLeaveHoursRequest = async (requestId: string) => {
   const response = await authFetch(`/leave-hours/${requestId}`, {
     method: "DELETE",
@@ -301,7 +302,7 @@ export const deleteLeaveHoursRequest = async (requestId: string) => {
   }
 }
 
-//ELIMINA RICHIESTE CERTIFICATE
+//ELIMINA MIE RICHIESTE CERTIFICATE
 export const deleteAbsenceCertificationRequest = async (requestId: string) => {
   const response = await authFetch(`/certifications/${requestId}`, {
     method: "DELETE",
@@ -315,4 +316,137 @@ export const deleteAbsenceCertificationRequest = async (requestId: string) => {
         "Errore nell'eliminazione della richiesta certificata.",
     )
   }
+}
+
+//GET PER SHIFT MANAGER E ADMIN ----------------------------------------------------------------
+
+// GET RICHIESTE FERIE DA APPROVARE - SHIFT MANAGER
+export const getPendingHolidayRequests = async (): Promise<
+  PageResponse<HolidayRequestResponse>
+> => {
+  const response = await authFetch("/holidays/pending", {
+    method: "GET",
+  })
+
+  if (!response.ok) {
+    throw new Error("Errore nel recupero delle richieste ferie")
+  }
+
+  const pageData: PageResponse<HolidayRequestResponse> = await response.json()
+
+  return pageData
+}
+
+// GET RICHIESTE PERMESSO DA APPROVARE - SHIFT MANAGER
+export const getPendingLeaveHoursRequests = async (): Promise<
+  PageResponse<LeaveHoursRequestResponse>
+> => {
+  const response = await authFetch("/leave-hours/pending", {
+    method: "GET",
+  })
+
+  if (!response.ok) {
+    throw new Error("Errore nel recupero delle richieste di permesso.")
+  }
+
+  const pageData: PageResponse<LeaveHoursRequestResponse> =
+    await response.json()
+
+  return pageData
+}
+
+//-------------------------------APPROVA RICHIESTE
+// APPROVA RICHIESTA FERIE - SHIFT MANAGER / ADMIN
+
+export const approveHolidayRequest = async (
+  requestId: string,
+  notes?: string,
+): Promise<HolidayRequestResponse> => {
+  const response = await authFetch(`/holidays/${requestId}/approve`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: notes ? JSON.stringify({ notes }) : undefined,
+  })
+
+  if (!response.ok) {
+    throw new Error("Errore nell'approvazione della richiesta ferie")
+  }
+
+  return await response.json()
+}
+
+// APPROVA RICHIESTA PERMESSO - SHIFT MANAGER / ADMIN
+
+export const approveLeaveHoursRequest = async (
+  requestId: string,
+  notes?: string,
+): Promise<LeaveHoursRequestResponse> => {
+  const response = await authFetch(`/leave-hours/${requestId}/approve`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: notes ? JSON.stringify({ notes }) : undefined,
+  })
+
+  if (!response.ok) {
+    throw new Error("Errore nell'approvazione della richiesta di permesso")
+  }
+
+  return await response.json()
+}
+
+//_-------------------------------RIFIUTA RICHIESTE
+//RIFIUTA RICHIESTA FERIE
+export const rejectHolidayRequest = async (
+  requestId: string,
+  notes?: string,
+): Promise<HolidayRequestResponse> => {
+  const response = await authFetch(`/holidays/${requestId}/reject`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: notes ? JSON.stringify({ notes }) : undefined,
+  })
+
+  if (!response.ok) {
+    throw new Error("Errore nel rifiuto della richiesta ferie")
+  }
+
+  return await response.json()
+}
+
+//RIFIUTA RICHIESTA DI PERMESSO
+export const rejectLeaveHoursRequest = async (
+  requestId: string,
+  notes?: string,
+): Promise<LeaveHoursRequestResponse> => {
+  const response = await authFetch(`/leave-hours/${requestId}/reject`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: notes ? JSON.stringify({ notes }) : undefined,
+  })
+
+  if (!response.ok) {
+    throw new Error("Errore nel rifiuto della richiesta di permesso")
+  }
+
+  return await response.json()
+}
+
+//GET TUTTE LE RICHIESTE -----------------------------HR E ADMIN---------------
+export const getRequests = async (
+  page = 0,
+  size = 15,
+): Promise<PageResponse<RequestResponse>> => {
+  const response = await authFetch(
+    `/requests?page=${page}&size=${size}&sortBy=createdAt`,
+  )
+
+  return response.json()
 }

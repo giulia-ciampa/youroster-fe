@@ -99,3 +99,23 @@ export interface UpdateLeaveHoursRequestDTO {
   leaveHoursType?: LeaveHoursType
   employeeNotes?: string
 }
+
+export interface RequestResponse {
+  id: string
+  employeeName: string
+  requestStatus: string
+  requestType: string
+  createdAt: string
+  employeeNotes: string | null
+  reviewerNotes: string | null
+  reviewerName: string | null
+
+  startDate: string | null
+  endDate: string | null
+  startTime: string | null
+  endTime: string | null
+  date: string | null
+  totalHours: number | null
+  totalDays: number | null
+  protocolCode: string | null
+}

@@ -30,10 +30,11 @@ import type { UserSummaryResponse } from "../../types/users"
 import { IoMdAdd } from "react-icons/io"
 import type { CertificateType, LeaveHoursType } from "../../types/requests"
 import { FaPencilAlt, FaRegTrashAlt } from "react-icons/fa"
+import "../../styles/mobileText.css"
 
-type RequestType = "HOLIDAY" | "LEAVE_HOURS" | "CERTIFICATION"
+export type RequestType = "HOLIDAY" | "LEAVE_HOURS" | "CERTIFICATION"
 
-type UserRequest = {
+export type UserRequest = {
   id: string
   requestType: RequestType
   createdAt: string
@@ -52,6 +53,7 @@ type UserRequest = {
   issueDate?: string
   totalDays?: number
   totalHours?: number
+  employeeName?: string
 }
 
 export const UserRequests = () => {
@@ -112,6 +114,7 @@ export const UserRequests = () => {
     const loadSummary = async () => {
       try {
         const data = await getUserLeaveSummary()
+        console.log("SUMMARY RICEVUTO DAL BE:", data)
         setSummary(data)
       } catch (error) {
         console.error("Errore nel caricamento del riepilogo:", error)

@@ -284,12 +284,21 @@ export const ShiftManagerAssignment = () => {
         fluid
         className="d-flex flex-column my-4 align-items-center flex-grow-1"
       >
+        <Row className="w-100 justify-content-center mb-4">
+          <Col xs={12} md={11} className="ps-0">
+            <h3 className="small-title text-dark mb-0">Le mie assegnazioni</h3>
+          </Col>
+        </Row>
+
         <Row className="g-4 w-100 flex-column align-items-center mb-4">
           <Col
             xs={12}
             md={11}
             className="bg-light p-4 border border-secondary rounded shadow-sm"
           >
+            <h4 className="text-primary fw-semibold mb-4 small-title">
+              Seleziona le date
+            </h4>
             <Form className="d-flex flex-wrap flex-md-nowrap justify-content-center justify-content-md-start gap-3 mt-4">
               <Form.Group className="mb-3" controlId="FormStartDate">
                 <Form.Label className="mb-1 text-muted small-text">
@@ -438,10 +447,7 @@ export const ShiftManagerAssignment = () => {
                                             : existingAssignment.assignmentType ===
                                                 "ABSENT"
                                               ? "ASSENTE"
-                                              : existingAssignment.assignmentType ===
-                                                  "PROTECTED_LEAVE"
-                                                ? "CONGEDO CON CONSERVAZIONE DEL POSTO"
-                                                : existingAssignment.assignmentType}
+                                              : existingAssignment.assignmentType}
                                   </p>
                                 </div>
                               )
@@ -523,9 +529,6 @@ export const ShiftManagerAssignment = () => {
                   <option value="MATERNITY">Maternità</option>
                   <option value="PATERNITY">Paternità</option>
                   <option value="PARENTAL_LEAVE">Congedo parentale</option>
-                  <option value="PROTECTED_LEAVE">
-                    Congedo con conservazione del posto
-                  </option>
                   <option value="ABSENT">Assente</option>
                 </Form.Select>
               </Form.Group>

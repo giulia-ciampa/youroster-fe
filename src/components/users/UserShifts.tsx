@@ -111,6 +111,15 @@ export const UserShifts = () => {
         const endDate = formatDateForApi(lastDay)
 
         const data = await getMyAssignmentsBetweenDates(startDate, endDate)
+        console.log("INTERVALLO CALENDARIO:", startDate, endDate)
+        console.log("ASSIGNMENTS CALENDARIO:", data)
+        console.log(
+          "TIPI ASSEGNAZIONI:",
+          data.map((assignment) => ({
+            date: assignment.shiftDate,
+            type: assignment.assignmentType,
+          })),
+        )
 
         setAssignments(data)
       } catch (error: unknown) {
@@ -164,9 +173,6 @@ export const UserShifts = () => {
       case "PARENTAL_LEAVE":
         return "richiesta_certificato"
 
-      case "PROTECTED_LEAVE":
-        return "richiesta_certificato"
-
       default:
         return ""
     }
@@ -189,9 +195,6 @@ export const UserShifts = () => {
 
       case "PARENTAL_LEAVE":
         return "CONGEDO PARENTALE"
-
-      case "PROTECTED_LEAVE":
-        return "CONGEDO CON CONSERVAZIONE DEL POSTO"
 
       case "PERMISSION":
         return "PERMESSO"
