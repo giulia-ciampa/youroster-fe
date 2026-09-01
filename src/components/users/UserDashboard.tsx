@@ -226,6 +226,70 @@ export const UserDashboard = () => {
     }
   }
 
+  //funzione per tradurre il tipo di assegnazione
+  const translateAssignmentType = (assignmentType: string) => {
+    switch (assignmentType) {
+      case "OFF":
+        return "OFF"
+
+      case "ON_HOLIDAY":
+        return "FERIE"
+
+      case "PERMISSION":
+        return "ORE DI PERMESSO"
+
+      case "MATERNITY":
+        return "MATERNITÀ"
+
+      case "PATERNITY":
+        return "PATERNITÀ"
+
+      case "PARENTAL_LEAVE":
+        return "CONGEDO PARENTALE"
+
+      case "SICK":
+        return "MALATTIA"
+
+      case "ABSENT":
+        return "ASSENZA INGIUSTIFICATA"
+
+      default:
+        return assignmentType
+    }
+  }
+
+  //funzione colore tipo assegnazione
+  const getAssignmentTypeClass = (assignmentType: string) => {
+    switch (assignmentType) {
+      case "ON_HOLIDAY":
+        return "ferie"
+
+      case "PERMISSION":
+        return "permesso"
+
+      case "MATERNITY":
+        return "richiesta_certificato"
+
+      case "PATERNITY":
+        return "richiesta_certificato"
+
+      case "PARENTAL_LEAVE":
+        return "richiesta_certificato"
+
+      case "SICKNESS":
+        return "richiesta_certificato"
+
+      case "OFF":
+        return "off"
+
+      case "WORK":
+        return "turno"
+
+      default:
+        return ""
+    }
+  }
+
   return (
     <>
       <UserNavbar />
@@ -234,7 +298,7 @@ export const UserDashboard = () => {
         className="d-flex flex-column justify-content-center align-items-center flex-grow-1 my-2"
       >
         {/* TITOLO */}
-        <Row className="w-100 justify-content-center mb-3">
+        <Row className="w-100 justify-content-center mb-4">
           <Col xs={12} md={11} className="ps-0">
             <div className="text-start">
               <h3 className="small-title text-dark mb-0">
@@ -491,7 +555,7 @@ export const UserDashboard = () => {
               </Card.Body>
             </Card>
 
-            {todayAssignment ? (
+            {todayAssignment?.assignmentType === "WORK" ? (
               <Card className="shadow-sm my-3">
                 <Card.Body>
                   <Table striped bordered hover responsive>
@@ -503,26 +567,59 @@ export const UserDashboard = () => {
                         <th className="text-center text-smaller text-dark">
                           Turno
                         </th>
-
                         <th className="text-center text-smaller text-dark">
                           Mansioni
                         </th>
                       </tr>
                     </thead>
+
                     <tbody>
                       <tr>
                         <td className="text-center text-smaller text-dark">
-                          {" "}
                           {todayAssignment.officeName || "Nessuna sede"}
                         </td>
+
                         <td className="text-center text-smaller text-dark">
-                          {" "}
-                          {todayAssignment.startTime || "Inizio turno"} -{" "}
-                          {todayAssignment.endTime || "Fine turno"}
+                          {todayAssignment.startTime} -{" "}
+                          {todayAssignment.endTime}
                         </td>
+
                         <td className="text-center text-smaller text-dark">
                           {todayAssignment.tasks ||
                             "Non ci sono mansioni assegnate"}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </Table>
+                </Card.Body>
+              </Card>
+            ) : todayAssignment ? (
+              <Card className="shadow-sm my-3">
+                <Card.Body>
+                  <Table striped bordered hover responsive>
+                    <thead>
+                      <tr>
+                        <th className="text-center text-smaller text-dark">
+                          Ufficio/Sede
+                        </th>
+                        <th className="text-center text-smaller text-dark">
+                          Turno
+                        </th>
+                        <th className="text-center text-smaller text-dark">
+                          Mansioni
+                        </th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      <tr>
+                        <td
+                          colSpan={3}
+                          className={`text-center text-smaller text-dark ${getAssignmentTypeClass(todayAssignment.assignmentType)}`}
+                        >
+                          {translateAssignmentType(
+                            todayAssignment.assignmentType,
+                          )}
                         </td>
                       </tr>
                     </tbody>
@@ -541,7 +638,6 @@ export const UserDashboard = () => {
                         <th className="text-center text-smaller text-dark">
                           Turno
                         </th>
-
                         <th className="text-center text-smaller text-dark">
                           Mansioni
                         </th>
@@ -549,14 +645,11 @@ export const UserDashboard = () => {
                     </thead>
                     <tbody>
                       <tr>
-                        <td className="text-center text-smaller text-dark">
-                          Nessun ufficio assegnato
-                        </td>
-                        <td className="text-center text-smaller text-dark">
-                          00:00 - 00:00
-                        </td>
-                        <td className="text-center text-smaller text-dark">
-                          Non ci sono mansioni assegnate
+                        <td
+                          colSpan={3}
+                          className="text-muted small-text text-center"
+                        >
+                          Nessuna assegnazione per oggi
                         </td>
                       </tr>
                     </tbody>

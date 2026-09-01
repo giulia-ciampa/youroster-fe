@@ -161,70 +161,83 @@ export const ShiftManagerTurni = () => {
       <ShiftManagerNavbar />
       <Container
         fluid
-        className="d-flex flex-column justify-content-start flex-grow-1 p-4"
+        className="d-flex flex-column justify-content-center flex-grow-1 p-4"
       >
         {/* Barra superiore con titolo e pulsante */}
-        <Row className="w-100 mx-0 mb-4">
+        <Row className="w-100 justify-content-center mb-4">
           <Col
             xs={12}
-            className="bg-light d-flex justify-content-between align-items-center p-3 border border-secondary rounded shadow-sm"
+            lg={11}
+            className="bg-light d-flex justify-content-between align-items-center"
           >
-            <h4 className="m-0 fw-bold text-dark">Turni attivi</h4>
-            <Button
-              className="btn-custom1 rounded-circle d-flex align-items-center justify-content-center small-text"
-              style={{ width: "30px", height: "30px", padding: "0" }}
-              onClick={handleOpenCreate}
-            >
-              <IoMdAdd />
-            </Button>
+            <h3 className="m-0 small-title text-dark">Turni attivi</h3>
           </Col>
         </Row>
 
         {/* Griglia di visualizzazione dei turni esistenti */}
-        <Row className="g-3 w-100 justify-content-start">
-          {Object.entries(groupedShifts).map(([officeName, officeShifts]) => (
-            <Col xs={12} md={4} key={officeName}>
-              <Card className="h-100 shadow-sm p-3">
-                <Card.Body className="d-flex flex-column">
-                  {/* Nome dell'ufficio stampato UNA SOLA VOLTA */}
-                  <Card.Title className="fw-bold text-primary mb-3">
-                    {officeName}
-                  </Card.Title>
+        <Row className="w-100 justify-content-center mb-4">
+          <Col xs={12} md={11}>
+            <Row className="g-3 w-100 justify-content-start">
+              {Object.entries(groupedShifts).map(
+                ([officeName, officeShifts]) => (
+                  <Col xs={12} md={3} key={officeName}>
+                    <Card className="h-100 shadow-sm p-3">
+                      <Card.Body className="d-flex flex-column">
+                        {/* Nome dell'ufficio stampato UNA SOLA VOLTA */}
+                        <Card.Title className="fw-bold text-primary mb-3">
+                          {officeName}
+                        </Card.Title>
 
-                  {/* Lista dei turni di questo ufficio uno sotto l'altro */}
-                  <div className="d-flex flex-column gap-2 mb-3 flex-grow-1">
-                    {officeShifts.map((shift) => (
-                      <div
-                        key={shift.id}
-                        className="p-2 bg-light rounded border d-flex justify-content-between align-items-center"
-                      >
-                        <div>
-                          <span className="small-text fw-semibold">
-                            {shift.startTime} - {shift.endTime}
-                          </span>
-                          <div
-                            className="text-muted"
-                            style={{ fontSize: "0.8rem" }}
-                          >
-                            Stato: {shift.isActive ? "Attivo" : "Disabilitato"}
-                          </div>
+                        {/* Lista dei turni di questo ufficio uno sotto l'altro */}
+                        <div className="d-flex flex-column gap-2 mb-3 flex-grow-1">
+                          {officeShifts.map((shift) => (
+                            <div
+                              key={shift.id}
+                              className="p-2 bg-light rounded border d-flex justify-content-between align-items-center"
+                            >
+                              <div>
+                                <span className="small-text fw-semibold">
+                                  {shift.startTime} - {shift.endTime}
+                                </span>
+                                <div
+                                  className="text-muted"
+                                  style={{ fontSize: "0.8rem" }}
+                                >
+                                  Stato:{" "}
+                                  {shift.isActive ? "Attivo" : "Disabilitato"}
+                                </div>
+                              </div>
+
+                              {/* Pulsante di modifica per il singolo turno */}
+                              <Button
+                                size="sm"
+                                className="btn-custom1 d-flex align-items-center gap-1"
+                                onClick={() => handleOpenEdit(shift)}
+                              >
+                                <FaEdit />
+                              </Button>
+                            </div>
+                          ))}
                         </div>
-
-                        {/* Pulsante di modifica per il singolo turno */}
-                        <Button
-                          size="sm"
-                          className="btn-custom1 d-flex align-items-center gap-1"
-                          onClick={() => handleOpenEdit(shift)}
-                        >
-                          <FaEdit />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </Card.Body>
-              </Card>
-            </Col>
-          ))}
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                ),
+              )}
+            </Row>
+          </Col>
+        </Row>
+        <Row className="w-100 justify-content-center mb-4">
+          <Col xs={12} md={11}>
+            <div className="d-flex align-items-center">
+              <Button
+                className="btn-custom1  d-flex align-items-center justify-content-center small-text"
+                onClick={handleOpenCreate}
+              >
+                Aggiungi un nuovo turno <IoMdAdd className="ms-1 " size={20} />
+              </Button>
+            </div>
+          </Col>
         </Row>
       </Container>
 
@@ -314,7 +327,7 @@ export const ShiftManagerTurni = () => {
                 </Form.Group>
               </Col>
 
-              <Col xs={12} lg={4}>
+              <Col xs={12} md={3} lg={4}>
                 <Form.Group className="mb-3 w-100">
                   <Form.Label className="text-dark small-text">
                     Seleziona stato

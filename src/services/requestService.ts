@@ -1,10 +1,16 @@
 import type {
   AbsenceCertificationRequestDTO,
   AbsenceCertificationResponse,
+  ChangeHolidayRequestDTO,
+  ChangeHolidayRequestResponseDTO,
+  ChangeLeaveHoursRequestDTO,
+  ChangeLeaveHoursRequestResponseDTO,
   HolidayRequestDTO,
   HolidayRequestResponse,
   LeaveHoursRequestDTO,
   LeaveHoursRequestResponse,
+  RequestResponse,
+  RequestResponseDTO,
   UpdateCertificationRequestDTO,
   UpdateHolidayRequestDTO,
   UpdateLeaveHoursRequestDTO,
@@ -88,7 +94,7 @@ export const createAbsenceCertificationRequest = async (
   return response.json()
 }
 
-//GET -----------------------------------------------------------------
+//GET MIE RICHIESTE -----------------------------------------------------------------
 
 //GET FERIE
 export const getMyHolidayRequests = async (
@@ -166,9 +172,9 @@ export const getUserLeaveSummary = async (): Promise<UserSummaryResponse> => {
   return response.json()
 }
 
-//-----MODIFICA
+//-----MODIFICA MIE RICHIESTE
 
-//MODIFICA FERIE
+//MODIFICA MIE FERIE
 
 export const updateHolidayRequest = async (
   requestId: string,
@@ -193,7 +199,7 @@ export const updateHolidayRequest = async (
   return response.json()
 }
 
-//MODIFICA ORE DI PERMESSO
+//MODIFICA MIE ORE DI PERMESSO
 export const updateLeaveHoursRequest = async (
   requestId: string,
   payload: UpdateLeaveHoursRequestDTO,
@@ -217,7 +223,7 @@ export const updateLeaveHoursRequest = async (
   return response.json()
 }
 
-//MODIFICA ASSENZE CERTIFICATE
+//MODIFICA MIE ASSENZE CERTIFICATE
 export const updateAbsenceCertificationRequest = async (
   requestId: string,
   payload: UpdateCertificationRequestDTO,
@@ -260,17 +266,20 @@ export const updateAbsenceCertificationRequest = async (
   if (!response.ok) {
     const errorData = await response.json()
 
-    throw new Error(
-      errorData.message || "Errore nella modifica della richiesta certificata.",
-    )
+    const errorMessage = errorData.errorslist?.length
+      ? errorData.errorslist.join("\n")
+      : errorData.message ||
+        "Errore nella modifica della richiesta certificata."
+
+    throw new Error(errorMessage)
   }
 
   return response.json()
 }
 
-//----ELIMINA
+//----ELIMINA(PROPRIE)
 
-//ELIMINA FERIE
+//ELIMINA MIE FERIE
 export const deleteHolidayRequest = async (requestId: string) => {
   const response = await authFetch(`/holidays/${requestId}`, {
     method: "DELETE",
@@ -285,7 +294,7 @@ export const deleteHolidayRequest = async (requestId: string) => {
   }
 }
 
-//ELIMINA ORE PERMESSO
+//ELIMINA MIE ORE PERMESSO
 export const deleteLeaveHoursRequest = async (requestId: string) => {
   const response = await authFetch(`/leave-hours/${requestId}`, {
     method: "DELETE",
@@ -301,7 +310,7 @@ export const deleteLeaveHoursRequest = async (requestId: string) => {
   }
 }
 
-//ELIMINA RICHIESTE CERTIFICATE
+//ELIMINA MIE RICHIESTE CERTIFICATE
 export const deleteAbsenceCertificationRequest = async (requestId: string) => {
   const response = await authFetch(`/certifications/${requestId}`, {
     method: "DELETE",
@@ -315,4 +324,567 @@ export const deleteAbsenceCertificationRequest = async (requestId: string) => {
         "Errore nell'eliminazione della richiesta certificata.",
     )
   }
+}
+
+//GET PER SHIFT MANAGER E ADMIN ----------------------------------------------------------------
+
+// GET RICHIESTE FERIE DA APPROVARE - SHIFT MANAGER
+export const getPendingHolidayRequests = async (): Promise<
+  PageResponse<HolidayRequestResponse>
+> => {
+  const response = await authFetch("/holidays/pending", {
+    method: "GET",
+  })
+
+  if (!response.ok) {
+    throw new Error("Errore nel recupero delle richieste ferie")
+  }
+
+  const pageData: PageResponse<HolidayRequestResponse> = await response.json()
+
+  return pageData
+}
+
+// GET RICHIESTE PERMESSO DA APPROVARE - SHIFT MANAGER
+export const getPendingLeaveHoursRequests = async (): Promise<
+  PageResponse<LeaveHoursRequestResponse>
+> => {
+  const response = await authFetch("/leave-hours/pending", {
+    method: "GET",
+  })
+
+  if (!response.ok) {
+    throw new Error("Errore nel recupero delle richieste di permesso.")
+  }
+
+  const pageData: PageResponse<LeaveHoursRequestResponse> =
+    await response.json()
+
+  return pageData
+}
+
+//-------------------------------APPROVA RICHIESTE
+// APPROVA RICHIESTA FERIE - SHIFT MANAGER / ADMIN
+
+export const approveHolidayRequest = async (
+  requestId: string,
+  notes?: string,
+): Promise<HolidayRequestResponse> => {
+  const response = await authFetch(`/holidays/${requestId}/approve`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: notes ? JSON.stringify({ notes }) : undefined,
+  })
+
+  if (!response.ok) {
+    throw new Error("Errore nell'approvazione della richiesta ferie")
+  }
+
+  return await response.json()
+}
+
+// APPROVA RICHIESTA PERMESSO - SHIFT MANAGER / ADMIN
+
+export const approveLeaveHoursRequest = async (
+  requestId: string,
+  notes?: string,
+): Promise<LeaveHoursRequestResponse> => {
+  const response = await authFetch(`/leave-hours/${requestId}/approve`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: notes ? JSON.stringify({ notes }) : undefined,
+  })
+
+  if (!response.ok) {
+    throw new Error("Errore nell'approvazione della richiesta di permesso")
+  }
+
+  return await response.json()
+}
+
+//_-------------------------------RIFIUTA RICHIESTE
+//RIFIUTA RICHIESTA FERIE
+export const rejectHolidayRequest = async (
+  requestId: string,
+  notes?: string,
+): Promise<HolidayRequestResponse> => {
+  const response = await authFetch(`/holidays/${requestId}/reject`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: notes ? JSON.stringify({ notes }) : undefined,
+  })
+
+  if (!response.ok) {
+    throw new Error("Errore nel rifiuto della richiesta ferie")
+  }
+
+  return await response.json()
+}
+
+//RIFIUTA RICHIESTA DI PERMESSO
+export const rejectLeaveHoursRequest = async (
+  requestId: string,
+  notes?: string,
+): Promise<LeaveHoursRequestResponse> => {
+  const response = await authFetch(`/leave-hours/${requestId}/reject`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: notes ? JSON.stringify({ notes }) : undefined,
+  })
+
+  if (!response.ok) {
+    throw new Error("Errore nel rifiuto della richiesta di permesso")
+  }
+
+  return await response.json()
+}
+
+//GET TUTTE LE RICHIESTE -----------------------------HR E ADMIN---------------
+export const getRequests = async (
+  page = 0,
+  size = 15,
+): Promise<PageResponse<RequestResponse>> => {
+  const response = await authFetch(
+    `/requests?page=${page}&size=${size}&sortBy=createdAt`,
+  )
+
+  return response.json()
+}
+
+//MODIFICA RICHIESTA ORIGINALE
+export const createChangeHolidayRequest = async (
+  originalRequestId: string,
+  payload: ChangeHolidayRequestDTO,
+): Promise<ChangeHolidayRequestResponseDTO> => {
+  const response = await authFetch(
+    `/change-holiday-requests/${originalRequestId}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    },
+  )
+
+  return response.json()
+}
+
+//MODIFICA RICHIESTA ORIGINALE
+export const createChangeLeaveHoursRequest = async (
+  originalRequestId: string,
+  payload: ChangeLeaveHoursRequestDTO,
+): Promise<ChangeLeaveHoursRequestResponseDTO> => {
+  const response = await authFetch(
+    `/change-leave-hours-requests/${originalRequestId}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    },
+  )
+
+  if (!response.ok) {
+    const errorData = await response.json()
+
+    throw new Error(
+      errorData.message || "Errore nell'invio della richiesta di modifica.",
+    )
+  }
+
+  return response.json()
+}
+
+// GET SINGOLA RICHIESTA DI MODIFICA FERIE
+export const getMyChangeHolidayRequest = async (
+  originalRequestId: string,
+): Promise<ChangeHolidayRequestResponseDTO> => {
+  const response = await authFetch(
+    `/change-holiday-requests/${originalRequestId}`,
+  )
+
+  if (!response.ok) {
+    const errorData = await response.json()
+
+    throw new Error(
+      errorData.message ||
+        "Errore nel recupero della richiesta di modifica delle ferie.",
+    )
+  }
+
+  return response.json()
+}
+
+// GET SINGOLA RICHIESTA DI MODIFICA PERMESSO ORE
+export const getMyChangeLeaveHoursRequest = async (
+  originalRequestId: string,
+): Promise<ChangeLeaveHoursRequestResponseDTO> => {
+  const response = await authFetch(
+    `/change-leave-hours-requests/${originalRequestId}`,
+  )
+
+  if (!response.ok) {
+    const errorData = await response.json()
+
+    throw new Error(
+      errorData.message ||
+        "Errore nel recupero della richiesta di modifica del permesso.",
+    )
+  }
+
+  return response.json()
+}
+
+//GET TUTTE LE MIE RICHIESTE DI MODIFICA FERIE
+export const getMyChangeHolidayRequests = async (
+  page = 0,
+  size = 15,
+): Promise<PageResponse<ChangeHolidayRequestResponseDTO>> => {
+  const response = await authFetch(
+    `/change-holiday-requests/me?page=${page}&size=${size}&sortBy=createdAt`,
+  )
+
+  if (!response.ok) {
+    const errorData = await response.json()
+
+    throw new Error(
+      errorData.message ||
+        "Errore nel recupero delle richieste di modifica ferie.",
+    )
+  }
+
+  return response.json()
+}
+
+// GET TUTTE LE MIE RICHIESTE DI MODIFICA PERMESSO ORE
+export const getMyChangeLeaveHoursRequests = async (
+  page = 0,
+  size = 15,
+): Promise<PageResponse<ChangeLeaveHoursRequestResponseDTO>> => {
+  const response = await authFetch(
+    `/change-leave-hours-requests/me?page=${page}&size=${size}&sortBy=createdAt`,
+  )
+
+  if (!response.ok) {
+    const errorData = await response.json()
+
+    throw new Error(
+      errorData.message ||
+        "Errore nel recupero delle richieste di modifica permesso.",
+    )
+  }
+
+  return response.json()
+}
+
+// ANNULLA RICHIESTA DI MODIFICA FERIE
+export const cancelMyChangeHolidayRequest = async (
+  requestId: string,
+): Promise<ChangeHolidayRequestResponseDTO> => {
+  const response = await authFetch(
+    `/change-holiday-requests/${requestId}/cancel`,
+    {
+      method: "PATCH",
+    },
+  )
+
+  if (!response.ok) {
+    const errorData = await response.json()
+
+    throw new Error(
+      errorData.message ||
+        "Errore nell'annullamento della richiesta di modifica.",
+    )
+  }
+
+  return response.json()
+}
+
+// ANNULLA RICHIESTA DI MODIFICA PERMESSO ORE
+export const cancelMyChangeLeaveHoursRequest = async (
+  requestId: string,
+): Promise<ChangeLeaveHoursRequestResponseDTO> => {
+  const response = await authFetch(
+    `/change-leave-hours-requests/${requestId}/cancel`,
+    {
+      method: "PATCH",
+    },
+  )
+
+  if (!response.ok) {
+    const errorData = await response.json()
+
+    throw new Error(
+      errorData.message ||
+        "Errore nell'annullamento della richiesta di modifica.",
+    )
+  }
+
+  return response.json()
+}
+
+//GET RICHIESTE DI MODIFICA DA LAVORARE
+
+// GET RICHIESTE DI MODIFICA FERIE DA LAVORARE (SENT)
+
+export const getPendingChangeHolidayRequests = async (
+  name?: string,
+  startDate?: string,
+  endDate?: string,
+  page = 0,
+  size = 15,
+  sortBy = "createdAt",
+): Promise<PageResponse<ChangeHolidayRequestResponseDTO>> => {
+  const params = new URLSearchParams()
+
+  if (name) params.append("name", name)
+  if (startDate) params.append("startDate", startDate)
+  if (endDate) params.append("endDate", endDate)
+
+  params.append("page", page.toString())
+  params.append("size", size.toString())
+  params.append("sortBy", sortBy)
+
+  const response = await authFetch(
+    `/change-holiday-requests/pending?${params.toString()}`,
+  )
+
+  if (!response.ok) {
+    const errorData = await response.json()
+    throw new Error(
+      errorData.message ||
+        "Errore nel recupero delle richieste di modifica ferie da lavorare.",
+    )
+  }
+
+  return response.json()
+}
+
+// GET RICHIESTE DI MODIFICA PERMESSI ORE DA LAVORARE (SENT)
+
+export const getPendingChangeLeaveHoursRequests = async (
+  name?: string,
+  date?: string,
+  startTime?: string,
+  endTime?: string,
+  page = 0,
+  size = 15,
+  sortBy = "createdAt",
+): Promise<PageResponse<ChangeLeaveHoursRequestResponseDTO>> => {
+  const params = new URLSearchParams()
+
+  if (name) params.append("name", name)
+  if (date) params.append("date", date)
+  if (startTime) params.append("startTime", startTime)
+  if (endTime) params.append("endTime", endTime)
+
+  params.append("page", page.toString())
+  params.append("size", size.toString())
+  params.append("sortBy", sortBy)
+
+  const response = await authFetch(
+    `/change-leave-hours-requests/pending?${params.toString()}`,
+  )
+
+  if (!response.ok) {
+    const errorData = await response.json()
+
+    throw new Error(
+      errorData.message ||
+        "Errore nel recupero delle richieste di modifica dei permessi da lavorare.",
+    )
+  }
+
+  return response.json()
+}
+
+// GET SINGOLA RICHIESTA DI MODIFICA FERIE - REVIEWER
+export const getChangeHolidayRequestForReviewer = async (
+  requestId: string,
+): Promise<ChangeHolidayRequestResponseDTO> => {
+  const response = await authFetch(
+    `/change-holiday-requests/${requestId}/reviewer`,
+  )
+
+  if (!response.ok) {
+    const errorData = await response.json()
+
+    throw new Error(
+      errorData.message ||
+        "Errore nel recupero della richiesta di modifica delle ferie.",
+    )
+  }
+
+  return response.json()
+}
+
+// GET SINGOLA RICHIESTA DI MODIFICA PERMESSO ORE - REVIEWER
+export const getChangeLeaveHoursRequestForReviewer = async (
+  requestId: string,
+): Promise<ChangeLeaveHoursRequestResponseDTO> => {
+  const response = await authFetch(
+    `/change-leave-hours-requests/${requestId}/reviewer`,
+  )
+
+  if (!response.ok) {
+    const errorData = await response.json()
+
+    throw new Error(
+      errorData.message ||
+        "Errore nel recupero della richiesta di modifica del permesso.",
+    )
+  }
+
+  return response.json()
+}
+
+//APPROVA RICHIESTA DI MODIFICA FERIE
+export const approveChangeHolidayRequest = async (
+  requestId: string,
+  notes?: string,
+): Promise<ChangeHolidayRequestResponseDTO> => {
+  const response = await authFetch(
+    `/change-holiday-requests/${requestId}/approve`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        notes: notes || null,
+      }),
+    },
+  )
+
+  if (!response.ok) {
+    const errorData = await response.json()
+
+    throw new Error(
+      errorData.message ||
+        "Errore nell'approvazione della richiesta di modifica ferie.",
+    )
+  }
+
+  return response.json()
+}
+
+// APPROVA RICHIESTA DI MODIFICA PERMESSO ORE - REVIEWER
+
+export const approveChangeLeaveHoursRequest = async (
+  requestId: string,
+  notes?: string,
+): Promise<ChangeLeaveHoursRequestResponseDTO> => {
+  const response = await authFetch(
+    `/change-leave-hours-requests/${requestId}/approve`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        notes: notes || null,
+      }),
+    },
+  )
+
+  if (!response.ok) {
+    const errorData = await response.json()
+
+    throw new Error(
+      errorData.message ||
+        "Errore nell'approvazione della richiesta di modifica del permesso.",
+    )
+  }
+
+  return response.json()
+}
+
+// RIFIUTA RICHIESTA DI MODIFICA FERIE - REVIEWER
+
+export const rejectChangeHolidayRequest = async (
+  requestId: string,
+  notes?: string,
+): Promise<ChangeHolidayRequestResponseDTO> => {
+  const response = await authFetch(
+    `/change-holiday-requests/${requestId}/reject`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        notes: notes || null,
+      }),
+    },
+  )
+
+  if (!response.ok) {
+    const errorData = await response.json()
+
+    throw new Error(
+      errorData.message ||
+        "Errore nel rifiuto della richiesta di modifica ferie.",
+    )
+  }
+
+  return response.json()
+}
+
+// RIFIUTA RICHIESTA DI MODIFICA PERMESSO ORE - REVIEWER
+
+export const rejectChangeLeaveHoursRequest = async (
+  requestId: string,
+  notes?: string,
+): Promise<ChangeLeaveHoursRequestResponseDTO> => {
+  const response = await authFetch(
+    `/change-leave-hours-requests/${requestId}/reject`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        notes: notes || null,
+      }),
+    },
+  )
+
+  if (!response.ok) {
+    const errorData = await response.json()
+
+    throw new Error(
+      errorData.message ||
+        "Errore nel rifiuto della richiesta di modifica del permesso.",
+    )
+  }
+
+  return response.json()
+}
+
+// GET TUTTE LE RICHIESTE - ADMIN E SHIFT MANAGER
+export const getAllRequests = async (
+  page = 0,
+  size = 20,
+): Promise<PageResponse<RequestResponseDTO>> => {
+  const response = await authFetch(`/requests/all?page=${page}&size=${size}`)
+
+  if (!response.ok) {
+    const errorData = await response.json()
+
+    throw new Error(
+      errorData.message || "Errore nel caricamento delle richieste.",
+    )
+  }
+
+  return response.json()
 }
