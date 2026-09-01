@@ -12,13 +12,21 @@ import {
 import { UserNavbar } from "./UserNavbar"
 import { useEffect, useState } from "react"
 import {
+  cancelMyChangeHolidayRequest,
+  cancelMyChangeLeaveHoursRequest,
   createAbsenceCertificationRequest,
+  createChangeHolidayRequest,
+  createChangeLeaveHoursRequest,
   createHolidayRequest,
   createLeaveHoursRequest,
   deleteAbsenceCertificationRequest,
   deleteHolidayRequest,
   deleteLeaveHoursRequest,
   getMyAbsenceCertifications,
+  getMyChangeHolidayRequest,
+  getMyChangeHolidayRequests,
+  getMyChangeLeaveHoursRequest,
+  getMyChangeLeaveHoursRequests,
   getMyHolidayRequests,
   getMyLeaveHoursRequests,
   getUserLeaveSummary,
@@ -28,11 +36,21 @@ import {
 } from "../../services/requestService"
 import type { UserSummaryResponse } from "../../types/users"
 import { IoMdAdd } from "react-icons/io"
-import type { CertificateType, LeaveHoursType } from "../../types/requests"
+import type {
+  CertificateType,
+  ChangeHolidayRequestResponseDTO,
+  ChangeLeaveHoursRequestResponseDTO,
+  LeaveHoursType,
+} from "../../types/requests"
 import { FaPencilAlt, FaRegTrashAlt } from "react-icons/fa"
 import "../../styles/mobileText.css"
 
-export type RequestType = "HOLIDAY" | "LEAVE_HOURS" | "CERTIFICATION"
+export type RequestType =
+  | "HOLIDAY"
+  | "LEAVE_HOURS"
+  | "CERTIFICATION"
+  | "CHANGE_LEAVE_HOURS"
+  | "CHANGE_HOLIDAY"
 
 export type UserRequest = {
   id: string
@@ -54,9 +72,23 @@ export type UserRequest = {
   totalDays?: number
   totalHours?: number
   employeeName?: string
+  startDateOriginalRequest?: string
+  endDateOriginalRequest?: string
+  startTimeOriginalRequest?: string
+  endTimeOriginalRequest?: string
+  originalRequestCreatedAt?: string
+  originalRequestTotalDays?: number
+  originalRequestTotalHours?: number
+  originalRequestEmployeeNotes?: string
+  responseDate?: string
+  originalReviewerNotes?: string
+  originalResponseDate?: string
+  originalDate?: string
 }
 
 export const UserRequests = () => {
+  const [showDetails, setShowDetails] = useState(false)
+
   const [summary, setSummary] = useState<UserSummaryResponse | null>(null)
   const [loadingSummary, setLoadingSummary] = useState(true)
 
@@ -93,6 +125,24 @@ export const UserRequests = () => {
   //modale per la modifica
   const [editingRequest, setEditingRequest] = useState<UserRequest | null>(null)
 
+  //modifica richiesta approvata
+  const [isApprovedEdit, setIsApprovedEdit] = useState(false)
+
+  //richieste di modifica se approvata
+  const [changeHolidayRequest, setChangeHolidayRequest] =
+    useState<ChangeHolidayRequestResponseDTO | null>(null)
+
+  const [changeLeaveHoursRequest, setChangeLeaveHoursRequest] =
+    useState<ChangeLeaveHoursRequestResponseDTO | null>(null)
+
+  const [changeHolidayRequests, setChangeHolidayRequests] = useState<
+    ChangeHolidayRequestResponseDTO[]
+  >([])
+
+  const [changeLeaveHoursRequests, setChangeLeaveHoursRequests] = useState<
+    ChangeLeaveHoursRequestResponseDTO[]
+  >([])
+
   const certificateTypes = [
     { value: "SICKNESS", label: "Malattia" },
     { value: "MATERNITY", label: "Maternità" },
@@ -114,7 +164,7 @@ export const UserRequests = () => {
     const loadSummary = async () => {
       try {
         const data = await getUserLeaveSummary()
-        console.log("SUMMARY RICEVUTO DAL BE:", data)
+
         setSummary(data)
       } catch (error) {
         console.error("Errore nel caricamento del riepilogo:", error)
@@ -145,57 +195,154 @@ export const UserRequests = () => {
     setCertificateType("")
   }
 
+  const loadRequest = async () => {
+    try {
+      setLoadingRequest(true)
+
+      const [
+        holidays,
+        leaveHours,
+        certifications,
+        changeHolidays,
+        changeLeaveHours,
+      ] = await Promise.all([
+        getMyHolidayRequests(),
+        getMyLeaveHoursRequests(),
+        getMyAbsenceCertifications(),
+        getMyChangeHolidayRequests(),
+        getMyChangeLeaveHoursRequests(),
+      ])
+
+      const allRequests: UserRequest[] = [
+        ...holidays.content.map((request) => ({
+          ...request,
+          requestType: "HOLIDAY" as RequestType,
+        })),
+
+        ...leaveHours.content.map((request) => ({
+          ...request,
+          requestType: "LEAVE_HOURS" as RequestType,
+        })),
+
+        ...certifications.content.map((request) => ({
+          ...request,
+          requestType: "CERTIFICATION" as RequestType,
+        })),
+      ]
+
+      allRequests.sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      )
+
+      setRequests(allRequests)
+      setChangeHolidayRequests(changeHolidays.content)
+      setChangeLeaveHoursRequests(changeLeaveHours.content)
+    } catch (error) {
+      console.error("Errore nel caricamento delle richieste:", error)
+    } finally {
+      setLoadingRequest(false)
+    }
+  }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadRequest()
+  }, [])
+
   //funzione post richiesta
   const handleSubmitRequest = async () => {
     setLoadingRequest(true)
 
     try {
-      //modifica richiesta
       if (editingRequest) {
-        console.log("STO FACENDO PATCH", editingRequest.id)
-        if (requestType === "HOLIDAY") {
-          await updateHolidayRequest(editingRequest.id, {
-            startDate,
-            endDate,
-            employeeNotes,
-          })
+        // RICHIESTA APPROVATA
+        if (isApprovedEdit) {
+          if (requestType === "HOLIDAY") {
+            await createChangeHolidayRequest(editingRequest.id, {
+              startDate,
+              endDate,
+              employeeNotes,
+            })
+          }
+
+          if (requestType === "LEAVE_HOURS") {
+            if (!leaveHoursType) {
+              throw new Error("Seleziona il tipo di permesso.")
+            }
+
+            await createChangeLeaveHoursRequest(editingRequest.id, {
+              date,
+              startTime,
+              endTime,
+              leaveHoursType,
+              employeeNotes,
+            })
+          }
+
+          if (requestType === "CERTIFICATION") {
+            await updateAbsenceCertificationRequest(editingRequest.id, {
+              protocolCode,
+              startDate,
+              endDate,
+              issueDate,
+              certificateFile: certificateFile || undefined,
+              certificateType: certificateType || undefined,
+              employeeNotes,
+            })
+          }
+
+          setShowRequestModal(false)
+
+          if (requestType === "CERTIFICATION") {
+            alert("Richiesta modificata con successo!")
+          } else {
+            alert("Richiesta di modifica inviata con successo!")
+          }
+
+          resetForm()
+          await loadRequest()
+          return
         }
+        if (isApprovedEdit) {
+          //MODIFICA RICHIESTA SENT
+          if (requestType === "HOLIDAY") {
+            await updateHolidayRequest(editingRequest.id, {
+              startDate,
+              endDate,
+              employeeNotes,
+            })
+          }
 
-        console.log("PATCH FERIE", {
-          id: editingRequest.id,
-          startDate,
-          endDate,
-          employeeNotes,
-        })
+          if (requestType === "LEAVE_HOURS") {
+            await updateLeaveHoursRequest(editingRequest.id, {
+              date,
+              startTime,
+              endTime,
+              leaveHoursType: leaveHoursType || undefined,
+              employeeNotes,
+            })
+          }
 
-        if (requestType === "LEAVE_HOURS") {
-          await updateLeaveHoursRequest(editingRequest.id, {
-            date,
-            startTime,
-            endTime,
-            leaveHoursType: leaveHoursType || undefined,
-            employeeNotes,
-          })
+          if (requestType === "CERTIFICATION") {
+            await updateAbsenceCertificationRequest(editingRequest.id, {
+              protocolCode,
+              startDate,
+              endDate,
+              issueDate,
+              certificateFile: certificateFile || undefined,
+              certificateType: certificateType || undefined,
+              employeeNotes,
+            })
+          }
+
+          setShowRequestModal(false)
+          alert("Richiesta modificata con successo!")
+          resetForm()
+          await loadRequest()
+
+          return
         }
-
-        if (requestType === "CERTIFICATION") {
-          await updateAbsenceCertificationRequest(editingRequest.id, {
-            protocolCode,
-            startDate,
-            endDate,
-            issueDate,
-            certificateFile: certificateFile || undefined,
-            certificateType: certificateType || undefined,
-            employeeNotes,
-          })
-        }
-
-        setShowRequestModal(false)
-        alert("Richiesta modificata con successo!")
-        resetForm()
-        await loadRequest()
-
-        return
       }
 
       //nuova richiesta
@@ -208,6 +355,12 @@ export const UserRequests = () => {
       }
 
       if (requestType === "LEAVE_HOURS") {
+        await createLeaveHoursRequest({
+          date: date,
+          startTime: startTime,
+          endTime: endTime,
+          employeeNotes,
+        })
         if (!leaveHoursType) {
           throw new Error("Seleziona il tipo di permesso.")
         }
@@ -223,7 +376,7 @@ export const UserRequests = () => {
 
       if (requestType === "CERTIFICATION") {
         if (!certificateFile) {
-          throw new Error("Devi caricare il certificato.")
+          throw new Error("È necessario caricare il certificato.")
         }
 
         if (!certificateType) {
@@ -258,55 +411,6 @@ export const UserRequests = () => {
       setLoadingRequest(false)
     }
   }
-
-  const loadRequest = async () => {
-    try {
-      setLoadingRequest(true)
-
-      const [holidays, leaveHours, certifications] = await Promise.all([
-        getMyHolidayRequests(),
-        getMyLeaveHoursRequests(),
-        getMyAbsenceCertifications(),
-      ])
-      console.log("FERIE:", holidays)
-      console.log("PERMESSI:", leaveHours)
-      console.log("CERTIFICATI:", certifications)
-
-      const allRequests: UserRequest[] = [
-        ...holidays.content.map((request) => ({
-          ...request,
-          requestType: "HOLIDAY" as RequestType,
-        })),
-
-        ...leaveHours.content.map((request) => ({
-          ...request,
-          requestType: "LEAVE_HOURS" as RequestType,
-        })),
-
-        ...certifications.content.map((request) => ({
-          ...request,
-          requestType: "CERTIFICATION" as RequestType,
-        })),
-      ]
-
-      console.log("TUTTE LE RICHIESTE:", allRequests)
-
-      allRequests.sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-      )
-
-      setRequests(allRequests)
-    } catch (error) {
-      console.error("Errore nel caricamento delle richieste:", error)
-    } finally {
-      setLoadingRequest(false)
-    }
-  }
-
-  useEffect(() => {
-    loadRequest()
-  }, [])
 
   //periodo per la tabella
   const getRequestPeriod = (request: UserRequest) => {
@@ -379,23 +483,21 @@ export const UserRequests = () => {
     return `${year}-${month}-${day}`
   }
 
-  //il form di modifica resta compilato
   const handleEditRequest = (request: UserRequest) => {
     setEditingRequest(request)
 
-    setRequestType(request.requestType)
+    // capiamo se stiamo modificando una richiesta APPROVATA
+    setIsApprovedEdit(request.requestStatus === "APPROVED")
 
+    setRequestType(request.requestType)
     setEmployeeNotes(request.employeeNotes ?? "")
 
     if (request.requestType === "HOLIDAY") {
       setStartDate(
         request.startDate ? convertDateForInput(request.startDate) : "",
       )
-
       setEndDate(request.endDate ? convertDateForInput(request.endDate) : "")
     }
-
-    console.log("DATA INIZIO", startDate)
 
     if (request.requestType === "LEAVE_HOURS") {
       setDate(request.date ? convertDateForInput(request.date) : "")
@@ -406,23 +508,18 @@ export const UserRequests = () => {
 
     if (request.requestType === "CERTIFICATION") {
       setProtocolCode(request.protocolCode ?? "")
-
       setStartDate(
         request.startDate ? convertDateForInput(request.startDate) : "",
       )
-
       setEndDate(request.endDate ? convertDateForInput(request.endDate) : "")
-
       setIssueDate(
         request.issueDate ? convertDateForInput(request.issueDate) : "",
       )
-
       setCertificateType(request.certificateType ?? "")
     }
 
     setShowRequestModal(true)
   }
-
   //eliminazione richiesta
   const handleDeleteRequest = async () => {
     if (!editingRequest) {
@@ -467,6 +564,94 @@ export const UserRequests = () => {
       )
     } finally {
       setLoadingRequest(false)
+    }
+  }
+
+  //FUNZIONE PER APRIRE I DETTAGLI
+  const handleShowDetails = async (request: UserRequest) => {
+    setEditingRequest(request)
+    setRequestType(request.requestType)
+
+    setChangeHolidayRequest(null)
+    setChangeLeaveHoursRequest(null)
+
+    if (
+      request.requestStatus === "APPROVED" &&
+      request.requestType === "HOLIDAY"
+    ) {
+      try {
+        const changeRequest = await getMyChangeHolidayRequest(request.id)
+        setChangeHolidayRequest(changeRequest)
+      } catch {
+        //nessuna richiesta di modifica presente
+      }
+    }
+
+    if (
+      request.requestStatus === "APPROVED" &&
+      request.requestType === "LEAVE_HOURS"
+    ) {
+      try {
+        const changeRequest = await getMyChangeLeaveHoursRequest(request.id)
+        setChangeLeaveHoursRequest(changeRequest)
+      } catch {
+        // 404 = nessuna modifica presente, non è un errore
+      }
+    }
+
+    // Il modale si apre SEMPRE
+    setShowDetails(true)
+  }
+
+  const hasPendingChange = (request: UserRequest) => {
+    if (request.requestStatus !== "APPROVED") {
+      return false
+    }
+
+    if (request.requestType === "HOLIDAY") {
+      return changeHolidayRequests.some(
+        (change) =>
+          change.originalRequestId === request.id &&
+          change.changeRequestStatus === "SENT",
+      )
+    }
+
+    if (request.requestType === "LEAVE_HOURS") {
+      return changeLeaveHoursRequests.some(
+        (change) =>
+          change.originalRequestId === request.id &&
+          change.changeRequestStatus === "SENT",
+      )
+    }
+
+    return false
+  }
+
+  const handleCancelChangeRequest = async () => {
+    try {
+      if (requestType === "HOLIDAY" && changeHolidayRequest) {
+        await cancelMyChangeHolidayRequest(changeHolidayRequest.id)
+      }
+
+      if (requestType === "LEAVE_HOURS" && changeLeaveHoursRequest) {
+        await cancelMyChangeLeaveHoursRequest(changeLeaveHoursRequest.id)
+      }
+
+      alert("Richiesta di modifica annullata con successo.")
+
+      setShowDetails(false)
+
+      // Pulizia
+      setChangeHolidayRequest(null)
+      setChangeLeaveHoursRequest(null)
+    } catch (error) {
+      console.error("Errore nell'annullamento:", error)
+
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Errore nell'annullamento della richiesta di modifica.",
+      )
     }
   }
   return (
@@ -875,19 +1060,16 @@ export const UserRequests = () => {
                   <thead>
                     <tr>
                       <th className="small-text text-dark text-nowrap text-center">
-                        Data richiesta
+                        Data
                       </th>
                       <th className="small-text text-dark text-nowrap text-center">
-                        Tipo richiesta
+                        Tipo
                       </th>
                       <th className="small-text text-dark text-nowrap text-center">
-                        Periodo richiesto
+                        Periodo
                       </th>
                       <th className="small-text text-dark text-nowrap text-center">
-                        Quantità richiesta
-                      </th>
-                      <th className="small-text text-dark text-nowrap text-center">
-                        Stato richiesta
+                        Quantità
                       </th>
                       <th className="small-text text-dark text-nowrap text-center">
                         Note
@@ -897,6 +1079,15 @@ export const UserRequests = () => {
                       </th>
                       <th className="small-text text-dark text-nowrap text-center">
                         Note revisore
+                      </th>
+                      <th className="small-text text-dark text-nowrap text-center">
+                        Stato
+                      </th>
+                      <th className="small-text text-dark text-nowrap text-center">
+                        Modifica
+                      </th>
+                      <th className="small-text text-dark text-nowrap text-center">
+                        Visualizza dettagli
                       </th>
                     </tr>
                   </thead>
@@ -923,32 +1114,6 @@ export const UserRequests = () => {
                                 ? request.totalHours?.toFixed(2) + " ore"
                                 : ""}
                         </td>
-
-                        <td className="small-text text-center">
-                          {(() => {
-                            const status = getRequestStatusLabel(
-                              request.requestStatus,
-                            )
-
-                            return (
-                              <span className={status.className}>
-                                {status.label}
-                              </span>
-                            )
-                          })()}
-                          {request.requestStatus === "SENT" ? (
-                            <div className="d-flex justify-content-end mt-2">
-                              <Button
-                                className="p-1 rounded-circle border-0 backgroundPink text-light d-flex align-items-center justify-content-center small-text"
-                                onClick={() => handleEditRequest(request)}
-                              >
-                                <FaPencilAlt size={10} />
-                              </Button>
-                            </div>
-                          ) : (
-                            ""
-                          )}
-                        </td>
                         <td className="small-text text-dark text-center">
                           {request.employeeNotes || "-"}
                         </td>
@@ -958,6 +1123,70 @@ export const UserRequests = () => {
                         <td className="small-text text-dark text-center">
                           {request.reviewerNotes || "-"}
                         </td>
+
+                        <td className="smaller-text text-center text-nowrap">
+                          {(() => {
+                            const status = getRequestStatusLabel(
+                              request.requestStatus,
+                            )
+
+                            return (
+                              <>
+                                <span className={status.className}>
+                                  {status.label}
+                                </span>
+
+                                {hasPendingChange(request) && (
+                                  <div className="text-muted small mt-1">
+                                    Inviata richiesta di modifica
+                                  </div>
+                                )}
+                              </>
+                            )
+                          })()}
+                        </td>
+                        <td className="small-text">
+                          {request.requestStatus === "SENT" ? (
+                            <div className="d-flex justify-content-center align-item-center">
+                              <Button
+                                className="p-1 rounded-circle border-0 backgroundPink text-light d-flex align-items-center justify-content-center small-text"
+                                onClick={() => handleEditRequest(request)}
+                              >
+                                <FaPencilAlt size={10} />
+                              </Button>
+                            </div>
+                          ) : request.requestStatus === "APPROVED" ? (
+                            <div className="d-flex justify-content-center align-item-center">
+                              <Button
+                                className="p-1 rounded-circle border-0 backgroundOrange text-light d-flex align-items-center justify-content-center small-text"
+                                onClick={() => handleEditRequest(request)}
+                              >
+                                <FaPencilAlt size={10} />
+                              </Button>
+                            </div>
+                          ) : request.requestStatus === "REJECTED" ? (
+                            <div className="d-flex justify-content-center align-item-center">
+                              <Button
+                                className="p-1 rounded-circle border-0 backgroundOrange text-light d-flex align-items-center justify-content-center small-text"
+                                onClick={() => handleEditRequest(request)}
+                              >
+                                <FaPencilAlt size={10} />
+                              </Button>
+                            </div>
+                          ) : (
+                            ""
+                          )}
+                        </td>
+                        <td>
+                          <div className="d-flex justify-content-center">
+                            <Button
+                              className="btn-custom1 small-text p-1"
+                              onClick={() => handleShowDetails(request)}
+                            >
+                              Dettagli
+                            </Button>
+                          </div>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -966,6 +1195,202 @@ export const UserRequests = () => {
             </Card>
           </Col>
         </Row>
+        <Modal
+          show={showDetails}
+          onHide={() => {
+            setShowDetails(false)
+          }}
+        >
+          <Modal.Header closeButton>
+            <Modal.Title className="small-title text-dark">
+              Visualizza i dettagli
+            </Modal.Title>
+          </Modal.Header>
+
+          <Modal.Body>
+            {editingRequest && (
+              <>
+                {/* RICHIESTA ORIGINALE */}
+                <h6 className="fw-bold mb-3 text-primary">
+                  Richiesta originale
+                </h6>
+
+                <ul className="mb-4 small-text text-dark">
+                  {requestType === "HOLIDAY" && (
+                    <>
+                      <li>
+                        <strong>Periodo:</strong> {editingRequest.startDate} -{" "}
+                        {editingRequest.endDate}
+                      </li>
+
+                      <li>
+                        <strong>Giorni:</strong> {editingRequest.totalDays}
+                      </li>
+
+                      <li>
+                        <strong>Nota:</strong>{" "}
+                        {editingRequest.employeeNotes || "-"}
+                      </li>
+                    </>
+                  )}
+
+                  {requestType === "LEAVE_HOURS" && (
+                    <>
+                      <li>
+                        <strong>Data:</strong> {editingRequest.date}
+                      </li>
+
+                      <li>
+                        <strong>Orario:</strong> {editingRequest.startTime} -{" "}
+                        {editingRequest.endTime}
+                      </li>
+
+                      <li>
+                        <strong>Ore:</strong> {editingRequest.totalHours}
+                      </li>
+
+                      <li>
+                        <strong>Nota:</strong>{" "}
+                        {editingRequest.employeeNotes || "-"}
+                      </li>
+                    </>
+                  )}
+
+                  {requestType === "CERTIFICATION" && (
+                    <>
+                      <li>
+                        <strong>Periodo:</strong> {editingRequest.startDate} -{" "}
+                        {editingRequest.endDate}
+                      </li>
+
+                      <li>
+                        <strong>Giorni:</strong> {editingRequest.totalDays}
+                      </li>
+
+                      <li>
+                        <strong>Tipo certificato:</strong>{" "}
+                        {editingRequest.certificateType || "-"}
+                      </li>
+
+                      <li>
+                        <strong>Protocollo:</strong>{" "}
+                        {editingRequest.protocolCode || "-"}
+                      </li>
+
+                      <li>
+                        <strong>Nota:</strong>{" "}
+                        {editingRequest.employeeNotes || "-"}
+                      </li>
+                    </>
+                  )}
+                </ul>
+
+                {/* ================================================= */}
+                {/* RICHIESTA DI MODIFICA - SOLO PER APPROVED */}
+                {/* ================================================= */}
+
+                {editingRequest.requestStatus === "APPROVED" &&
+                  requestType === "HOLIDAY" &&
+                  changeHolidayRequest && (
+                    <>
+                      <hr />
+
+                      <h6 className="fw-bold mb-3 text-primary">
+                        Richiesta di modifica
+                      </h6>
+
+                      <ul className="mb-0 small-text text-dark">
+                        <li>
+                          <strong>Nuovo periodo:</strong>{" "}
+                          {changeHolidayRequest.startDate} -{" "}
+                          {changeHolidayRequest.endDate}
+                        </li>
+
+                        <li>
+                          <strong>Nuovi giorni:</strong>{" "}
+                          {changeHolidayRequest.totalDays}
+                        </li>
+
+                        <li>
+                          <strong>Nota:</strong>{" "}
+                          {changeHolidayRequest.employeeNotes || "-"}
+                        </li>
+
+                        <li>
+                          <strong>Stato modifica:</strong>{" "}
+                          {
+                            getRequestStatusLabel(
+                              changeHolidayRequest.changeRequestStatus,
+                            ).label
+                          }
+                        </li>
+                      </ul>
+                    </>
+                  )}
+
+                {editingRequest.requestStatus === "APPROVED" &&
+                  requestType === "LEAVE_HOURS" &&
+                  changeLeaveHoursRequest && (
+                    <>
+                      <hr />
+
+                      <h6 className="fw-bold mb-3">Richiesta di modifica</h6>
+
+                      <ul className="mb-0">
+                        <li>
+                          <strong>Nuova data:</strong>{" "}
+                          {changeLeaveHoursRequest.date}
+                        </li>
+
+                        <li>
+                          <strong>Nuovo orario:</strong>{" "}
+                          {changeLeaveHoursRequest.startTime} -{" "}
+                          {changeLeaveHoursRequest.endTime}
+                        </li>
+
+                        <li>
+                          <strong>Nuove ore:</strong>{" "}
+                          {changeLeaveHoursRequest.totalHours}
+                        </li>
+
+                        <li>
+                          <strong>Nota:</strong>{" "}
+                          {changeLeaveHoursRequest.employeeNotes || "-"}
+                        </li>
+
+                        <li>
+                          <strong>Stato modifica:</strong>{" "}
+                          {
+                            getRequestStatusLabel(
+                              changeLeaveHoursRequest.changeRequestStatus,
+                            ).label
+                          }
+                        </li>
+                      </ul>
+                    </>
+                  )}
+              </>
+            )}
+          </Modal.Body>
+          <Modal.Footer>
+            {changeHolidayRequest?.changeRequestStatus === "SENT" && (
+              <Button
+                className="btn-custom2"
+                onClick={handleCancelChangeRequest}
+              >
+                Annulla richiesta di modifica
+              </Button>
+            )}
+            {changeLeaveHoursRequest?.changeRequestStatus === "SENT" && (
+              <Button
+                className="btn-custom2"
+                onClick={handleCancelChangeRequest}
+              >
+                Annulla richiesta di modifica
+              </Button>
+            )}
+          </Modal.Footer>
+        </Modal>
       </Container>
     </>
   )

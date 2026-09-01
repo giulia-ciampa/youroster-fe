@@ -11,30 +11,29 @@ import {
 } from "react-bootstrap"
 import { ShiftManagerNavbar } from "./ShiftManagerNavbar"
 import { useEffect, useState } from "react"
-import type { RequestType, UserRequest } from "../users/UserRequests"
+
 import {
+  approveChangeHolidayRequest,
+  approveChangeLeaveHoursRequest,
   approveHolidayRequest,
   approveLeaveHoursRequest,
-  getPendingHolidayRequests,
-  getPendingLeaveHoursRequests,
-  getRequests,
+  getAllRequests,
+  rejectChangeHolidayRequest,
+  rejectChangeLeaveHoursRequest,
   rejectHolidayRequest,
   rejectLeaveHoursRequest,
 } from "../../services/requestService"
-import type { RequestResponse } from "../../types/requests"
+import type { CertificateType, RequestResponseDTO } from "../../types/requests"
 
 import "../../styles/mobileText.css"
 
 export const ShiftManagerRequests = () => {
-  console.log("SHIFT MANAGER REQUESTS COMPONENT")
-  const [requests, setRequests] = useState<UserRequest[]>([])
-  const [allRequests, setAllRequests] = useState<RequestResponse[]>([])
+  const [allRequests, setAllRequests] = useState<RequestResponseDTO[]>([])
   const [loading, setLoading] = useState(false)
 
   const [showModal, setShowModal] = useState(false)
-  const [selectedRequest, setSelectedRequest] = useState<UserRequest | null>(
-    null,
-  )
+  const [selectedRequest, setSelectedRequest] =
+    useState<RequestResponseDTO | null>(null)
 
   const [reviewerNotes, setReviewerNotes] = useState("")
 
@@ -42,30 +41,9 @@ export const ShiftManagerRequests = () => {
     try {
       setLoading(true)
 
-      const ferie = await getPendingHolidayRequests()
-      const permessi = await getPendingLeaveHoursRequests()
+      const response = await getAllRequests()
 
-      console.log("FERIE COMPLETE:", ferie)
-      console.log("FERIE CONTENT:", ferie.content)
-
-      console.log("PERMESSI COMPLETI:", permessi)
-      console.log("PERMESSI CONTENT:", permessi.content)
-
-      const allRequests: UserRequest[] = [
-        ...ferie.content.map((req) => ({
-          ...req,
-          requestType: "HOLIDAY" as const,
-        })),
-
-        ...permessi.content.map((req) => ({
-          ...req,
-          requestType: "LEAVE_HOURS" as const,
-        })),
-      ]
-
-      console.log("ALL REQUESTS:", allRequests)
-
-      setRequests(allRequests)
+      setAllRequests(response.content)
     } catch (error) {
       console.error("Errore nel recupero delle richieste:", error)
     } finally {
@@ -107,20 +85,6 @@ export const ShiftManagerRequests = () => {
     }
   }
 
-  //traduzione tipo di richiesta
-  const getRequestTypeLabel = (requestType: RequestType) => {
-    switch (requestType) {
-      case "HOLIDAY":
-        return "FERIE"
-
-      case "LEAVE_HOURS":
-        return "ORE DI PERMESSO"
-
-      default:
-        return requestType
-    }
-  }
-
   //funzione approva richiesta
   const handleApprove = async () => {
     if (!selectedRequest) return
@@ -158,6 +122,13 @@ export const ShiftManagerRequests = () => {
     }
   }
 
+  //richiesta singola di modifica da lavorare
+  const handleWorkRequest = (req: RequestResponseDTO) => {
+    setSelectedRequest(req)
+    setReviewerNotes(req.reviewerNotes ?? "")
+    setShowModal(true)
+  }
+
   //funzione rifiuta richiesta
   const handleReject = async () => {
     if (!selectedRequest) return
@@ -193,44 +164,18 @@ export const ShiftManagerRequests = () => {
     }
   }
 
-  //tutte le richieste
-  useEffect(() => {
-    const loadRequests = async () => {
-      try {
-        const data = await getRequests(0, 15)
-
-        console.log("RICHIESTE COMPLESSIVE:", data)
-
-        setAllRequests(data.content)
-      } catch (error) {
-        console.error("Errore nel caricamento delle richieste:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    loadRequests()
-  }, [])
-
   //funzione colore tipo
   const getRequestTypeClass = (requestType: string) => {
     switch (requestType) {
       case "HOLIDAY":
+      case "CHANGE_HOLIDAY":
         return "ferie"
 
       case "LEAVE_HOURS":
+      case "CHANGE_LEAVE_HOURS":
         return "permesso"
 
-      case "MATERNITY":
-        return "richiesta_certificato"
-
-      case "PATERNITY":
-        return "richiesta_certificato"
-
-      case "PARENTAL_LEAVE":
-        return "richiesta_certificato"
-
-      case "SICKNESS":
+      case "CERTIFICATION":
         return "richiesta_certificato"
 
       default:
@@ -275,8 +220,10 @@ export const ShiftManagerRequests = () => {
     }
   }
 
-  //funzione per tradurre il tipo di richiesta
-  const translateRequestType = (requestType: string) => {
+  const translateRequestType = (
+    requestType: string,
+    certificationType?: CertificateType,
+  ) => {
     switch (requestType) {
       case "HOLIDAY":
         return "FERIE"
@@ -284,20 +231,108 @@ export const ShiftManagerRequests = () => {
       case "LEAVE_HOURS":
         return "ORE DI PERMESSO"
 
-      case "MATERNITY":
-        return "MATERNITÀ"
+      case "CHANGE_HOLIDAY":
+        return "FERIE"
 
-      case "PATERNITY":
-        return "PATERNITÀ"
+      case "CHANGE_LEAVE_HOURS":
+        return "ORE DI PERMESSO"
 
-      case "PARENTAL_LEAVE":
-        return "CONGEDO PARENTALE"
-
-      case "SICKNESS":
-        return "MALATTIA"
+      case "CERTIFICATION":
+        switch (certificationType) {
+          case "MATERNITY":
+            return "MATERNITÀ"
+          case "PATERNITY":
+            return "PATERNITÀ"
+          case "PARENTAL_LEAVE":
+            return "CONGEDO PARENTALE"
+          case "SICKNESS":
+            return "MALATTIA"
+          default:
+            return "CERTIFICATO"
+        }
 
       default:
-        return ""
+        return requestType
+    }
+  }
+
+  //tutte le richieste
+
+  const loadRequests = async () => {
+    try {
+      setLoading(true)
+
+      const data = await getAllRequests(0, 15)
+
+      setAllRequests(data.content)
+    } catch (error) {
+      console.error("Errore nel caricamento delle richieste:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // RICHIESTE DI MODIFICA DA LAVORARE
+
+  const handleApproveChangeRequest = async () => {
+    if (!selectedRequest) return
+
+    try {
+      if (selectedRequest.requestType === "CHANGE_HOLIDAY") {
+        await approveChangeHolidayRequest(selectedRequest.id, reviewerNotes)
+
+        alert("La richiesta di modifica ferie è stata approvata.")
+      } else if (selectedRequest.requestType === "CHANGE_LEAVE_HOURS") {
+        await approveChangeLeaveHoursRequest(selectedRequest.id, reviewerNotes)
+
+        alert("La richiesta di modifica del permesso è stata approvata.")
+      }
+
+      setShowModal(false)
+      setSelectedRequest(null)
+      setReviewerNotes("")
+
+      // ricarichiamo le richieste
+      await loadRequests()
+    } catch (error) {
+      console.error(
+        "Errore nell'approvazione della richiesta di modifica:",
+        error,
+      )
+
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Si è verificato un errore durante l'approvazione della richiesta.",
+      )
+    }
+  }
+
+  const handleRejectChangeRequest = async () => {
+    if (!selectedRequest) return
+
+    try {
+      if (selectedRequest.requestType === "CHANGE_HOLIDAY") {
+        await rejectChangeHolidayRequest(selectedRequest.id, reviewerNotes)
+      }
+
+      if (selectedRequest.requestType === "CHANGE_LEAVE_HOURS") {
+        await rejectChangeLeaveHoursRequest(selectedRequest.id, reviewerNotes)
+      }
+
+      setShowModal(false)
+      setSelectedRequest(null)
+      setReviewerNotes("")
+
+      await loadRequests()
+    } catch (error) {
+      console.error("Errore nel rifiuto della richiesta di modifica:", error)
+
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Si è verificato un errore durante il rifiuto della richiesta.",
+      )
     }
   }
 
@@ -365,47 +400,77 @@ export const ShiftManagerRequests = () => {
                         </th>
                       </tr>
                     </thead>
-
                     <tbody>
-                      {requests.length > 0 ? (
-                        requests.map((req) => (
+                      {allRequests
+                        .filter((req) => req.requestStatus === "SENT")
+                        .map((req) => (
                           <tr key={req.id}>
+                            {/* DATA CREAZIONE */}
                             <td className="small-text text-dark">
                               {req.createdAt}
                             </td>
 
-                            <td>{req.employeeName}</td>
+                            {/* DIPENDENTE */}
+                            <td className="small-text text-dark">
+                              {req.employeeName}
+                            </td>
 
+                            {/* TIPO RICHIESTA */}
                             <td
-                              className={
-                                req.requestType === "HOLIDAY"
-                                  ? "ferie"
-                                  : "permesso"
-                              }
+                              className={`small-text ${getRequestTypeClass(req.requestType)}`}
                             >
-                              {getRequestTypeLabel(req.requestType)}
+                              {translateRequestType(
+                                req.requestType,
+                                req.certificationType,
+                              )}
+
+                              {(req.requestType === "CHANGE_HOLIDAY" ||
+                                req.requestType === "CHANGE_LEAVE_HOURS") && (
+                                <div className="text-muted small mt-1 text-nowrap">
+                                  Richiesta di modifica
+                                </div>
+                              )}
                             </td>
 
+                            {/* PERIODO / ORARIO */}
                             <td className="small-text text-dark">
-                              {req.requestType === "HOLIDAY"
-                                ? `${req.startDate}-${req.endDate}`
-                                : `${req.date} ${req.startTime} - ${req.endTime}`}
+                              {req.requestType === "HOLIDAY" ||
+                              req.requestType === "CHANGE_HOLIDAY" ? (
+                                <div>
+                                  {req.startDate} - {req.endDate}
+                                </div>
+                              ) : (
+                                <>
+                                  {req.date}
+                                  <p className="text-nowrap mb-0">
+                                    {req.startTime} - {req.endTime}
+                                  </p>
+                                </>
+                              )}
                             </td>
 
+                            {/* QUANTITÀ */}
                             <td className="small-text text-dark">
-                              {req.requestType === "HOLIDAY"
-                                ? `${req.totalDays} giorni`
-                                : `${req.totalHours} ore`}
+                              {req.requestType === "HOLIDAY" ||
+                              req.requestType === "CHANGE_HOLIDAY" ? (
+                                <>{req.totalDays} giorni</>
+                              ) : (
+                                <>{req.totalHours} ore</>
+                              )}
                             </td>
 
+                            {/* NOTE DIPENDENTE */}
                             <td className="small-text text-dark">
                               {req.employeeNotes || "-"}
                             </td>
 
-                            <td>{req.reviewerNotes || "-"}</td>
-
+                            {/* NOTE REVISORE */}
                             <td className="small-text text-dark">
-                              {" "}
+                              {req.reviewerNotes || "-"}
+                            </td>
+
+                            {/* STATO */}
+                            <td className="small-text text-dark">
                               {(() => {
                                 const status = getRequestStatusLabel(
                                   req.requestStatus,
@@ -419,26 +484,17 @@ export const ShiftManagerRequests = () => {
                               })()}
                             </td>
 
+                            {/* AZIONE */}
                             <td className="small-text">
                               <Button
-                                className="btn-custom1 p-1 text-nowrap"
-                                onClick={() => {
-                                  setShowModal(true)
-                                  setSelectedRequest(req)
-                                }}
+                                className="btn-custom1 p-1 text-nowrap smaller-text"
+                                onClick={() => handleWorkRequest(req)}
                               >
                                 Lavora richiesta
                               </Button>
                             </td>
                           </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan={9} className="text-center text-muted">
-                            Nessuna richiesta da lavorare trovata.
-                          </td>
-                        </tr>
-                      )}
+                        ))}
                     </tbody>
                   </Table>
                 )}
@@ -448,7 +504,7 @@ export const ShiftManagerRequests = () => {
         </Row>
         {/*TUTTE LE RICHIESTE */}
         <Row className="w-100 justify-content-center mb-3 my-3">
-          <Col Col xs={12} md={11} className="ps-0">
+          <Col xs={12} md={11} className="ps-0">
             <Card className="bg-light border border-secondary rounded shadow-sm">
               <Card.Body className="p-4">
                 <h4 className="text-primary fw-semibold mb-4 small-title">
@@ -502,87 +558,85 @@ export const ShiftManagerRequests = () => {
                           </td>
                         </tr>
                       ) : (
-                        allRequests.map((request) => (
-                          <tr key={request.id}>
-                            {/* Giorno e ora */}
-                            <td className="small-text">
-                              {new Date(request.createdAt).toLocaleDateString(
-                                "it-IT",
-                              )}
-                              <br />
-                              {new Date(request.createdAt).toLocaleTimeString(
-                                "it-IT",
-                                {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                },
-                              )}
-                            </td>
+                        allRequests.map((request) => {
+                          return (
+                            <tr key={request.id}>
+                              {/* Giorno e ora */}
+                              <td className="small-text">
+                                {request.createdAt}
+                              </td>
 
-                            {/* Nome */}
-                            <td className="small-text">
-                              {request.employeeName}
-                            </td>
+                              {/* Nome */}
+                              <td className="small-text">
+                                {request.employeeName}
+                              </td>
 
-                            {/* Tipo */}
-                            <td
-                              className={`small-text ${getRequestTypeClass(request.requestType)}`}
-                            >
-                              {translateRequestType(request.requestType)}
-                            </td>
+                              {/* Tipo */}
+                              <td
+                                className={`small-text ${getRequestTypeClass(request.requestType)}`}
+                              >
+                                {translateRequestType(
+                                  request.requestType,
+                                  request.certificationType,
+                                )}
 
-                            {/* Periodo */}
-                            <td className="small-text">
-                              {request.startDate && request.endDate ? (
-                                <>
-                                  {new Date(
-                                    request.startDate,
-                                  ).toLocaleDateString("it-IT")}
-                                  {" - "}
-                                  {new Date(request.endDate).toLocaleDateString(
-                                    "it-IT",
-                                  )}
-                                </>
-                              ) : request.date ? (
-                                <>
-                                  {new Date(request.date).toLocaleDateString(
-                                    "it-IT",
-                                  )}
-                                  <br />
-                                  {request.startTime} - {request.endTime}
-                                </>
-                              ) : (
-                                "-"
-                              )}
-                            </td>
+                                {(request.requestType === "CHANGE_HOLIDAY" ||
+                                  request.requestType ===
+                                    "CHANGE_LEAVE_HOURS") && (
+                                  <div className="text-muted small mt-1 text-nowrap">
+                                    Richiesta modificata dall'utente
+                                  </div>
+                                )}
+                              </td>
 
-                            {/* Quantità */}
-                            <td className="small-text">
-                              {request.totalDays
-                                ? `${request.totalDays} giorni`
-                                : request.totalHours
-                                  ? `${request.totalHours} ore`
-                                  : "-"}
-                            </td>
+                              {/* Periodo */}
+                              <td className="small-text">
+                                {request.startDate && request.endDate ? (
+                                  <>
+                                    {request.startDate}-{request.endDate}
+                                  </>
+                                ) : request.date ? (
+                                  <>
+                                    <div className="d-flex flex-column">
+                                      <p>{request.date}</p>
+                                      <p>
+                                        {request.startTime} - {request.endTime}
+                                      </p>
+                                    </div>
+                                  </>
+                                ) : (
+                                  "-"
+                                )}
+                              </td>
 
-                            {/* Note dipendente */}
-                            <td className="small-text">
-                              {request.employeeNotes || "-"}
-                            </td>
+                              {/* Quantità */}
+                              <td className="small-text">
+                                {request.totalDays
+                                  ? `${request.totalDays} giorni`
+                                  : request.totalHours
+                                    ? `${request.totalHours} ore`
+                                    : "-"}
+                              </td>
 
-                            {/* Note revisore */}
-                            <td className="small-text">
-                              {request.reviewerNotes || "-"}
-                            </td>
+                              {/* Note dipendente */}
+                              <td className="small-text">
+                                {request.employeeNotes || "-"}
+                              </td>
 
-                            {/* Stato */}
-                            <td
-                              className={`small-text ${colorState(request.requestStatus)}`}
-                            >
-                              {translateRequestStatus(request.requestStatus)}
-                            </td>
-                          </tr>
-                        ))
+                              {/* Note revisore */}
+                              <td className="small-text">
+                                {request.reviewerNotes || "-"}
+                              </td>
+
+                              {/* Stato */}
+                              <td
+                                className={`small-text ${colorState(request.requestStatus)}`}
+                              >
+                                {translateRequestStatus(request.requestStatus)}
+                              </td>
+                            </tr>
+                          )
+                        })
                       )}
                     </tbody>
                   </Table>
@@ -593,123 +647,353 @@ export const ShiftManagerRequests = () => {
         </Row>
 
         {/*MODALE */}
-        <Modal show={showModal} onHide={() => setShowModal(false)} centered>
+        <Modal
+          show={showModal}
+          onHide={() => {
+            setShowModal(false)
+            setSelectedRequest(null)
+          }}
+          centered
+        >
           <Modal.Header closeButton>
-            {selectedRequest?.requestType === "HOLIDAY" ? (
-              <Modal.Title className="small-title text-dark">
-                Lavora richiesta ferie{" "}
-              </Modal.Title>
-            ) : (
-              <Modal.Title className="small-title text-dark">
-                Lavora richiesta ore di permesso{" "}
-              </Modal.Title>
-            )}
+            <Modal.Title>
+              {selectedRequest?.requestType === "CHANGE_HOLIDAY"
+                ? "Lavora richiesta modifica ferie"
+                : selectedRequest?.requestType === "CHANGE_LEAVE_HOURS"
+                  ? "Lavora richiesta modifica permesso"
+                  : selectedRequest?.requestType === "HOLIDAY"
+                    ? "Lavora richiesta ferie"
+                    : "Lavora richiesta di permesso"}
+            </Modal.Title>
           </Modal.Header>
 
           <Modal.Body>
+            {/* ==================== FERIE ==================== */}
+            {/*ORIGINALE */}
             {selectedRequest?.requestType === "HOLIDAY" && (
               <div className="px-2">
+                <p className="mb-0 text-dark small-text">
+                  <span className="fw-semibold text-dark small-text">
+                    Richiesta inviata da:
+                  </span>
+                  {selectedRequest.employeeName}
+                </p>
+
+                <p className="text-dark small-text">
+                  <span className="fw-semibold">
+                    Data e ora invio richiesta:
+                  </span>
+                  {selectedRequest.createdAt}{" "}
+                </p>
+
                 <ul>
-                  <li className="text-dark small-text">
-                    {" "}
-                    <span className="fw-bold me-1">
-                      Data e ora invio richiesta:
-                    </span>{" "}
-                    {selectedRequest.createdAt}
-                  </li>
                   <li>
-                    <span className="fw-bold me-1">Richiesta inviata da:</span>
-                    {selectedRequest.employeeName}
+                    <span className="fw-semibold me-1">Giorni richiesti:</span>
+                    {selectedRequest.startDate} - {selectedRequest.endDate}
                   </li>
+
                   <li>
-                    <span className="fw-bold me-1">Giorni richiesti:</span>
-                    {selectedRequest.startDate}-{selectedRequest.endDate}
-                  </li>
-                  <li>
-                    <span className="fw-bold me-1">Totale giorni:</span>
+                    <span className="fw-semibold me-1">Totale giorni:</span>
                     {selectedRequest.totalDays}
                   </li>
                   <li>
-                    <span className="fw-bold me-1">Note dipendente:</span>
-                    {selectedRequest.employeeNotes}
+                    {" "}
+                    <span className="fw-semibold me-1">Note richiedente:</span>
+                    {selectedRequest.employeeNotes
+                      ? selectedRequest.employeeNotes
+                      : "-"}
                   </li>
                 </ul>
-                <div>
-                  <Form>
-                    <Form.Group className="mb-3" controlId="FormReviewerNotes">
-                      <Form.Label className="small-text text-muted mb-0">
-                        Nota
-                      </Form.Label>
-                      <Form.Control
-                        as="textarea"
-                        rows={3}
-                        placeholder="Inserisci nota (facoltativo)"
-                        value={reviewerNotes}
-                        onChange={(e) => setReviewerNotes(e.target.value)}
-                      />
-                    </Form.Group>
-                  </Form>
-                </div>
+
+                <Form>
+                  <Form.Group className="mb-3" controlId="FormReviewerNotes">
+                    <Form.Label className="small-text text-muted mb-0">
+                      Nota
+                    </Form.Label>
+
+                    <Form.Control
+                      as="textarea"
+                      rows={3}
+                      placeholder="Inserisci nota (facoltativo)"
+                      value={reviewerNotes}
+                      onChange={(e) => setReviewerNotes(e.target.value)}
+                    />
+                  </Form.Group>
+                </Form>
+              </div>
+            )}
+            {/*MODIFICA FERIE */}
+            {selectedRequest?.requestType === "CHANGE_HOLIDAY" && (
+              <div className="px-2">
+                <p className="fw-bold text-primary">Richiesta Originale</p>
+                <p className="mb-0">
+                  <span className="fw-semibold me-1">
+                    Richiesta inviata da:
+                  </span>
+                  {selectedRequest.employeeName}
+                </p>
+                <p className="mb-0">
+                  <span className="fw-semibold me-1"> In data e ora:</span>
+                  {selectedRequest.originalRequestCreatedAt}
+                </p>
+                <p>
+                  <span className="fw-semibold me-1"> Lavorata in data:</span>
+                  {selectedRequest.originalResponseDate ? (
+                    <>{selectedRequest.originalResponseDate}</>
+                  ) : (
+                    "-"
+                  )}
+                </p>
+                <ul>
+                  <li>
+                    <span className="fw-semibold me-1">Giorni richiesti:</span>
+                    {selectedRequest.startDateOriginalRequest} -{" "}
+                    {selectedRequest.endDateOriginalRequest}
+                  </li>
+
+                  <li>
+                    <span className="fw-semibold me-1">Totale giorni:</span>
+                    {selectedRequest.originalRequestTotalDays}
+                  </li>
+                  <li>
+                    <span className="fw-semibold me-1">Note richiedente:</span>
+                    {selectedRequest.originalRequestEmployeeNotes
+                      ? selectedRequest.originalRequestEmployeeNotes
+                      : "-"}
+                  </li>
+                  <li>
+                    <span className="fw-semibold me-1">Note revisore:</span>
+                    {selectedRequest.originalRequestReviewerNotes
+                      ? selectedRequest.originalRequestReviewerNotes
+                      : "-"}
+                  </li>
+                </ul>
+                <p className="fw-bold text-primary mt-2">
+                  Richiesta modificata dall'utente
+                </p>
+                <ul>
+                  <li>
+                    <span className="fw-semibold me-1">Giorni richiesti:</span>
+                    {selectedRequest.startDate} - {selectedRequest.endDate}
+                  </li>
+
+                  <li>
+                    <span className="fw-semibold me-1">Totale giorni:</span>
+                    {selectedRequest.totalDays}
+                  </li>
+                  <li>
+                    <span className="fw-semibold me-1">Note richiedente:</span>
+                    {selectedRequest.employeeNotes
+                      ? selectedRequest.employeeNotes
+                      : "-"}
+                  </li>
+                </ul>
+                <Form>
+                  <Form.Group className="mb-3" controlId="FormReviewerNotes">
+                    <Form.Label className="small-text text-muted mb-0">
+                      Nota
+                    </Form.Label>
+
+                    <Form.Control
+                      as="textarea"
+                      rows={3}
+                      placeholder="Inserisci nota (facoltativo)"
+                      value={reviewerNotes}
+                      onChange={(e) => setReviewerNotes(e.target.value)}
+                    />
+                  </Form.Group>
+                </Form>
               </div>
             )}
 
+            {/* ==================== ORE DI PERMESSO ==================== */}
             {selectedRequest?.requestType === "LEAVE_HOURS" && (
               <div className="px-2">
+                <p className="mb-0 text-dark small-text">
+                  <span className="fw-semibold text-dark small-text">
+                    Richiesta inviata da:
+                  </span>
+                  {selectedRequest.employeeName}
+                </p>
+
+                <p className="text-dark small-text">
+                  <span className="fw-semibold">
+                    Data e ora invio richiesta:
+                  </span>
+                  {selectedRequest.createdAt}{" "}
+                </p>
+
                 <ul>
-                  <li className="text-dark small-text">
-                    {" "}
-                    <span className="fw-bold me-1">
-                      Data e ora invio richiesta:
-                    </span>{" "}
-                    {selectedRequest.createdAt}
-                  </li>
                   <li>
-                    <span className="fw-bold me-1">Richiesta inviata da:</span>
-                    {selectedRequest.employeeName}
-                  </li>
-                  <li>
-                    <span className="fw-bold me-1">In data:</span>
+                    <span className="fw-semibold me-1">Giorno richiesto:</span>
                     {selectedRequest.date}
                   </li>
+
                   <li>
-                    <span className="fw-bold me-1">Per la fascia oraria:</span>
-                    {selectedRequest.startTime}-{selectedRequest.endTime}
+                    <span className="fw-semibold me-1">
+                      Fascia oraria richiesta:
+                    </span>
+                    {selectedRequest.startTime} - {selectedRequest.endTime}
                   </li>
+
                   <li>
-                    {" "}
-                    <span className="fw-bold me-1">Per ore totali:</span>
+                    <span className="fw-semibold me-1">Totale ore:</span>
                     {selectedRequest.totalHours}
                   </li>
                   <li>
-                    <span className="fw-bold me-1">Note dipendente:</span>
-                    {selectedRequest.employeeNotes}
+                    {" "}
+                    <span className="fw-semibold me-1">Note richiedente:</span>
+                    {selectedRequest.employeeNotes
+                      ? selectedRequest.employeeNotes
+                      : "-"}
                   </li>
                 </ul>
-                <div>
-                  <Form>
-                    <Form.Group className="mb-3" controlId="FormReviewerNotes">
-                      <Form.Label className="small-text text-muted mb-0">
-                        Nota
-                      </Form.Label>
-                      <Form.Control
-                        as="textarea"
-                        rows={3}
-                        placeholder="Inserisci nota (facoltativo)"
-                        value={reviewerNotes}
-                        onChange={(e) => setReviewerNotes(e.target.value)}
-                      />
-                    </Form.Group>
-                  </Form>
-                </div>
+                <Form>
+                  <Form.Group className="mb-3" controlId="FormReviewerNotes">
+                    <Form.Label className="small-text text-muted mb-0">
+                      Nota
+                    </Form.Label>
+
+                    <Form.Control
+                      as="textarea"
+                      rows={3}
+                      placeholder="Inserisci nota (facoltativo)"
+                      value={reviewerNotes}
+                      onChange={(e) => setReviewerNotes(e.target.value)}
+                    />
+                  </Form.Group>
+                </Form>
+              </div>
+            )}
+
+            {/* RICHIESTA MODIFICA ORE PERMESSO */}
+            {selectedRequest?.requestType === "CHANGE_LEAVE_HOURS" && (
+              <div className="px-2">
+                <p className="fw-bold text-primary">Richiesta Originale</p>
+                <p className="mb-0">
+                  <span className="fw-semibold me-1">
+                    Richiesta inviata da:
+                  </span>
+                  {selectedRequest.employeeName}
+                </p>
+                <p className="mb-0">
+                  <span className="fw-semibold me-1"> In data e ora:</span>
+                  {selectedRequest.originalRequestCreatedAt}
+                </p>
+                <p>
+                  <span className="fw-semibold me-1"> Lavorata in data:</span>
+                  {selectedRequest.originalResponseDate ? (
+                    <>{selectedRequest.originalResponseDate}</>
+                  ) : (
+                    "-"
+                  )}
+                </p>
+                <ul>
+                  <li>
+                    <span className="fw-semibold me-1">Giorno richiesto:</span>
+                    {selectedRequest.originalDate}
+                  </li>
+
+                  <li>
+                    <span className="fw-semibold me-1">
+                      Fascia oraria richiesta:
+                    </span>
+                    {selectedRequest.startTimeOriginalRequest} -{" "}
+                    {selectedRequest.endTimeOriginalRequest}
+                  </li>
+
+                  <li>
+                    <span className="fw-semibold me-1">Totale ore:</span>
+                    {selectedRequest.originalRequestTotalHours}
+                  </li>
+                  <li>
+                    <span className="fw-semibold me-1">Note richiedente:</span>
+                    {selectedRequest.originalRequestEmployeeNotes
+                      ? selectedRequest.originalRequestEmployeeNotes
+                      : "-"}
+                  </li>
+                  <li>
+                    <span className="fw-semibold me-1">Note revisore:</span>
+                    {selectedRequest.originalRequestReviewerNotes
+                      ? selectedRequest.originalRequestReviewerNotes
+                      : "-"}
+                  </li>
+                </ul>
+                <p className="fw-bold text-primary mt-2">
+                  Richiesta di modifica
+                </p>
+                <ul>
+                  <li>
+                    <span className="fw-semibold me-1">Giorno richiesto:</span>
+                    {selectedRequest.date}
+                  </li>
+                  <li>
+                    <span className="fw-semibold me-1">
+                      Fascia oraria richiesta:
+                    </span>
+                    {selectedRequest.startTime} - {selectedRequest.endTime}
+                  </li>
+
+                  <li>
+                    <span className="fw-semibold me-1">Totale ore:</span>
+                    {selectedRequest.totalHours}
+                  </li>
+                  <li>
+                    <span className="fw-semibold me-1">Note richiedente:</span>
+                    {selectedRequest.employeeNotes
+                      ? selectedRequest.employeeNotes
+                      : "-"}
+                  </li>
+                </ul>
+                <Form>
+                  <Form.Group className="mb-3" controlId="FormReviewerNotes">
+                    <Form.Label className="small-text text-muted mb-0">
+                      Nota
+                    </Form.Label>
+
+                    <Form.Control
+                      as="textarea"
+                      rows={3}
+                      placeholder="Inserisci nota (facoltativo)"
+                      value={reviewerNotes}
+                      onChange={(e) => setReviewerNotes(e.target.value)}
+                    />
+                  </Form.Group>
+                </Form>
               </div>
             )}
           </Modal.Body>
           <Modal.Footer>
-            <Button className="btn-custom1" onClick={handleApprove}>
-              Approva{" "}
+            <Button
+              className="btn-custom1"
+              onClick={() => {
+                if (
+                  selectedRequest?.requestType === "CHANGE_HOLIDAY" ||
+                  selectedRequest?.requestType === "CHANGE_LEAVE_HOURS"
+                ) {
+                  handleApproveChangeRequest()
+                } else {
+                  handleApprove()
+                }
+              }}
+            >
+              Approva
             </Button>
-            <Button className="btn-custom2" onClick={handleReject}>
-              Rifiuta{" "}
+
+            <Button
+              className="btn-custom2"
+              onClick={() => {
+                if (
+                  selectedRequest?.requestType === "CHANGE_HOLIDAY" ||
+                  selectedRequest?.requestType === "CHANGE_LEAVE_HOURS"
+                ) {
+                  handleRejectChangeRequest()
+                } else {
+                  handleReject()
+                }
+              }}
+            >
+              Rifiuta
             </Button>
           </Modal.Footer>
         </Modal>
