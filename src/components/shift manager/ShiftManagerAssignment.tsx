@@ -9,7 +9,7 @@ import {
 } from "react-bootstrap"
 import { ShiftManagerNavbar } from "./ShiftManagerNavbar"
 import { useCallback, useEffect, useState } from "react"
-import { IoMdAdd } from "react-icons/io"
+import { IoIosArrowBack, IoIosArrowForward, IoMdAdd } from "react-icons/io"
 import "../../styles/mobileText.css"
 import {
   createShiftAssignment,
@@ -27,10 +27,8 @@ import { getActiveUsersForAssignment } from "../../services/userService"
 import { fetchShifts } from "../../services/shiftService"
 import { FaPencilAlt, FaRegTrashAlt } from "react-icons/fa"
 
-//DATE
 export const ShiftManagerAssignment = () => {
-  const today = new Date()
-
+  //-----------------------------DATE
   const formatDate = (date: Date) => {
     const year = date.getFullYear()
     const month = String(date.getMonth() + 1).padStart(2, "0")
@@ -39,14 +37,32 @@ export const ShiftManagerAssignment = () => {
     return `${year}-${month}-${day}`
   }
 
-  const [startDate, setStartDate] = useState<string>(formatDate(today))
+  const [currentMonth, setCurrentMonth] = useState(new Date())
 
-  const [endDate, setEndDate] = useState<string>(() => {
-    const date = new Date(today)
-    date.setDate(date.getDate() + 7)
+  const goToPreviousMonth = () => {
+    setCurrentMonth(
+      new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1),
+    )
+  }
 
-    return formatDate(date)
+  const goToNextMonth = () => {
+    setCurrentMonth(
+      new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1),
+    )
+  }
+
+  const monthLabel = currentMonth.toLocaleDateString("it-IT", {
+    month: "long",
+    year: "numeric",
   })
+
+  const startDate = formatDate(
+    new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1),
+  )
+
+  const endDate = formatDate(
+    new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0),
+  )
 
   const normalizeDate = (d: string) => {
     if (!d) return ""
@@ -59,6 +75,7 @@ export const ShiftManagerAssignment = () => {
 
     return d.substring(0, 10)
   }
+  //----------------------------------------------------------------------
 
   // Stati per il modale di assegnazione turno (al click del +)
   const [showShiftModal, setShowShiftModal] = useState<boolean>(false)
@@ -83,6 +100,8 @@ export const ShiftManagerAssignment = () => {
   const [loading, setLoading] = useState(false)
 
   const [assignments, setAssignments] = useState<ShiftAssignment[]>([])
+
+  const [currentPage, setCurrentPage] = useState(0)
 
   //MODIFICA ASSEGNAZIONE
   const [editingAssignment, setEditingAssignment] =
@@ -117,7 +136,7 @@ export const ShiftManagerAssignment = () => {
     try {
       const data = await getAssignmentsBetweenDates(startDate, endDate)
 
-      setAssignments(data)
+      setAssignments(data.content)
     } catch (error) {
       console.error("Errore nel caricamento delle assegnazioni:", error)
     }
@@ -229,11 +248,24 @@ export const ShiftManagerAssignment = () => {
     (shift) => shift.officeName === selectedOfficeName,
   )
 
+  //------------------------------------PAGINAZIONE
+
   const columnsDates = getDatesInRange(startDate, endDate)
 
   const sortedAssignedUser = [...assignedUser].sort((a, b) =>
     a.name.localeCompare(b.name, "it"),
   )
+
+  const usersPerPage = 5
+
+  const totalPages = Math.ceil(sortedAssignedUser.length / usersPerPage)
+
+  const paginatedUsers = sortedAssignedUser.slice(
+    currentPage * usersPerPage,
+    currentPage * usersPerPage + usersPerPage,
+  )
+
+  //____________________________________________________
 
   //funzione per aprire il modale di modifica
   const handleOpenEditModal = (assignment: ShiftAssignment) => {
@@ -284,44 +316,36 @@ export const ShiftManagerAssignment = () => {
         fluid
         className="d-flex flex-column my-4 align-items-center flex-grow-1"
       >
-        <Row className="w-100 justify-content-center mb-4">
+        <Row className="w-100 justify-content-center mb-2">
           <Col xs={12} md={11} className="ps-0">
-            <h3 className="small-title text-dark mb-0">Le mie assegnazioni</h3>
+            <h3 className="small-title text-dark mb-0">Assegnazione turni</h3>
           </Col>
         </Row>
 
-        <Row className="g-4 w-100 flex-column align-items-center mb-4">
-          <Col
-            xs={12}
-            md={11}
-            className="bg-light p-4 border border-secondary rounded shadow-sm"
-          >
-            <h4 className="text-primary fw-semibold mb-4 small-title">
-              Seleziona le date
-            </h4>
-            <Form className="d-flex flex-wrap flex-md-nowrap justify-content-center justify-content-md-start gap-3 mt-4">
-              <Form.Group className="mb-3" controlId="FormStartDate">
-                <Form.Label className="mb-1 text-muted small-text">
-                  Dalla data{" "}
-                </Form.Label>
-                <Form.Control
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                />
-              </Form.Group>
+        <Row className="g-4 w-100 flex-column align-items-center mb-2">
+          <Col xs={12} md={11}>
+            <div className="d-flex justify-content-center align-items-center mt-4 mb-4">
+              <Button
+                className="btn-custom1 rounded-circle d-flex align-items-center justify-content-center small-text me-3"
+                style={{ width: "20px", height: "20px", padding: "0" }}
+                onClick={goToPreviousMonth}
+              >
+                <IoIosArrowBack />
+              </Button>
 
-              <Form.Group className="mb-3" controlId="FormEndDate">
-                <Form.Label className="mb-1 text-muted small-text">
-                  Alla data
-                </Form.Label>
-                <Form.Control
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                />
-              </Form.Group>
-            </Form>
+              <h5 className="mb-0 text-capitalize fw-semibold small-title">
+                {monthLabel}
+              </h5>
+              <p></p>
+
+              <Button
+                className="btn-custom1 rounded-circle d-flex align-items-center justify-content-center small-text ms-3"
+                style={{ width: "20px", height: "20px", padding: "0" }}
+                onClick={goToNextMonth}
+              >
+                <IoIosArrowForward />
+              </Button>
+            </div>
           </Col>
         </Row>
 
@@ -332,8 +356,12 @@ export const ShiftManagerAssignment = () => {
             md={11}
             className="bg-white p-4 border border-secondary rounded shadow-sm"
           >
-            <div className="table-responsive">
-              <Table bordered hover className="text-center align-middle">
+            <div className="assignment-table-wrapper">
+              <Table
+                bordered
+                hover
+                className="text-center align-middle assignment-table"
+              >
                 <thead>
                   <tr>
                     <th className="text-center small-text text-dark sticky-column column-width">
@@ -359,7 +387,7 @@ export const ShiftManagerAssignment = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {sortedAssignedUser.map((employee) => (
+                  {paginatedUsers.map((employee) => (
                     <tr key={employee.userId}>
                       {/* Colonna del nome dipendente */}
                       <td className=" text-dark small-text fw-semibold sticky-column column-width">
@@ -477,6 +505,40 @@ export const ShiftManagerAssignment = () => {
                 </tbody>
               </Table>
             </div>
+            {totalPages > 1 && (
+              <div className="d-flex justify-content-center align-items-center gap-2 mt-3">
+                <Button
+                  className="btn-custom1"
+                  size="sm"
+                  disabled={currentPage === 0}
+                  onClick={() => setCurrentPage((prev) => prev - 1)}
+                >
+                  <IoIosArrowBack />
+                </Button>
+
+                {Array.from({ length: totalPages }, (_, index) => (
+                  <Button
+                    key={index}
+                    className={
+                      currentPage === index ? "primary" : "btn-custom1"
+                    }
+                    size="sm"
+                    onClick={() => setCurrentPage(index)}
+                  >
+                    {index + 1}
+                  </Button>
+                ))}
+
+                <Button
+                  className="btn-custom1"
+                  size="sm"
+                  disabled={currentPage === totalPages - 1}
+                  onClick={() => setCurrentPage((prev) => prev + 1)}
+                >
+                  <IoIosArrowForward />
+                </Button>
+              </div>
+            )}
           </Col>
         </Row>
         <Modal

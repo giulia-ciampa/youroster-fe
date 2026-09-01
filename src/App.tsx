@@ -16,6 +16,7 @@ import { ShiftManagerAssignment } from "./components/shift manager/ShiftManagerA
 import { UserRequests } from "./components/users/UserRequests"
 import { UserShifts } from "./components/users/UserShifts"
 import { ShiftManagerRequests } from "./components/shift manager/ShiftManagerRequests"
+import { ShiftManagerMyAssignment } from "./components/shift manager/ShiftManagerMyAssignments"
 
 function App() {
   return (
@@ -59,6 +60,10 @@ function App() {
             <Route
               path="/requests/shift-manager"
               element={<ShiftManagerRequests />}
+            />
+            <Route
+              path="/shifts-assignment/my-assignments"
+              element={<ShiftManagerMyAssignment />}
             />
           </Routes>
         </main>

@@ -10,7 +10,7 @@ import {
 } from "react-bootstrap"
 import { ShiftManagerNavbar } from "./ShiftManagerNavbar"
 import { IoMdAdd } from "react-icons/io"
-import { FaEdit } from "react-icons/fa"
+import { FaPencilAlt } from "react-icons/fa"
 import { useEffect, useState } from "react"
 
 import {
@@ -211,10 +211,10 @@ export const ShiftManagerTurni = () => {
                               {/* Pulsante di modifica per il singolo turno */}
                               <Button
                                 size="sm"
-                                className="btn-custom1 d-flex align-items-center gap-1"
+                                className="p-1 rounded-circle border-0 backgroundOrange text-light d-flex align-items-center justify-content-center small-text"
                                 onClick={() => handleOpenEdit(shift)}
                               >
-                                <FaEdit />
+                                <FaPencilAlt size={10} />
                               </Button>
                             </div>
                           ))}

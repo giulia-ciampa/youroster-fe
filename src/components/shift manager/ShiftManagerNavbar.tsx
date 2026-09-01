@@ -131,7 +131,15 @@ export const ShiftManagerNavbar = () => {
               to={"/shifts-assignment/shift-manager"}
               className="text-dark text-nowrap"
             >
-              Assegnazione turni
+              Assegna turni
+            </NavDropdown.Item>
+
+            <NavDropdown.Item
+              as={NavLink}
+              to={"/shifts-assignment/my-assignments"}
+              className="text-dark text-nowrap"
+            >
+              Le Mie Assegnazioni
             </NavDropdown.Item>
 
             <NavDropdown.Item
@@ -182,7 +190,15 @@ export const ShiftManagerNavbar = () => {
               to={"/shifts-assignment/shift-manager"}
               className="text-light text-nowrap"
             >
-              Assegnazione turni
+              Assegna turni
+            </Nav.Link>
+
+            <Nav.Link
+              as={NavLink}
+              to={"/shifts-assignment/my-assignments"}
+              className="text-light text-nowrap"
+            >
+              Le Mie Assegnazioni
             </Nav.Link>
 
             <Nav.Link

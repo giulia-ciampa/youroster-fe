@@ -85,7 +85,7 @@ export const createShiftAssignment = async (
 export const getAssignmentsBetweenDates = async (
   startDate: string,
   endDate: string,
-): Promise<ShiftAssignment[]> => {
+): Promise<PageResponse<ShiftAssignment>> => {
   const token = localStorage.getItem("accessToken")
 
   const response = await authFetch(
@@ -103,9 +103,7 @@ export const getAssignmentsBetweenDates = async (
     throw new Error("Errore nel recupero delle assegnazioni.")
   }
 
-  const pageData: PageResponse<ShiftAssignment> = await response.json()
-
-  return pageData.content
+  return response.json()
 }
 
 //MODIFICA ASSEGNAZIONE
