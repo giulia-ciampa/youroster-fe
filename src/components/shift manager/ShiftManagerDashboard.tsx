@@ -292,8 +292,6 @@ export const ShiftManagerDashboard = () => {
     }
   }
 
-  //funzione per colorare l'assegnazione
-
   return (
     <>
       <ShiftManagerNavbar />

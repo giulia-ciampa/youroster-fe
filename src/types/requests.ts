@@ -260,3 +260,42 @@ export interface RequestResponseDTO {
   endTimeOriginalRequest: string
   certificationType: CertificateType
 }
+
+export interface HrCertificationRequest {
+  id: string
+  protocolCode: string
+  startDate: string
+  endDate: string
+  totalDays: number
+  issueDate: string
+  certificateUrl: string
+  certificateType: CertificateType
+  requestStatus: RequestStatus
+  createdAt: string
+  employeeNotes: string | null
+  reviewerNotes: string | null
+  employeeName: string
+}
+
+export interface ReviewerNotesDTO {
+  notes: string
+}
+
+export interface AbsenceCertificationReviewResponse {
+  id: string
+  protocolCode: string
+  startDate: string
+  endDate: string
+  totalDays: number
+  issueDate: string
+  certificateUrl: string
+  certificateType: CertificateType
+  requestStatus: RequestStatus
+  createdAt: string
+  employeeNotes: string | null
+  reviewerNotes: string | null
+  reviewerRole: string[]
+  reviewer: string | null
+  assignmentType: AssignmentType
+  employeeName: string
+}

@@ -26,6 +26,7 @@ import {
 import type { CertificateType, RequestResponseDTO } from "../../types/requests"
 
 import "../../styles/mobileText.css"
+import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io"
 
 export const ShiftManagerRequests = () => {
   const [allRequests, setAllRequests] = useState<RequestResponseDTO[]>([])
@@ -36,14 +37,18 @@ export const ShiftManagerRequests = () => {
     useState<RequestResponseDTO | null>(null)
 
   const [reviewerNotes, setReviewerNotes] = useState("")
+  const [currentPage, setCurrentPage] = useState(0)
+  const [totalPages, setTotalPages] = useState(0)
 
-  const fetchRequests = async () => {
+  const fetchRequests = async (page = 0) => {
     try {
       setLoading(true)
 
-      const response = await getAllRequests()
+      const response = await getAllRequests(page, 20)
 
       setAllRequests(response.content)
+      setCurrentPage(response.number ?? 0)
+      setTotalPages(response.totalPages ?? 0)
     } catch (error) {
       console.error("Errore nel recupero delle richieste:", error)
     } finally {
@@ -401,100 +406,112 @@ export const ShiftManagerRequests = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {allRequests
-                        .filter((req) => req.requestStatus === "SENT")
-                        .map((req) => (
-                          <tr key={req.id}>
-                            {/* DATA CREAZIONE */}
-                            <td className="small-text text-dark">
-                              {req.createdAt}
-                            </td>
+                      {allRequests.filter((req) => req.requestStatus === "SENT")
+                        .length > 0 ? (
+                        allRequests
+                          .filter((req) => req.requestStatus === "SENT")
+                          .map((req) => (
+                            <tr key={req.id}>
+                              {/* DATA CREAZIONE */}
+                              <td className="small-text text-dark">
+                                {req.createdAt}
+                              </td>
 
-                            {/* DIPENDENTE */}
-                            <td className="small-text text-dark">
-                              {req.employeeName}
-                            </td>
+                              {/* DIPENDENTE */}
+                              <td className="small-text text-dark">
+                                {req.employeeName}
+                              </td>
 
-                            {/* TIPO RICHIESTA */}
-                            <td
-                              className={`small-text ${getRequestTypeClass(req.requestType)}`}
-                            >
-                              {translateRequestType(
-                                req.requestType,
-                                req.certificationType,
-                              )}
-
-                              {(req.requestType === "CHANGE_HOLIDAY" ||
-                                req.requestType === "CHANGE_LEAVE_HOURS") && (
-                                <div className="text-muted small mt-1 text-nowrap">
-                                  Richiesta di modifica
-                                </div>
-                              )}
-                            </td>
-
-                            {/* PERIODO / ORARIO */}
-                            <td className="small-text text-dark">
-                              {req.requestType === "HOLIDAY" ||
-                              req.requestType === "CHANGE_HOLIDAY" ? (
-                                <div>
-                                  {req.startDate} - {req.endDate}
-                                </div>
-                              ) : (
-                                <>
-                                  {req.date}
-                                  <p className="text-nowrap mb-0">
-                                    {req.startTime} - {req.endTime}
-                                  </p>
-                                </>
-                              )}
-                            </td>
-
-                            {/* QUANTITÀ */}
-                            <td className="small-text text-dark">
-                              {req.requestType === "HOLIDAY" ||
-                              req.requestType === "CHANGE_HOLIDAY" ? (
-                                <>{req.totalDays} giorni</>
-                              ) : (
-                                <>{req.totalHours} ore</>
-                              )}
-                            </td>
-
-                            {/* NOTE DIPENDENTE */}
-                            <td className="small-text text-dark">
-                              {req.employeeNotes || "-"}
-                            </td>
-
-                            {/* NOTE REVISORE */}
-                            <td className="small-text text-dark">
-                              {req.reviewerNotes || "-"}
-                            </td>
-
-                            {/* STATO */}
-                            <td className="small-text text-dark">
-                              {(() => {
-                                const status = getRequestStatusLabel(
-                                  req.requestStatus,
-                                )
-
-                                return (
-                                  <span className={status.className}>
-                                    {status.label}
-                                  </span>
-                                )
-                              })()}
-                            </td>
-
-                            {/* AZIONE */}
-                            <td className="small-text">
-                              <Button
-                                className="btn-custom1 p-1 text-nowrap smaller-text"
-                                onClick={() => handleWorkRequest(req)}
+                              {/* TIPO RICHIESTA */}
+                              <td
+                                className={`small-text ${getRequestTypeClass(req.requestType)}`}
                               >
-                                Lavora richiesta
-                              </Button>
-                            </td>
-                          </tr>
-                        ))}
+                                {translateRequestType(
+                                  req.requestType,
+                                  req.certificationType,
+                                )}
+
+                                {(req.requestType === "CHANGE_HOLIDAY" ||
+                                  req.requestType === "CHANGE_LEAVE_HOURS") && (
+                                  <div className="text-muted small mt-1 text-nowrap">
+                                    Richiesta di modifica
+                                  </div>
+                                )}
+                              </td>
+
+                              {/* PERIODO / ORARIO */}
+                              <td className="small-text text-dark">
+                                {req.requestType === "HOLIDAY" ||
+                                req.requestType === "CHANGE_HOLIDAY" ? (
+                                  <div>
+                                    {req.startDate} - {req.endDate}
+                                  </div>
+                                ) : (
+                                  <>
+                                    {req.date}
+                                    <p className="text-nowrap mb-0">
+                                      {req.startTime} - {req.endTime}
+                                    </p>
+                                  </>
+                                )}
+                              </td>
+
+                              {/* QUANTITÀ */}
+                              <td className="small-text text-dark">
+                                {req.requestType === "HOLIDAY" ||
+                                req.requestType === "CHANGE_HOLIDAY" ? (
+                                  <>{req.totalDays} giorni</>
+                                ) : (
+                                  <>{req.totalHours} ore</>
+                                )}
+                              </td>
+
+                              {/* NOTE DIPENDENTE */}
+                              <td className="small-text text-dark">
+                                {req.employeeNotes || "-"}
+                              </td>
+
+                              {/* NOTE REVISORE */}
+                              <td className="small-text text-dark">
+                                {req.reviewerNotes || "-"}
+                              </td>
+
+                              {/* STATO */}
+                              <td className="small-text text-dark">
+                                {(() => {
+                                  const status = getRequestStatusLabel(
+                                    req.requestStatus,
+                                  )
+
+                                  return (
+                                    <span className={status.className}>
+                                      {status.label}
+                                    </span>
+                                  )
+                                })()}
+                              </td>
+
+                              {/* AZIONE */}
+                              <td className="small-text">
+                                <Button
+                                  className="btn-custom1 p-1 text-nowrap smaller-text"
+                                  onClick={() => handleWorkRequest(req)}
+                                >
+                                  Lavora richiesta
+                                </Button>
+                              </td>
+                            </tr>
+                          ))
+                      ) : (
+                        <tr>
+                          <td
+                            colSpan={9}
+                            className="text-center text-muted py-3"
+                          >
+                            Nessuna richiesta da lavorare.
+                          </td>
+                        </tr>
+                      )}
                     </tbody>
                   </Table>
                 )}
@@ -643,6 +660,27 @@ export const ShiftManagerRequests = () => {
                 )}
               </Card.Body>
             </Card>
+            <div className="d-flex justify-content-center align-items-center gap-3 mt-3">
+              <Button
+                disabled={currentPage === 0}
+                onClick={() => fetchRequests(currentPage - 1)}
+                className="d-flex align-items-center justify-content-center btn-custom1 p-1"
+              >
+                <IoIosArrowBack />
+              </Button>
+
+              <span className="small-text text-primary">
+                Pagina {currentPage + 1} di {totalPages}
+              </span>
+
+              <Button
+                disabled={currentPage >= totalPages - 1}
+                onClick={() => fetchRequests(currentPage + 1)}
+                className="d-flex align-items-center justify-content-center btn-custom1 p-1"
+              >
+                <IoIosArrowForward />
+              </Button>
+            </div>
           </Col>
         </Row>
 

@@ -1,16 +1,19 @@
 import type {
   AbsenceCertificationRequestDTO,
   AbsenceCertificationResponse,
+  AbsenceCertificationReviewResponse,
   ChangeHolidayRequestDTO,
   ChangeHolidayRequestResponseDTO,
   ChangeLeaveHoursRequestDTO,
   ChangeLeaveHoursRequestResponseDTO,
   HolidayRequestDTO,
   HolidayRequestResponse,
+  HrCertificationRequest,
   LeaveHoursRequestDTO,
   LeaveHoursRequestResponse,
   RequestResponse,
   RequestResponseDTO,
+  ReviewerNotesDTO,
   UpdateCertificationRequestDTO,
   UpdateHolidayRequestDTO,
   UpdateLeaveHoursRequestDTO,
@@ -884,6 +887,127 @@ export const getAllRequests = async (
     throw new Error(
       errorData.message || "Errore nel caricamento delle richieste.",
     )
+  }
+
+  return response.json()
+}
+
+//RICHIESTE CON CERTIFICATO DA LAVORARE
+export const getPendingCertificationRequests = async (
+  page = 0,
+  size = 15,
+): Promise<PageResponse<HrCertificationRequest>> => {
+  const token = localStorage.getItem("accessToken")
+
+  const response = await authFetch(
+    `/certifications/pending?page=${page}&size=${size}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+    },
+  )
+
+  if (!response.ok) {
+    throw new Error("Errore nel recupero delle certificazioni.")
+  }
+
+  return response.json()
+}
+
+//APPROVA RICHIESTA CON CERTIFICATO
+export const approveCertificationRequest = async (
+  requestId: string,
+  payload?: ReviewerNotesDTO,
+): Promise<AbsenceCertificationReviewResponse> => {
+  const token = localStorage.getItem("accessToken")
+
+  const response = await authFetch(`/certifications/${requestId}/approve`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token && { Authorization: `Bearer ${token}` }),
+    },
+    body: payload ? JSON.stringify(payload) : undefined,
+  })
+
+  if (!response.ok) {
+    const errorData = await response.json()
+
+    throw new Error(
+      errorData.message || "Errore durante l'approvazione della richiesta.",
+    )
+  }
+
+  return response.json()
+}
+
+//RIFIUTA RICHIESTA CON CERTIFICATO
+export const rejectCertificationRequest = async (
+  requestId: string,
+  payload?: ReviewerNotesDTO,
+): Promise<AbsenceCertificationReviewResponse> => {
+  const token = localStorage.getItem("accessToken")
+
+  const response = await authFetch(`/certifications/${requestId}/reject`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token && { Authorization: `Bearer ${token}` }),
+    },
+    body: payload ? JSON.stringify(payload) : undefined,
+  })
+
+  if (!response.ok) {
+    const errorData = await response.json()
+
+    throw new Error(
+      errorData.message || "Errore durante il rifiuto della richiesta.",
+    )
+  }
+
+  return response.json()
+}
+
+// GET TUTTE LE RICHIESTE CERTIFICATE CON PAGINAZIONE E FILTRI
+export const getAllCertificationRequests = async (
+  page = 0,
+  size = 15,
+  name?: string,
+  status?: string,
+  startDate?: string,
+  endDate?: string,
+) => {
+  const token = localStorage.getItem("accessToken")
+
+  const params = new URLSearchParams({
+    page: page.toString(),
+    size: size.toString(),
+    sortBy: "createdAt",
+  })
+
+  if (name) params.append("name", name)
+  if (status) params.append("status", status)
+  if (startDate) params.append("startDate", startDate)
+  if (endDate) params.append("endDate", endDate)
+
+  const response = await authFetch(
+    `/certifications/search?${params.toString()}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token && {
+          Authorization: `Bearer ${token}`,
+        }),
+      },
+    },
+  )
+
+  if (!response.ok) {
+    throw new Error("Errore nel recupero delle richieste certificate.")
   }
 
   return response.json()
