@@ -44,6 +44,7 @@ import type {
 } from "../../types/requests"
 import { FaPencilAlt, FaRegTrashAlt } from "react-icons/fa"
 import "../../styles/mobileText.css"
+import type { ApiErrorResponse } from "../../types/auth"
 
 export type RequestType =
   | "HOLIDAY"
@@ -255,6 +256,10 @@ export const UserRequests = () => {
     setLoadingRequest(true)
 
     try {
+      if (!requestType) {
+        throw new Error("Seleziona il tipo di richiesta.")
+      }
+
       if (editingRequest) {
         // RICHIESTA APPROVATA
         if (isApprovedEdit) {
@@ -304,7 +309,7 @@ export const UserRequests = () => {
           await loadRequest()
           return
         }
-        if (isApprovedEdit) {
+        if (!isApprovedEdit) {
           //MODIFICA RICHIESTA SENT
           if (requestType === "HOLIDAY") {
             await updateHolidayRequest(editingRequest.id, {
@@ -355,12 +360,6 @@ export const UserRequests = () => {
       }
 
       if (requestType === "LEAVE_HOURS") {
-        await createLeaveHoursRequest({
-          date: date,
-          startTime: startTime,
-          endTime: endTime,
-          employeeNotes,
-        })
         if (!leaveHoursType) {
           throw new Error("Seleziona il tipo di permesso.")
         }
@@ -383,6 +382,10 @@ export const UserRequests = () => {
           throw new Error("Seleziona il tipo di certificato.")
         }
 
+        if (!protocolCode) {
+          throw new Error("Inserire il numero di protocollo.")
+        }
+
         await createAbsenceCertificationRequest({
           protocolCode,
           startDate: startDate,
@@ -401,12 +404,13 @@ export const UserRequests = () => {
 
       await loadRequest()
     } catch (error) {
-      console.error("Errore nell'invio della richiesta:", error)
-      alert(
-        error instanceof Error
-          ? error.message
-          : "Si è verificato un errore nell'invio della richiesta.",
-      )
+      const apiError = error as ApiErrorResponse
+
+      if (apiError.errorsList?.length) {
+        alert(apiError.errorsList.join("\n"))
+      } else {
+        alert(apiError.message)
+      }
     } finally {
       setLoadingRequest(false)
     }

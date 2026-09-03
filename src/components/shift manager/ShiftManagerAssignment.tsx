@@ -23,7 +23,7 @@ import type {
   Shift,
   ShiftAssignment,
 } from "../../types/shift"
-import { getActiveUsersForAssignment } from "../../services/userService"
+import { getActiveUsers } from "../../services/userService"
 import { fetchShifts } from "../../services/shiftService"
 import { FaPencilAlt, FaRegTrashAlt } from "react-icons/fa"
 
@@ -111,7 +111,7 @@ export const ShiftManagerAssignment = () => {
     setLoading(true)
 
     try {
-      const data = await getActiveUsersForAssignment()
+      const data = await getActiveUsers()
 
       setAssignedUser(data)
     } catch (err: unknown) {

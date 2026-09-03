@@ -1,4 +1,4 @@
-import type { UserProfileResponse } from "../types/users"
+import type { ActiveUser, UserProfileResponse } from "../types/users"
 import { authFetch } from "./apiClient"
 
 //GET MY PROFILE
@@ -47,10 +47,9 @@ export const updateMyAvatar = async (
 }
 
 //GET PER LISTA UTENTI PER NOME
-
-export const getActiveUsersForAssignment = async () => {
+export const getActiveUsers = async (): Promise<ActiveUser[]> => {
   try {
-    const response = await authFetch(`/users/active-for-assignment`, {
+    const response = await authFetch(`/users/active`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

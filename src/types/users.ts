@@ -109,3 +109,9 @@ export interface UserSummaryResponse {
   usedHours: number
   remainingHours: number
 }
+
+//UTENTI ATTIVI
+export interface ActiveUser {
+  userId: string
+  name: string
+}
