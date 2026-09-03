@@ -17,6 +17,11 @@ import { UserRequests } from "./components/users/UserRequests"
 import { UserShifts } from "./components/users/UserShifts"
 import { ShiftManagerRequests } from "./components/shift manager/ShiftManagerRequests"
 import { ShiftManagerMyAssignment } from "./components/shift manager/ShiftManagerMyAssignments"
+import { HrDashboard } from "./components/hr/HrDashboard"
+import { HrRequestsToManage } from "./components/hr/HrRequestsToManage"
+import { HrShifts } from "./components/hr/HrShifts"
+import { HrOffices } from "./components/hr/HrOffices"
+import { HrContracts } from "./components/hr/HrContracts"
 
 function App() {
   return (
@@ -24,12 +29,6 @@ function App() {
       <BrowserRouter>
         <main className="d-flex flex-column flex-grow-1">
           <Routes>
-            <Route path="/dashboard/admin" element={<AdminDashBoard />} />
-            <Route path="/offices/admin" element={<AdminOfficesContainer />} />
-            <Route
-              path="/offices/shift-manager"
-              element={<ShiftManagerOffices />}
-            />
             <Route path="/" element={<LandingPage />} />
             <Route path="/registration" element={<Registration />} />
             <Route path="/login" element={<Login />} />
@@ -39,12 +38,23 @@ function App() {
               path="/registration-pending"
               element={<RegistrationPending />}
             />
-            <Route path="/offices/staff" element={<UserOffices />} />
+
             <Route path="/dashboard/staff" element={<UserDashboard />} />
+            <Route path="/dashboard/admin" element={<AdminDashBoard />} />
             <Route
               path="/dashboard/shift-manager"
               element={<ShiftManagerDashboard />}
             />
+            <Route path="/dashboard/hr" element={<HrDashboard />} />
+
+            <Route
+              path="/offices/shift-manager"
+              element={<ShiftManagerOffices />}
+            />
+
+            <Route path="/offices/admin" element={<AdminOfficesContainer />} />
+            <Route path="/offices/staff" element={<UserOffices />} />
+
             <Route
               path="/shifts/shift-manager"
               element={<ShiftManagerTurni />}
@@ -65,6 +75,11 @@ function App() {
               path="/shifts-assignment/my-assignments"
               element={<ShiftManagerMyAssignment />}
             />
+
+            <Route path="/requests/hr" element={<HrRequestsToManage />} />
+            <Route path="/shifts/hr" element={<HrShifts />} />
+            <Route path="/offices/hr" element={<HrOffices />} />
+            <Route path="/contracts/hr" element={<HrContracts />} />
           </Routes>
         </main>
       </BrowserRouter>

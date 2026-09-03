@@ -30,6 +30,20 @@ import {
 import { PiBellRingingLight, PiUserLight } from "react-icons/pi"
 import { MdAddAPhoto } from "react-icons/md"
 import { ShiftManagerNavbar } from "./ShiftManagerNavbar"
+import {
+  approveChangeHolidayRequest,
+  approveChangeLeaveHoursRequest,
+  approveHolidayRequest,
+  approveLeaveHoursRequest,
+  getAllRequests,
+  rejectChangeHolidayRequest,
+  rejectChangeLeaveHoursRequest,
+  rejectHolidayRequest,
+  rejectLeaveHoursRequest,
+} from "../../services/requestService"
+import type { RequestResponseDTO } from "../../types/requests"
+import { TiTick } from "react-icons/ti"
+import { IoClose } from "react-icons/io5"
 
 export const ShiftManagerDashboard = () => {
   const [userProfile, setUserProfile] = useState<UserProfileResponse | null>(
@@ -56,6 +70,10 @@ export const ShiftManagerDashboard = () => {
 
   const [showClockOutModal, setShowClockOutModal] = useState(false)
   const [clockOutNote, setClockOutNote] = useState("")
+
+  const [allRequests, setAllRequests] = useState<RequestResponseDTO[]>([])
+
+  const sentRequests = allRequests.filter((req) => req.requestStatus === "SENT")
 
   const dispatch = useDispatch()
 
@@ -117,6 +135,123 @@ export const ShiftManagerDashboard = () => {
 
     fetchAssignmentsForDate()
   }, [selectedDate])
+
+  //FUNZIONE PER OTTENERE LE RICHIESTE
+  //tutte le richieste
+
+  const loadRequests = async () => {
+    try {
+      setLoading(true)
+
+      const data = await getAllRequests(0, 15)
+
+      setAllRequests(data.content)
+    } catch (error) {
+      console.error("Errore nel caricamento delle richieste:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadRequests()
+  }, [])
+
+  //APPROVA RICHIESTA
+  //funzione approva richiesta
+  const handleApprove = async (request: RequestResponseDTO) => {
+    try {
+      setLoading(true)
+
+      if (request.requestType === "HOLIDAY") {
+        await approveHolidayRequest(request.id)
+      }
+
+      if (request.requestType === "LEAVE_HOURS") {
+        await approveLeaveHoursRequest(request.id)
+      }
+      await loadRequests()
+      alert("Richiesta approvata con successo!")
+    } catch (error) {
+      console.error("Errore nell'approvazione:", error)
+      alert("Si è verificato un errore durante l'approvazione della richiesta.")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  //funzione rifiuta richiesta
+  const handleReject = async (request: RequestResponseDTO) => {
+    try {
+      setLoading(true)
+
+      if (request.requestType === "HOLIDAY") {
+        await rejectHolidayRequest(request.id)
+      }
+
+      if (request.requestType === "LEAVE_HOURS") {
+        await rejectLeaveHoursRequest(request.id)
+      }
+      await loadRequests()
+      alert("Richiesta rifiutata con successo!")
+    } catch (error) {
+      console.error("Errore nel rifiuto della richiesta:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // RICHIESTE DI MODIFICA DA LAVORARE
+
+  const handleApproveChangeRequest = async (request: RequestResponseDTO) => {
+    try {
+      if (request.requestType === "CHANGE_HOLIDAY") {
+        await approveChangeHolidayRequest(request.id)
+        await loadRequests()
+        alert("La richiesta di modifica ferie è stata approvata.")
+      } else if (request.requestType === "CHANGE_LEAVE_HOURS") {
+        await approveChangeLeaveHoursRequest(request.id)
+        await loadRequests()
+        alert("La richiesta di modifica del permesso è stata approvata.")
+      }
+    } catch (error) {
+      console.error(
+        "Errore nell'approvazione della richiesta di modifica:",
+        error,
+      )
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Si è verificato un errore durante l'approvazione della richiesta.",
+      )
+    }
+  }
+
+  //RIFIUTA RICHIESTA DI MODIFICA
+  const handleRejectChangeRequest = async (request: RequestResponseDTO) => {
+    try {
+      if (request.requestType === "CHANGE_HOLIDAY") {
+        await rejectChangeHolidayRequest(request.id)
+        await loadRequests()
+        alert("La richiesta di modifica ferie è stata rifiutata.")
+      }
+
+      if (request.requestType === "CHANGE_LEAVE_HOURS") {
+        await rejectChangeLeaveHoursRequest(request.id)
+        await loadRequests()
+        alert("La richiesta di modifica del permesso è stata rifiutata.")
+      }
+    } catch (error) {
+      console.error("Errore nel rifiuto della richiesta di modifica:", error)
+
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Si è verificato un errore durante il rifiuto della richiesta.",
+      )
+    }
+  }
 
   //VISUALIZZA TIMBRATURA
   useEffect(() => {
@@ -292,8 +427,6 @@ export const ShiftManagerDashboard = () => {
     }
   }
 
-  //funzione per colorare l'assegnazione
-
   return (
     <>
       <ShiftManagerNavbar />
@@ -314,14 +447,281 @@ export const ShiftManagerDashboard = () => {
                   className="position-relative d-inline-block"
                 >
                   <Button className="text-secondary border-0 bg-transparent">
-                    {" "}
                     <PiBellRingingLight size={26} />
+
+                    {sentRequests.length > 0 && (
+                      <span
+                        className="position-absolute top-0 start-100 badge rounded-pill bg-danger"
+                        style={{
+                          fontSize: "0.5rem",
+                          translate: "-100% -7%",
+                        }}
+                      >
+                        {sentRequests.length}
+                      </span>
+                    )}
                   </Button>
-                  <span
-                    className="position-absolute top-0 start-100  badge rounded-pill bg-danger"
-                    style={{ fontSize: "0.5rem", translate: "-100% -7%" }}
-                  ></span>
                 </Dropdown.Toggle>
+
+                <Dropdown.Menu
+                  className="shadow-sm border-0 p-2"
+                  style={{
+                    minWidth: "300px",
+                    maxHeight: "350px",
+                    overflowY: "auto",
+                  }}
+                >
+                  {sentRequests.length > 0 ? (
+                    sentRequests.map((req) => (
+                      <>
+                        {req.requestType === "HOLIDAY" && (
+                          <>
+                            <Dropdown.Header className="fw-bold text-dark">
+                              Richiesta di Ferie
+                            </Dropdown.Header>
+                            <Dropdown.Divider />
+
+                            <Dropdown.Item key={req.id}>
+                              <div className="px-2 py-2 d-flex justify-content-between align-items-center border-bottom">
+                                <div className="d-flex flex-column">
+                                  <p className="small-text mb-0">
+                                    Richiesta inviata da:
+                                    <span className="ms-1 fw-semibold">
+                                      {" "}
+                                      {req.employeeName}
+                                    </span>
+                                  </p>
+                                  <p className="small-text mb-0">
+                                    Per le date:
+                                    <span className="ms-1 fw-semibold">
+                                      {req.startDate} - {req.endDate}
+                                    </span>
+                                  </p>
+                                </div>
+                                <div className="ms-3">
+                                  <Button
+                                    className="bg-transparent border border-1 border-success p-0 me-1"
+                                    title="Approva"
+                                    onClick={() => handleApprove(req)}
+                                  >
+                                    <p className="mb-0 px-1 small-text">
+                                      <TiTick
+                                        size={15}
+                                        className="text-success fw-bold p-0"
+                                      />
+                                    </p>
+                                  </Button>
+                                  <Button
+                                    className="bg-transparent border border-1 border-danger p-0 ms-1"
+                                    title="Rifiuta"
+                                    onClick={() => handleReject(req)}
+                                  >
+                                    <p className="mb-0 px-1 small-text">
+                                      <IoClose
+                                        size={15}
+                                        className="text-danger fw-bold p-0"
+                                      />
+                                    </p>
+                                  </Button>
+                                </div>
+                              </div>
+                            </Dropdown.Item>
+                          </>
+                        )}{" "}
+                        {req.requestType === "CHANGE_HOLIDAY" && (
+                          <>
+                            <Dropdown.Header className="fw-bold text-dark">
+                              Richiesta di modifica Ferie
+                            </Dropdown.Header>
+                            <Dropdown.Divider />
+
+                            <Dropdown.Item key={req.id}>
+                              <div className="px-2 py-2 d-flex justify-content-between align-items-center border-bottom">
+                                <div className="d-flex flex-column">
+                                  <p className="small-text mb-0">
+                                    Richiesta inviata da:
+                                    <span className="ms-1 fw-semibold">
+                                      {" "}
+                                      {req.employeeName}
+                                    </span>
+                                  </p>
+                                  <p className="small-text mb-0">
+                                    Per le date:
+                                    <span className="ms-1 fw-semibold">
+                                      {req.startDate} - {req.endDate}
+                                    </span>
+                                  </p>
+                                </div>
+                                <div className="ms-3">
+                                  <Button
+                                    className="bg-transparent border border-1 border-success p-0 me-1"
+                                    title="Approva"
+                                    onClick={() =>
+                                      handleApproveChangeRequest(req)
+                                    }
+                                  >
+                                    <p className="mb-0 px-1 small-text">
+                                      <TiTick
+                                        size={15}
+                                        className="text-success fw-bold p-0"
+                                      />
+                                    </p>
+                                  </Button>
+                                  <Button
+                                    className="bg-transparent border border-1 border-danger p-0 ms-1"
+                                    title="Rifiuta"
+                                    onClick={() => {
+                                      handleRejectChangeRequest(req)
+                                    }}
+                                  >
+                                    <p className="mb-0 px-1 small-text">
+                                      <IoClose
+                                        size={15}
+                                        className="text-danger fw-bold p-0"
+                                      />
+                                    </p>
+                                  </Button>
+                                </div>
+                              </div>
+                            </Dropdown.Item>
+                          </>
+                        )}{" "}
+                        {req.requestType === "LEAVE_HOURS" && (
+                          <>
+                            <Dropdown.Header className="fw-bold text-dark">
+                              Richiesta ore di Permesso
+                            </Dropdown.Header>
+                            <Dropdown.Divider />
+
+                            <Dropdown.Item key={req.id}>
+                              <div className="px-2 py-2 d-flex justify-content-between align-items-center border-bottom">
+                                <div className="d-flex flex-column">
+                                  <p className="small-text mb-0">
+                                    Richiesta inviata da:
+                                    <span className="ms-1 fw-semibold">
+                                      {" "}
+                                      {req.employeeName}
+                                    </span>
+                                  </p>
+
+                                  <p className="small-text mb-0">
+                                    Per il giorno:
+                                    <span className="ms-1 fw-semibold">
+                                      {req.date}
+                                    </span>
+                                  </p>
+
+                                  <p className="small-text mb-0">
+                                    Dalle ore alle ore:
+                                    <span className="ms-1 fw-semibold">
+                                      {req.startTime} - {req.endTime}
+                                    </span>
+                                  </p>
+                                </div>
+                                <div className="ms-3">
+                                  <Button
+                                    className="bg-transparent border border-1 border-success p-0 me-1"
+                                    title="Approva"
+                                    onClick={() => handleApprove(req)}
+                                  >
+                                    <p className="mb-0 px-1 small-text">
+                                      <TiTick
+                                        size={15}
+                                        className="text-success fw-bold p-0"
+                                      />
+                                    </p>
+                                  </Button>
+                                  <Button
+                                    className="bg-transparent border border-1 border-danger p-0 ms-1"
+                                    title="Rifiuta"
+                                    onClick={() => {
+                                      handleReject(req)
+                                    }}
+                                  >
+                                    <p className="mb-0 px-1 small-text">
+                                      <IoClose
+                                        size={15}
+                                        className="text-danger fw-bold p-0"
+                                      />
+                                    </p>
+                                  </Button>
+                                </div>
+                              </div>
+                            </Dropdown.Item>
+                          </>
+                        )}{" "}
+                        {req.requestType === "CHANGE_LEAVE_HOURS" && (
+                          <>
+                            <Dropdown.Header className="fw-bold text-dark">
+                              Richiesta di modifica ore di permesso
+                            </Dropdown.Header>
+                            <Dropdown.Divider />
+
+                            <Dropdown.Item key={req.id}>
+                              <div className="px-2 py-2 d-flex justify-content-between align-items-center border-bottom">
+                                <div className="d-flex flex-column">
+                                  <p className="small-text mb-0">
+                                    Richiesta inviata da:
+                                    <span className="ms-1 fw-semibold">
+                                      {" "}
+                                      {req.employeeName}
+                                    </span>
+                                  </p>
+                                  <p className="small-text mb-0">
+                                    Per la data:
+                                    <span className="ms-1 fw-semibold">
+                                      {req.date}
+                                    </span>
+                                  </p>
+                                  <p className="small-text mb-0">
+                                    Dalle ore alle ore:
+                                    <span className="ms-1 fw-semibold">
+                                      {req.startTime} - {req.endTime}
+                                    </span>
+                                  </p>
+                                </div>
+                                <div className="ms-3">
+                                  <Button
+                                    className="bg-transparent border border-1 border-success p-0 me-1"
+                                    title="Approva"
+                                    onClick={() => {
+                                      handleApproveChangeRequest(req)
+                                    }}
+                                  >
+                                    <p className="mb-0 px-1 small-text">
+                                      <TiTick
+                                        size={15}
+                                        className="text-success fw-bold p-0"
+                                      />
+                                    </p>
+                                  </Button>
+                                  <Button
+                                    className="bg-transparent border border-1 border-danger p-0 ms-1"
+                                    title="Rifiuta"
+                                    onClick={() => {
+                                      handleRejectChangeRequest(req)
+                                    }}
+                                  >
+                                    <p className="mb-0 px-1 small-text">
+                                      <IoClose
+                                        size={15}
+                                        className="text-danger fw-bold p-0"
+                                      />
+                                    </p>
+                                  </Button>
+                                </div>
+                              </div>
+                            </Dropdown.Item>
+                          </>
+                        )}
+                      </>
+                    ))
+                  ) : (
+                    <Dropdown.Item disabled>
+                      Nessuna nuova richiesta
+                    </Dropdown.Item>
+                  )}
+                </Dropdown.Menu>
               </Dropdown>
             </div>
           </Col>

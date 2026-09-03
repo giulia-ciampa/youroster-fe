@@ -165,12 +165,18 @@ export const ShiftManagerTurni = () => {
       >
         {/* Barra superiore con titolo e pulsante */}
         <Row className="w-100 justify-content-center mb-4">
-          <Col
-            xs={12}
-            lg={11}
-            className="bg-light d-flex justify-content-between align-items-center"
-          >
-            <h3 className="m-0 small-title text-dark">Turni attivi</h3>
+          <Col xs={12} md={11} className="bg-light">
+            <div className=" d-flex align-items-center px-2">
+              <h3 className="m-0 small-title text-dark">Turni attivi</h3>
+
+              <Button
+                className="btn-custom1 rounded-circle d-flex align-items-center justify-content-center small-text ms-auto"
+                style={{ width: "30px", height: "30px", padding: "0" }}
+                onClick={handleOpenCreate}
+              >
+                <IoMdAdd />
+              </Button>
+            </div>
           </Col>
         </Row>
 
@@ -225,18 +231,6 @@ export const ShiftManagerTurni = () => {
                 ),
               )}
             </Row>
-          </Col>
-        </Row>
-        <Row className="w-100 justify-content-center mb-4">
-          <Col xs={12} md={11}>
-            <div className="d-flex align-items-center">
-              <Button
-                className="btn-custom1  d-flex align-items-center justify-content-center small-text"
-                onClick={handleOpenCreate}
-              >
-                Aggiungi un nuovo turno <IoMdAdd className="ms-1 " size={20} />
-              </Button>
-            </div>
           </Col>
         </Row>
       </Container>
