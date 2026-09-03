@@ -225,7 +225,9 @@ export const HrRequestsToManage = () => {
         {/* TITOLO */}
         <Row className="w-100 justify-content-center mb-3">
           <Col xs={12} md={11} className="ps-0">
-            <h3 className="small-title text-dark mb-0">Gestione richieste</h3>
+            <h3 className="small-title text-dark mb-0">
+              Gestione richieste con certificato
+            </h3>
           </Col>
         </Row>
 
@@ -282,71 +284,80 @@ export const HrRequestsToManage = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {pendingCertifications.map((req) => (
-                        <tr key={req.id}>
-                          {/* DATA CREAZIONE */}
-                          <td className="small-text text-dark">
-                            {req.createdAt}
-                          </td>
+                      {pendingCertifications &&
+                      pendingCertifications.length > 0 ? (
+                        pendingCertifications.map((req) => (
+                          <tr key={req.id}>
+                            {/* DATA CREAZIONE */}
+                            <td className="small-text text-dark">
+                              {req.createdAt}
+                            </td>
 
-                          {/* DIPENDENTE */}
-                          <td className="small-text text-dark">
-                            {req.employeeName}
-                          </td>
+                            {/* DIPENDENTE */}
+                            <td className="small-text text-dark">
+                              {req.employeeName}
+                            </td>
 
-                          {/*TIPO DI CERTIFICATO */}
-                          <td className=" richiesta_certificato  small-text text-dark">
-                            {translateRequestType(req.certificateType)}
-                          </td>
-                          {/* EMESSO IN DATA */}
-                          <td className="small-text text-dark">
-                            {req.issueDate}
-                          </td>
+                            {/*TIPO DI CERTIFICATO */}
+                            <td className=" richiesta_certificato  small-text text-dark">
+                              {translateRequestType(req.certificateType)}
+                            </td>
+                            {/* EMESSO IN DATA */}
+                            <td className="small-text text-dark">
+                              {req.issueDate}
+                            </td>
 
-                          {/*NUMERO DI PROTOCOLLO*/}
-                          <td className="small-text text-dark text-nowrap">
-                            {req.protocolCode}
-                          </td>
+                            {/*NUMERO DI PROTOCOLLO*/}
+                            <td className="small-text text-dark text-nowrap">
+                              {req.protocolCode}
+                            </td>
 
-                          {/*LINK CERTIFICATO */}
-                          <td className="small-text">
-                            <a
-                              href={req.certificateUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              Clicca qui
-                            </a>
-                          </td>
+                            {/*LINK CERTIFICATO */}
+                            <td className="small-text">
+                              <a
+                                href={req.certificateUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                Clicca qui
+                              </a>
+                            </td>
 
-                          {/* PERIODO*/}
-                          <td className="small-text text-dark">
-                            <div>
-                              {req.startDate} - {req.endDate}
-                            </div>
-                          </td>
+                            {/* PERIODO*/}
+                            <td className="small-text text-dark">
+                              <div>
+                                {req.startDate} - {req.endDate}
+                              </div>
+                            </td>
 
-                          {/* TOTALE GIORNI */}
-                          <td className="small-text text-dark">
-                            <>{req.totalDays} giorni</>
-                          </td>
+                            {/* TOTALE GIORNI */}
+                            <td className="small-text text-dark">
+                              <>{req.totalDays} giorni</>
+                            </td>
 
-                          {/* NOTE DIPENDENTE */}
-                          <td className="small-text text-dark">
-                            {req.employeeNotes || "-"}
-                          </td>
+                            {/* NOTE DIPENDENTE */}
+                            <td className="small-text text-dark">
+                              {req.employeeNotes || "-"}
+                            </td>
 
-                          {/* AZIONE */}
-                          <td className="small-text">
-                            <Button
-                              className="btn-custom1 p-1 text-nowrap smaller-text"
-                              onClick={() => handleOpenRequestModal(req)}
-                            >
-                              Lavora richiesta
-                            </Button>
+                            {/* AZIONE */}
+                            <td className="small-text">
+                              <Button
+                                className="btn-custom1 p-1 text-nowrap smaller-text"
+                                onClick={() => handleOpenRequestModal(req)}
+                              >
+                                Lavora richiesta
+                              </Button>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={10} className="text-muted">
+                            Nessuna richiesta da lavorare
                           </td>
                         </tr>
-                      ))}
+                      )}
                     </tbody>
                   </Table>
                 )}

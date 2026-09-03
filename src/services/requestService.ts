@@ -1,3 +1,4 @@
+import type { ApiErrorResponse } from "../types/auth"
 import type {
   AbsenceCertificationRequestDTO,
   AbsenceCertificationResponse,
@@ -88,10 +89,11 @@ export const createAbsenceCertificationRequest = async (
 
   if (!response.ok) {
     const errorData = await response.json()
-    throw new Error(
-      errorData.message ||
-        "Errore nella creazione della richiesta di malattia.",
-    )
+
+    const error = new Error(errorData.message) as ApiErrorResponse
+    error.errorsList = errorData.errorsList
+
+    throw error
   }
 
   return response.json()

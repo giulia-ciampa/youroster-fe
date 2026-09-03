@@ -27,6 +27,14 @@ import {
 } from "../../services/clockingsService"
 import { MdAddAPhoto } from "react-icons/md"
 import { useNavigate } from "react-router"
+import type { HrCertificationRequest } from "../../types/requests"
+import {
+  approveCertificationRequest,
+  getPendingCertificationRequests,
+  rejectCertificationRequest,
+} from "../../services/requestService"
+import { TiTick } from "react-icons/ti"
+import { IoClose } from "react-icons/io5"
 
 export const HrDashboard = () => {
   const [userProfile, setUserProfile] = useState<UserProfileResponse | null>(
@@ -53,6 +61,10 @@ export const HrDashboard = () => {
 
   const [showClockOutModal, setShowClockOutModal] = useState(false)
   const [clockOutNote, setClockOutNote] = useState("")
+
+  const [pendingCertifications, setPendingCertifications] = useState<
+    HrCertificationRequest[]
+  >([])
 
   const dispatch = useDispatch()
 
@@ -105,6 +117,75 @@ export const HrDashboard = () => {
 
     fetchAssignmentsForDate()
   }, [selectedDate])
+
+  //RICHIESTE CON CERTIFICATO DA APPROVARE
+  const fetchPendingCertifications = async () => {
+    try {
+      setLoading(true)
+
+      const response = await getPendingCertificationRequests()
+
+      setPendingCertifications(response.content)
+    } catch (error) {
+      console.error(
+        "Errore nel recupero delle certificazioni da lavorare:",
+        error,
+      )
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchPendingCertifications()
+  }, [])
+
+  //APPROVA RICHIESTA
+  const handleApproveRequest = async (request: HrCertificationRequest) => {
+    try {
+      setLoading(true)
+
+      await approveCertificationRequest(request.id)
+
+      alert("Richiesta approvata con successo.")
+
+      await fetchPendingCertifications()
+    } catch (error: unknown) {
+      console.error("Errore durante l'approvazione:", error)
+
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Errore durante l'approvazione della richiesta.",
+      )
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  //RIFIUTA RICHIESTA
+  const handleRejectRequest = async (request: HrCertificationRequest) => {
+    try {
+      setLoading(true)
+
+      await rejectCertificationRequest(request.id)
+
+      alert("Richiesta rifiutata con successo.")
+
+      await fetchPendingCertifications()
+    } catch (error: unknown) {
+      console.error("Errore durante il rifiuto:", error)
+
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Errore durante il rifiuto della richiesta.",
+      )
+    } finally {
+      setLoading(false)
+    }
+  }
 
   //VISUALIZZA TIMBRATURA
   useEffect(() => {
@@ -302,11 +383,87 @@ export const HrDashboard = () => {
                     {" "}
                     <PiBellRingingLight size={26} />
                   </Button>
-                  <span
-                    className="position-absolute top-0 start-100  badge rounded-pill bg-danger"
-                    style={{ fontSize: "0.5rem", translate: "-100% -7%" }}
-                  ></span>
+                  {pendingCertifications.length > 0 && (
+                    <span
+                      className="position-absolute top-0 start-100  badge rounded-pill bg-danger"
+                      style={{ fontSize: "0.5rem", translate: "-100% -7%" }}
+                    >
+                      {pendingCertifications.length}
+                    </span>
+                  )}
                 </Dropdown.Toggle>
+                <Dropdown.Menu
+                  className="shadow-sm border-0 p-2"
+                  style={{
+                    minWidth: "400px",
+                    maxHeight: "450px",
+                    overflowY: "auto",
+                  }}
+                >
+                  <Dropdown.Header className="fw-bold text-dark">
+                    Richieste con certificato
+                  </Dropdown.Header>
+                  <Dropdown.Divider />
+                  {pendingCertifications.length === 0 ? (
+                    <div className="text-center text-muted small py-3">
+                      Nessuna nuova richiesta
+                    </div>
+                  ) : (
+                    pendingCertifications.map((req) => (
+                      <div
+                        key={req.id}
+                        className="px-2 py-2 d-flex justify-content-between align-items-center border-bottom"
+                      >
+                        <div>
+                          <p className="text-dark small-text mb-0">
+                            Richiesta inviata da:{" "}
+                            <span className="fw-semibold ms-1">
+                              {req.employeeName}
+                            </span>
+                          </p>
+                          <p className="text-dark small-text mb-0">
+                            Con certificato di:{" "}
+                            <span className="fw-semibold ms-1">
+                              {req.certificateType}
+                            </span>
+                          </p>
+                          <p className="text-dark small-text mb-0">
+                            Per le date da a:{" "}
+                            <span className="fw-semibold ms-1">
+                              {req.startDate} - {req.endDate}
+                            </span>
+                          </p>
+                        </div>
+                        <div>
+                          <Button
+                            className="bg-transparent border border-1 border-success p-0 me-1"
+                            title="Approva"
+                            onClick={() => handleApproveRequest(req)}
+                          >
+                            <p className="mb-0 px-1 small-text">
+                              <TiTick
+                                size={15}
+                                className="text-success fw-bold p-0"
+                              />
+                            </p>
+                          </Button>
+                          <Button
+                            className="bg-transparent border border-1 border-danger p-0 ms-1"
+                            title="Rifiuta"
+                            onClick={() => handleRejectRequest(req)}
+                          >
+                            <p className="mb-0 px-1 small-text">
+                              <IoClose
+                                size={15}
+                                className="text-danger fw-bold p-0"
+                              />
+                            </p>
+                          </Button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </Dropdown.Menu>
               </Dropdown>
             </div>
           </Col>
@@ -532,7 +689,7 @@ export const HrDashboard = () => {
             </div>
           </Col>
 
-          {/* COLONNA DESTRA: Turno del giorno + Tabella colleghi */}
+          {/* COLONNA DESTRA: Turno del giorno */}
           <Col
             xs={12}
             md={7}
@@ -560,13 +717,19 @@ export const HrDashboard = () => {
             {todayAssignment?.assignmentType === "WORK" ? (
               <Card className="shadow-sm my-3">
                 <Card.Body>
-                  <Table striped bordered hover responsive>
+                  <Table
+                    striped
+                    bordered
+                    hover
+                    responsive
+                    className="text-center align-middle"
+                  >
                     <thead>
                       <tr>
-                        <th className="text-center text-smaller text-dark">
+                        <th className="text-center text-smaller text-dark w-50">
                           Ufficio/Sede
                         </th>
-                        <th className="text-center text-smaller text-dark">
+                        <th className="text-center text-smaller text-dark w-50">
                           Turno
                         </th>
                       </tr>
@@ -593,10 +756,10 @@ export const HrDashboard = () => {
                   <Table striped bordered hover responsive>
                     <thead>
                       <tr>
-                        <th className="text-center text-smaller text-dark">
+                        <th className="text-center text-smaller text-dark w-50">
                           Ufficio/Sede
                         </th>
-                        <th className="text-center text-smaller text-dark">
+                        <th className="text-center text-smaller text-dark w-50">
                           Turno
                         </th>
                       </tr>
@@ -623,10 +786,10 @@ export const HrDashboard = () => {
                   <Table striped bordered hover responsive>
                     <thead>
                       <tr>
-                        <th className="text-center text-smaller text-dark">
+                        <th className="text-center text-smaller text-dark w-50">
                           Ufficio/Sede
                         </th>
-                        <th className="text-center text-smaller text-dark">
+                        <th className="text-center text-smaller text-dark w-50">
                           Turno
                         </th>
                       </tr>
