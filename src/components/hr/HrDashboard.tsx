@@ -487,7 +487,7 @@ export const HrDashboard = () => {
             )}
 
             {loadingProfile ? (
-              <Spinner animation="border" size="sm" />
+              <Spinner variant="primary" animation="border" size="sm" />
             ) : (
               <>
                 {/* Contenitore tondo della foto con effetto hover/click */}

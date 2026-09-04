@@ -492,7 +492,7 @@ export const ShiftManagerMyAssignment = () => {
           <Col xs={12} md={11} className="ps-0">
             {loading ? (
               <div className="d-flex justify-content-center py-4">
-                <Spinner animation="border" />
+                <Spinner animation="border" variant="primary" />
               </div>
             ) : (
               <Card className="p-3 border border-1 border-secondary">

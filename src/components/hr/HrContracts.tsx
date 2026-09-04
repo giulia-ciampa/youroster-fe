@@ -371,7 +371,7 @@ export const HrContracts = () => {
             </div>
 
             <Card className="border border-1 border-secondary">
-              <div className="table-responsive">
+              <div className="table-responsive m-2">
                 <Table striped bordered hover>
                   <thead>
                     <tr>
@@ -411,7 +411,7 @@ export const HrContracts = () => {
                   <tbody>
                     {contracts.map((contract) => (
                       <tr key={contract.id}>
-                        <td className="small-text text-center align-middle">
+                        <td className="small-text text-center align-middle text-dark">
                           {contract.userName} {contract.userSurname}
                         </td>
 
@@ -419,28 +419,28 @@ export const HrContracts = () => {
                           {translateContractType(contract.contractType)}
                         </td>
 
-                        <td className="small-text text-center align-middle">
+                        <td className="small-text text-center align-middle text-dark">
                           {contract.startDate}
                         </td>
 
-                        <td className="small-text text-center align-middle">
+                        <td className="small-text text-center align-middle text-dark">
                           {contract.endDate ?? "—"}
                         </td>
 
-                        <td className="small-text text-center align-middle">
+                        <td className="small-text text-center align-middle text-dark">
                           {contract.workingHoursPerWeek}
                         </td>
 
-                        <td className="small-text text-center align-middle">
+                        <td className="small-text text-center align-middle text-dark">
                           {contract.daysOfLeaveDuePerYear}
                         </td>
 
-                        <td className="small-text text-center align-middle">
+                        <td className="small-text text-center align-middle text-dark">
                           {contract.hoursOfLeaveDuePerYear}
                         </td>
 
                         <td
-                          className={`small-text text-center align-middle ${getContractStatusClass(
+                          className={`small-text text-center align-middle text-dark ${getContractStatusClass(
                             contract.contractStatus,
                           )}`}
                         >
