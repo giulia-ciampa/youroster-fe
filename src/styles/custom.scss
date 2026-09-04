@@ -163,6 +163,17 @@ $light: $light-gold;
   font-weight: normal;
 }
 
+.sticky-column {
+  position: sticky !important;
+  left: 0 !important;
+  z-index: 2;
+  background-color: #f8f8f2 !important;
+}
+
+.backgroundOrange {
+  background-color: #ff7045;
+}
+
 /* Impedisce alla navbar di alterare le dimensioni e forza il menu a tendina a flottere correttamente */
 .custom-avatar-dropdown .dropdown-menu {
   position: absolute !important;
@@ -218,11 +229,6 @@ $light: $light-gold;
   .assignment-table-wrapper {
     max-height: 65vh;
   }
-}
-
-//_______________________________________
-.backgroundOrange {
-  background-color: #ff7045e4;
 }
 
 .backgroundPink {

@@ -111,7 +111,11 @@ const AdminNavbar = () => {
             >
               Dashboard
             </NavDropdown.Item>
-            <NavDropdown.Item href="#utenti" className="text-dark">
+            <NavDropdown.Item
+              className="text-dark"
+              as={NavLink}
+              to={"/users/admin"}
+            >
               Utenti
             </NavDropdown.Item>
             <NavDropdown.Item
@@ -138,7 +142,7 @@ const AdminNavbar = () => {
             >
               Dashboard
             </Nav.Link>
-            <Nav.Link href="#utenti" className="text-light">
+            <Nav.Link className="text-light" as={NavLink} to={"/users/admin"}>
               Utenti
             </Nav.Link>
             <Nav.Link as={NavLink} to={"/offices/admin"} className="text-light">

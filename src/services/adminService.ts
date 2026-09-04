@@ -2,6 +2,7 @@ import type {
   AdminApprovalRequestDTO,
   MessageResponseDTO,
 } from "../types/approveRequest"
+import type { PageResponse, UserProfileResponseDTO } from "../types/users"
 import { authFetch } from "./apiClient"
 
 // 1. SHIFT ASSIGNMENT BY DATE
@@ -116,4 +117,50 @@ export const fetchRejectAccount = async (
   }
 
   return await response.json()
+}
+
+//GET TUTTI GLI UTENTI
+export const getAllUsers = async (
+  page = 0,
+  size = 15,
+): Promise<PageResponse<UserProfileResponseDTO>> => {
+  const response = await authFetch(`/users?page=${page}&size=${size}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+
+  if (!response.ok) {
+    const errorData = await response.json()
+
+    throw new Error(errorData.message || "Errore nel recupero degli utenti.")
+  }
+
+  return response.json()
+}
+
+// AGGIORNA I RUOLI DELL'ACCOUNT
+
+export const updateUserRoles = async (
+  accountId: string,
+  roles: string[],
+): Promise<void> => {
+  const response = await authFetch(`/accounts/${accountId}/roles`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      roles,
+    }),
+  })
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null)
+
+    throw new Error(
+      errorData?.message || "Errore durante l'aggiornamento dei ruoli.",
+    )
+  }
 }

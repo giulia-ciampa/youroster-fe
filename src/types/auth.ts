@@ -28,7 +28,7 @@ export interface RegisterPayload {
   email: string
   password: string
   confirmPassword: string
-  avatar: File | null
+  avatar?: File | null
 }
 
 export interface ResisterResponse {

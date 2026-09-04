@@ -1,4 +1,5 @@
 import type { OfficeResponseDTO } from "../types/office"
+import type { UserBasicInformationResponseDTO } from "../types/users"
 import { authFetch } from "./apiClient"
 
 //1. GET ACTIVE OFFICES
@@ -82,6 +83,29 @@ export const fetchAllOffices = async (
     const errorData = await response.json()
     const errorMessage = errorData.message || JSON.stringify(errorData)
     throw new Error(errorMessage)
+  }
+
+  return await response.json()
+}
+
+//SALVA ASSEGNAZIONE UFFICIO ALL'UTENTE
+export const updateUserOffice = async (
+  userId: string,
+  officeId: string,
+): Promise<UserBasicInformationResponseDTO> => {
+  const response = await authFetch(`/users/${userId}/office/${officeId}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null)
+
+    throw new Error(
+      errorData?.message || "Errore durante l'aggiornamento della sede.",
+    )
   }
 
   return await response.json()
