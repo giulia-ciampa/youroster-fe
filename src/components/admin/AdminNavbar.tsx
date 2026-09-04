@@ -125,9 +125,7 @@ const AdminNavbar = () => {
             >
               Uffici
             </NavDropdown.Item>
-            <NavDropdown.Item href="#ruoli" className="text-dark">
-              Ruoli
-            </NavDropdown.Item>
+
             <NavDropdown.Item href="#turni" className="text-dark">
               Turni
             </NavDropdown.Item>
@@ -148,9 +146,7 @@ const AdminNavbar = () => {
             <Nav.Link as={NavLink} to={"/offices/admin"} className="text-light">
               Uffici
             </Nav.Link>
-            <Nav.Link href="#ruoli" className="text-light">
-              Ruoli
-            </Nav.Link>
+
             <Nav.Link href="#turni" className="text-light">
               Turni
             </Nav.Link>

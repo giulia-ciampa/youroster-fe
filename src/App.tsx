@@ -28,6 +28,7 @@ import { HrRequestsToManage } from "./components/hr/HrRequestsToManage"
 import { HrShifts } from "./components/hr/HrShifts"
 import { HrOffices } from "./components/hr/HrOffices"
 import { HrContracts } from "./components/hr/HrContracts"
+import { UserPersonalData } from "./components/users/UserPersonalData"
 
 function App() {
   return (
@@ -56,6 +57,7 @@ function App() {
             <Route path="/offices/staff" element={<UserOffices />} />
             <Route path="/requests/user" element={<UserRequests />} />
             <Route path="/shifts/user" element={<UserShifts />} />
+            <Route path="/personal-data/staff" element={<UserPersonalData />} />
 
             {/* SHIFT MANAGER */}
             <Route
