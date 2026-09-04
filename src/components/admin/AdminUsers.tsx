@@ -13,7 +13,7 @@ import AdminNavbar from "./AdminNavbar"
 import { useEffect, useState } from "react"
 import { FcSearch } from "react-icons/fc"
 import type { AccountStatus, UserProfileResponseDTO } from "../../types/users"
-import { getAllUsers } from "../../services/adminService"
+import { getAllUsers, updateUserRoles } from "../../services/adminService"
 import "../../styles/mobileText.css"
 import { FaPencilAlt } from "react-icons/fa"
 import { IoMdAdd } from "react-icons/io"
@@ -22,6 +22,8 @@ import {
   updateUserOffice,
 } from "../../services/officeService"
 import type { OfficeResponseDTO } from "../../types/office"
+import { fetchAllRoles } from "../../services/roleService"
+import type { RoleResponseDTO } from "../../types/role"
 
 export const AdminUsers = () => {
   const [searchName, setSearchName] = useState("")
@@ -32,6 +34,10 @@ export const AdminUsers = () => {
   const [selectedUser, setSelectedUser] =
     useState<UserProfileResponseDTO | null>(null)
   const [showOfficeModal, setShowOfficeModal] = useState(false)
+
+  const [showRoleModal, setShowRoleModal] = useState(false)
+  const [roles, setRoles] = useState<RoleResponseDTO[]>([])
+  const [selectedRoles, setSelectedRoles] = useState<string[]>([])
 
   //GET TUTTI GLI UTENTI
   const fetchUsers = async () => {
@@ -106,6 +112,31 @@ export const AdminUsers = () => {
     }
   }
 
+  //FUNZIONE APERTURA MODALE RUOLI
+  const handleOpenRoleModal = async (user: UserProfileResponseDTO) => {
+    try {
+      setSelectedUser(user)
+
+      // Preseleziona i ruoli che l'utente ha già
+      setSelectedRoles(user.roleNames)
+
+      // Recupera tutti i ruoli disponibili
+      const response = await fetchAllRoles()
+
+      setRoles(response)
+
+      setShowRoleModal(true)
+    } catch (error) {
+      console.error("Errore nel recupero dei ruoli:", error)
+
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Errore nel recupero dei ruoli.",
+      )
+    }
+  }
+
   //FUNZIONE ASSEGNAZIONE UFFICIO
   const handleSaveOffice = async () => {
     if (!selectedUser || !selectedOfficeId) {
@@ -130,6 +161,41 @@ export const AdminUsers = () => {
         error instanceof Error
           ? error.message
           : "Errore nell'aggiornamento della sede.",
+      )
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  //FUNZIONE ASSEGNA RUOLO
+  const handleSaveRoles = async () => {
+    if (!selectedUser?.accountId) {
+      return
+    }
+
+    try {
+      setLoading(true)
+
+      await updateUserRoles(selectedUser.accountId, selectedRoles)
+
+      setUsers((prevUsers) =>
+        prevUsers.map((user) =>
+          user.userId === selectedUser.userId
+            ? { ...user, roleNames: selectedRoles }
+            : user,
+        ),
+      )
+
+      alert("Ruoli aggiornati con successo.")
+
+      setShowRoleModal(false)
+    } catch (error) {
+      console.error("Errore durante l'aggiornamento dei ruoli:", error)
+
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Errore durante l'aggiornamento dei ruoli.",
       )
     } finally {
       setLoading(false)
@@ -196,6 +262,12 @@ export const AdminUsers = () => {
         return role
     }
   }
+
+  const filteredUsers = users.filter((user) => {
+    const fullName = `${user.name} ${user.surname}`.toLowerCase()
+
+    return fullName.includes(searchName.toLowerCase())
+  })
 
   return (
     <>
@@ -276,7 +348,7 @@ export const AdminUsers = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {users.map((user) => (
+                        {filteredUsers.map((user) => (
                           <tr key={user.userId}>
                             <td className="text-dark small-text">
                               {user.name} {user.surname}
@@ -306,6 +378,7 @@ export const AdminUsers = () => {
                                     <Button
                                       className="p-1 rounded-circle border-0 backgroundOrange text-light d-flex align-items-center justify-content-center"
                                       disabled={loading}
+                                      onClick={() => handleOpenRoleModal(user)}
                                     >
                                       <FaPencilAlt size={8} />
                                     </Button>
@@ -318,6 +391,7 @@ export const AdminUsers = () => {
                                     <Button
                                       className="p-1 btn-custom1 rounded-circle d-flex align-items-center justify-content-center small-text ms-auto"
                                       disabled={loading}
+                                      onClick={() => handleOpenRoleModal(user)}
                                     >
                                       <IoMdAdd size={7} className="p-0" />
                                     </Button>
@@ -432,6 +506,73 @@ export const AdminUsers = () => {
               variant="secondary"
               onClick={() => setShowOfficeModal(false)}
             >
+              Annulla
+            </Button>
+          </Modal.Footer>
+        </Modal>
+        {/*MODALE PER I RUOLI */}
+        <Modal
+          show={showRoleModal}
+          onHide={() => setShowRoleModal(false)}
+          centered
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>
+              {selectedUser && selectedUser.roleNames.length > 0
+                ? "Modifica ruoli"
+                : "Assegna ruoli"}
+            </Modal.Title>
+          </Modal.Header>
+
+          <Modal.Body>
+            {selectedUser && selectedUser.roleNames.length > 0 && (
+              <div className="mb-3">
+                <p className="mb-1 text-muted small-text">Ruoli attuali</p>
+
+                <p className="mb-0 fw-semibold">
+                  {selectedUser.roleNames
+                    .map((role) => translateRole(role))
+                    .join(", ")}
+                </p>
+              </div>
+            )}
+
+            <Form.Group>
+              <Form.Label>Ruoli</Form.Label>
+
+              {roles.map((role) => (
+                <Form.Check
+                  key={role.id}
+                  type="checkbox"
+                  label={translateRole(role.name)}
+                  value={role.name}
+                  checked={selectedRoles.includes(role.name)}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setSelectedRoles((prev) => [...prev, role.name])
+                    } else {
+                      setSelectedRoles((prev) =>
+                        prev.filter(
+                          (selectedRole) => selectedRole !== role.name,
+                        ),
+                      )
+                    }
+                  }}
+                />
+              ))}
+            </Form.Group>
+          </Modal.Body>
+
+          <Modal.Footer>
+            <Button
+              className="btn-custom1"
+              disabled={selectedRoles.length === 0 || loading}
+              onClick={handleSaveRoles}
+            >
+              Salva
+            </Button>
+
+            <Button variant="secondary" onClick={() => setShowRoleModal(false)}>
               Annulla
             </Button>
           </Modal.Footer>

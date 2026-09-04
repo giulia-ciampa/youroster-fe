@@ -17,7 +17,7 @@ export const fetchAssignmentsByDate = async (
 
   // Passiamo solo il percorso relativo, authFetch aggiungerà API_URL in automatico
   const response = await authFetch(
-    `/shift-assignment/by-date?${params.toString()}`,
+    `/shift-assignments/by-date?${params.toString()}`,
     {
       method: "GET",
     },
@@ -138,4 +138,29 @@ export const getAllUsers = async (
   }
 
   return response.json()
+}
+
+// AGGIORNA I RUOLI DELL'ACCOUNT
+
+export const updateUserRoles = async (
+  accountId: string,
+  roles: string[],
+): Promise<void> => {
+  const response = await authFetch(`/accounts/${accountId}/roles`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      roles,
+    }),
+  })
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null)
+
+    throw new Error(
+      errorData?.message || "Errore durante l'aggiornamento dei ruoli.",
+    )
+  }
 }

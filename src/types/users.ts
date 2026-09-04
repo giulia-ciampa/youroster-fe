@@ -147,6 +147,7 @@ export interface UserProfileResponseDTO {
   email: string
   accountStatus: AccountStatus
   officeId: string
+  accountId: string
 }
 
 export interface UserBasicInformationResponseDTO {
