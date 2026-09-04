@@ -1,3 +1,11 @@
+import { useState } from "react"
+import { useDispatch, useSelector } from "react-redux"
+import type { RootState } from "../../redux/store/store"
+import { PiUserCircleThin } from "react-icons/pi"
+import { NavLink, useNavigate } from "react-router"
+import { clearUser } from "../../redux/reducers/userSlice"
+import type { UpdateCredentialsPayload } from "../../types/auth"
+import { updateCredentials } from "../../services/authService"
 import {
   Container,
   Modal,
@@ -7,46 +15,36 @@ import {
   Form,
   Button,
 } from "react-bootstrap"
-import { PiUserCircleThin } from "react-icons/pi"
-import "../../styles/login.css"
 import { IoIosArrowDown } from "react-icons/io"
-import { NavLink, useNavigate } from "react-router"
-import { useState } from "react"
-import { updateCredentials } from "../../services/authService"
-import type { UpdateCredentialsPayload } from "../../types/auth"
 
-const AdminNavbar = () => {
+export const HrNavbar = () => {
   const [openModal, setOpenModal] = useState(false)
-  const storedPhoto = localStorage.getItem("photoUrl")
-  const userPhoto =
-    storedPhoto && storedPhoto !== "undefined" ? storedPhoto : null
-
-  const userAvatar = userPhoto ? (
-    <img
-      src={userPhoto}
-      alt="Admin Avatar"
-      className="avatar-circle"
-      style={{ width: "35px", height: "35px", objectFit: "cover" }}
-    />
-  ) : (
-    <PiUserCircleThin size={32} className="text-white" />
-  )
 
   const [email, setEmail] = useState("")
   const [oldPassword, setOldPassword] = useState("")
   const [newPassword, setNewPassword] = useState("")
   const [confirmNewPassword, setConfirmNewPassword] = useState("")
 
+  const userPhoto = useSelector((state: RootState) => state.user.photoUrl)
+
+  const userAvatar =
+    userPhoto && userPhoto !== "undefined" ? (
+      <img
+        src={userPhoto}
+        alt="User Avatar"
+        className="avatar-circle"
+        style={{ width: "35px", height: "35px", objectFit: "cover" }}
+      />
+    ) : (
+      <PiUserCircleThin size={32} className="text-white" />
+    )
+
   const navigate = useNavigate()
+  const dispatch = useDispatch()
 
   //funzione logout
   const handleLogout = () => {
-    // Rimuovi i dati salvati nel browser
-    localStorage.removeItem("accessToken")
-    localStorage.removeItem("photoUrl")
-    localStorage.removeItem("refreshToken")
-    localStorage.removeItem("roleName")
-
+    dispatch(clearUser())
     navigate("/")
   }
 
@@ -69,7 +67,7 @@ const AdminNavbar = () => {
       setConfirmNewPassword("")
     } catch (error: unknown) {
       console.error("Errore durante l'aggiornamento:", error)
-      // Gestione sicura dell'errore senza 'any'
+
       const errMessage =
         error instanceof Error
           ? error.message
@@ -77,7 +75,6 @@ const AdminNavbar = () => {
       alert(errMessage)
     }
   }
-
   return (
     <Navbar expand="sm" className="background-brand px-3">
       <Container
@@ -87,7 +84,8 @@ const AdminNavbar = () => {
         {/* PARTE SINISTRA: Logo YouRoster (desktop) o Menu a tendina (mobile) */}
         <div className="d-flex align-items-center">
           <Navbar.Brand
-            href="#"
+            as={NavLink}
+            to={"/"}
             className="fw-bold tracking-wide text-light d-none d-sm-inline me-3"
           >
             YouRoster
@@ -105,53 +103,89 @@ const AdminNavbar = () => {
           >
             <NavDropdown.Item
               as={NavLink}
-              to={"/dashboard/admin"}
+              to={"/dashboard/hr"}
               className="text-dark"
             >
               Dashboard
             </NavDropdown.Item>
+
             <NavDropdown.Item
-              className="text-dark"
               as={NavLink}
-              to={"/users/admin"}
+              to={"/personal-data/hr"}
+              className="text-dark"
             >
-              Utenti
+              Anagrafica
             </NavDropdown.Item>
+
             <NavDropdown.Item
               as={NavLink}
-              to={"/offices/admin"}
+              to={"/shifts/hr"}
+              className="text-dark text-nowrap"
+            >
+              Turni
+            </NavDropdown.Item>
+
+            <NavDropdown.Item
+              as={NavLink}
+              to={"/requests/hr"}
               className="text-dark"
+            >
+              Richieste
+            </NavDropdown.Item>
+
+            <NavDropdown.Item
+              as={NavLink}
+              to={"/contracts/hr"}
+              className="text-dark text-nowrap"
+            >
+              Contratti
+            </NavDropdown.Item>
+
+            <NavDropdown.Item
+              as={NavLink}
+              to={"/offices/hr"}
+              className="text-dark text-nowrap"
             >
               Uffici
-            </NavDropdown.Item>
-            <NavDropdown.Item href="#ruoli" className="text-dark">
-              Ruoli
-            </NavDropdown.Item>
-            <NavDropdown.Item href="#turni" className="text-dark">
-              Turni
             </NavDropdown.Item>
           </NavDropdown>
 
           {/* Link desktop */}
-          <Nav className="d-none d-sm-flex flex-row gap-3">
-            <Nav.Link
-              as={NavLink}
-              to={"/dashboard/admin"}
-              className="text-light"
-            >
+          <Nav className="d-none d-sm-flex flex-row gap-5">
+            <Nav.Link as={NavLink} to={"/dashboard/hr"} className="text-light">
               Dashboard
             </Nav.Link>
-            <Nav.Link className="text-light" as={NavLink} to={"/users/admin"}>
-              Utenti
+
+            <Nav.Link
+              as={NavLink}
+              to={"/personal-data/hr"}
+              className="text-light"
+            >
+              Anagrafica
             </Nav.Link>
-            <Nav.Link as={NavLink} to={"/offices/admin"} className="text-light">
-              Uffici
-            </Nav.Link>
-            <Nav.Link href="#ruoli" className="text-light">
-              Ruoli
-            </Nav.Link>
-            <Nav.Link href="#turni" className="text-light">
+
+            <Nav.Link as={NavLink} to={"/shifts/hr"} className="text-light">
               Turni
+            </Nav.Link>
+
+            <Nav.Link
+              as={NavLink}
+              to={"/requests/hr"}
+              className="text-light text-nowrap"
+            >
+              Richieste
+            </Nav.Link>
+
+            <Nav.Link
+              as={NavLink}
+              to={"/contracts/hr"}
+              className="text-light text-nowrap"
+            >
+              Contratti
+            </Nav.Link>
+
+            <Nav.Link as={NavLink} to={"/offices/hr"} className="text-light">
+              Uffici
             </Nav.Link>
           </Nav>
         </div>
@@ -179,7 +213,7 @@ const AdminNavbar = () => {
             <Modal.Title>Modifica Credenziali</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            {/*form per email e password */}
+            {/* form per email e password */}
 
             <h5 className="small-title text-dark">Modifica email</h5>
 
@@ -260,5 +294,3 @@ const AdminNavbar = () => {
     </Navbar>
   )
 }
-
-export default AdminNavbar

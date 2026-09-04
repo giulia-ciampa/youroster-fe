@@ -95,3 +95,66 @@ export interface CoordinatorResponse {
   officeName: string
   roleNames: string[]
 }
+
+//SUMMARY
+
+export interface UserSummaryResponse {
+  accruedDaysTotal: number
+  accruedDaysThisMonth: number
+  usedDays: number
+  remainingDays: number
+
+  accruedHoursTotal: number
+  accruedHoursThisMonth: number
+  usedHours: number
+  remainingHours: number
+}
+
+//UTENTI ATTIVI
+export interface ActiveUser {
+  userId: string
+  name: string
+}
+
+export type DocumentType = "IDENTITY_CARD" | "PASSPORT" | "DRIVING_LICENSE"
+export type AccountStatus = "PENDING" | "REJECTED" | "DISABLED" | "ACTIVE"
+
+export interface UserProfileResponseDTO {
+  userId: string
+  name: string
+  surname: string
+  dateOfBirth: string
+  placeOfBirth: string
+  phoneNumber: string
+  taxCode: string
+  photoUrl: string | null
+  streetAddress: string
+  houseNumber: string
+  zipCode: string
+  city: string
+  province: string
+  iban: string
+  documentNumber: string
+  documentType: DocumentType
+  issueDate: string
+  expirationDate: string
+  documentFrontUrl: string | null
+  documentBackUrl: string | null
+  taxCodeCardFrontUrl: string | null
+  taxCodeCardBackUrl: string | null
+  officeName: string
+  roleNames: string[]
+  email: string
+  accountStatus: AccountStatus
+  officeId: string
+}
+
+export interface UserBasicInformationResponseDTO {
+  userId: string
+  name: string
+  surname: string
+  phoneNumber: string
+  email: string
+  officeName: string
+  roleNames: string[]
+}
